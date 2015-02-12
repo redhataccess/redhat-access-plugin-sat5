@@ -23,7 +23,8 @@ mkdir -p tmp/sat5-telemetry-${VERSION}
 
 echo "Creating source tar..."
 cd source
-cp * ../tmp/sat5-telemetry-${VERSION}
+cp rh-telemetry-proxy-sat5.6.conf ../tmp/sat5-telemetry-${VERSION}
+cp gui/dist/scripts/scripts.js ../tmp/sat5-telemetry-${VERSION}
 cd ../tmp
 tar -cf ~/rpmbuild/SOURCES/sat5-telemetry-${VERSION}.tar.gz sat5-telemetry-${VERSION}
 

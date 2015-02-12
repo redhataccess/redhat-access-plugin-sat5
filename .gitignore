@@ -3,3 +3,8 @@
 tmp
 RPMS
 SRPMS
+source/gui/node_modules
+source/gui/bower_components
+source/gui/dist
+source/gui/.tmp
+source/gui/.sass-cache
