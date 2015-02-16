@@ -8,3 +8,8 @@ source/gui/bower_components
 source/gui/dist
 source/gui/.tmp
 source/gui/.sass-cache
+source/proxy/smartproxy/bin
+source/proxy/smartproxy/.classpath
+source/proxy/smartproxy/eclimd.log
+source/proxy/smartproxy/.metadata
+source/proxy/smartproxy/RemoteSystemsTempFiles
