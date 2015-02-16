@@ -28,13 +28,19 @@ echo OK
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d
 cp rh-telemetry-proxy-sat5.6.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/rh-telemetry-proxy-sat5.6.conf
+mkdir -p $RPM_BUILD_ROOT/var/www/html/javascript
+cp scripts.js $RPM_BUILD_ROOT/var/www/html/javascript/rhn-third-party.js
+mkdir -p $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
+cp proxy.war $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
 
 
 %files
 %config %attr(0644,root,root) /etc/httpd/conf.d/rh-telemetry-proxy-sat5.6.conf
+%config %attr(0644,root,root) /var/www/html/javascript/rhn-third-party.js
+%config %attr(0644,root,root) /usr/share/tomcat6/webapps/proxy.war
 
 
 %changelog
-* Tue Jan 27 2015 Chris Kyrouac <ckyrouac@redhat.com>
-- First version with httpd proxy.conf
+* Thu Feb 12 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Version 1
 

@@ -17,28 +17,47 @@ fi
 
 echo "Removing existing RPMS directory..."
 rm -rf ${PROJECT_ROOT}/RPMS
+echo "Done."
 
 echo "Making tmp directory..."
-mkdir -p tmp/sat5-telemetry-${VERSION}
+mkdir -p .rpm-work/sat5-telemetry-${VERSION}
+echo "Done."
+
+echo "Building angular project..."
+cd $PROJECT_ROOT/source/gui
+npm install
+bower install
+grunt build
+echo "Done."
+
+echo "Building proxy server..."
+cd $PROJECT_ROOT/source/proxy/smartproxy
+mvn install
+echo "Done."
 
 echo "Creating source tar..."
-cd source
-cp rh-telemetry-proxy-sat5.6.conf ../tmp/sat5-telemetry-${VERSION}
-cp gui/dist/scripts/scripts.js ../tmp/sat5-telemetry-${VERSION}
-cd ../tmp
+cd $PROJECT_ROOT/source
+cp rh-telemetry-proxy-sat5.6.conf ../.rpm-work/sat5-telemetry-${VERSION}
+cp gui/dist/scripts/scripts.js ../.rpm-work/sat5-telemetry-${VERSION}
+cp proxy/smartproxy/target/proxy.war ../.rpm-work/sat5-telemetry-${VERSION}
+cd $PROJECT_ROOT/.rpm-work
 tar -cf ~/rpmbuild/SOURCES/sat5-telemetry-${VERSION}.tar.gz sat5-telemetry-${VERSION}
+echo "Done."
 
 echo "Copying spec file to ~/rpmbuild..."
 cd $PROJECT_ROOT
 cp sat5-telemetry.spec ~/rpmbuild/SPECS/sat5-telemetry.spec
-rm -rf tmp
+rm -rf .rpm-work
+echo "Done."
 
 echo "Running rpmbuild..."
 cd ~/rpmbuild/BUILD
 rpmbuild --clean --rmsource --rmspec -ba ../SPECS/sat5-telemetry.spec
+echo "Done."
 
 echo "Copying RPMs..."
-cp -r ../RPMS ${PROJECT_ROOT}/RPMS
-cp -r ../SRPMS ${PROJECT_ROOT}/SRPMS
+cp -r ../RPMS ${PROJECT_ROOT}/.tmp/RPMS
+cp -r ../SRPMS ${PROJECT_ROOT}/.tmp/SRPMS
+echo "Done."
 
 #sign the rpm
