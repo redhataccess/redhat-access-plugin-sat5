@@ -1,0 +1,16 @@
+#!/bin/bash
+WAR_NAME=insights.war
+JS_NAME=scripts.js
+SAT_HOSTNAME=sat57.usersys.redhat.com
+
+echo "Copying javascript..."
+scp source/gui/dist/scripts/$JS_NAME root@$SAT_HOSTNAME:/var/www/html/javascript/rhn-third-party.js
+echo -e "Done.\n"
+
+echo "Copying war..."
+scp source/proxy/smartproxy/target/$WAR_NAME root@$SAT_HOSTNAME:/usr/share/tomcat6/webapps
+echo -e "Done.\n"
+
+echo "Restarting satellite..."
+ssh root@$SAT_HOSTNAME -t rhn-satellite restart
+echo -e "Done.\n"
