@@ -10,7 +10,7 @@ public class SmartProxyApplication extends Application {
    private Set<Object> singletons = new HashSet<Object>();
 
    public SmartProxyApplication() {
-      singletons.add(new RestService());
+      singletons.add(new ProxyService());
    }
 
    @Override

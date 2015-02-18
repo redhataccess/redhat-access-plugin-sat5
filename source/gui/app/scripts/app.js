@@ -41,18 +41,12 @@ angular.module('sat5TelemetryApp', [])
   }
 })
 .run(function($http) {
-  $http.get('/blah').
-    success(function(data, status, headers, config) {
-      console.log(data);
-      console.log(status);
-      console.log(headers);
-      console.log(config);
+  $http.get('/insights/rs/telemetry/api/groups').
+    success(function(response) {
+      console.log('success get api/groups');
     }).
-    error(function(data, status, headers, config) {
-      console.log(data);
-      console.log(status);
-      console.log(headers);
-      console.log(config);
+    error(function(error) {
+      console.log('error get api/groups');
     });
 });
 

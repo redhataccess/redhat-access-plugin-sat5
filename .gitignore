@@ -10,6 +10,10 @@ source/gui/.tmp
 source/gui/.sass-cache
 source/proxy/smartproxy/bin
 source/proxy/smartproxy/.classpath
+source/proxy/smartproxy/target
+source/proxy/smartproxy/.metadata/
+source/proxy/smartproxy/RemoteSystemsTempFiles/
+source/proxy/smartproxy/eclimd.log
+source/proxy/.metadata/
+source/proxy/RemoteSystemsTempFiles/
 source/proxy/eclimd.log
-source/proxy/.metadata
-source/proxy/RemoteSystemsTempFiles

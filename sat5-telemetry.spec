@@ -12,8 +12,7 @@ BuildArch: noarch
 #Requires:	
 
 %description
-Setup a forward tunneling proxy to the Red Hat Customer Portal,
-GUI extensions, and a config channel in a Satellite 5 server.
+Telemetry
 
 
 %prep
@@ -31,13 +30,13 @@ cp rh-telemetry-proxy-sat5.6.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/rh-telemetry-
 mkdir -p $RPM_BUILD_ROOT/var/www/html/javascript
 cp scripts.js $RPM_BUILD_ROOT/var/www/html/javascript/rhn-third-party.js
 mkdir -p $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
-cp proxy.war $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
+cp insights.war $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
 
 
 %files
 %config %attr(0644,root,root) /etc/httpd/conf.d/rh-telemetry-proxy-sat5.6.conf
 %config %attr(0644,root,root) /var/www/html/javascript/rhn-third-party.js
-%config %attr(0644,root,root) /usr/share/tomcat6/webapps/proxy.war
+%config %attr(0644,root,root) /usr/share/tomcat6/webapps/insights.war
 
 
 %changelog
