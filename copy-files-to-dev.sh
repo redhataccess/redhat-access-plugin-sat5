@@ -3,6 +3,8 @@ WAR_NAME=insights.war
 JS_NAME=scripts.js
 SAT_HOSTNAME=sat57.usersys.redhat.com
 
+cd /home/chris/dev/projects/active/sat5-telemetry
+
 echo "Copying javascript..."
 scp source/gui/dist/scripts/$JS_NAME root@$SAT_HOSTNAME:/var/www/html/javascript/rhn-third-party.js
 echo -e "Done.\n"
