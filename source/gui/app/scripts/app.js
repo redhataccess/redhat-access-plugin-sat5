@@ -98,9 +98,20 @@ SYSTEM_DETAILS_PAGE_URLS) {
       insertAfter($('#sidenav > ul > li:last'));
     if (isOnPage(ADMIN_PAGE_URLS.INSIGHTS)) {
       var currentSelection = $('#sidenav > ul > li .active')[0];
-      if (currentSelection.parentElement.parentElement.tagName === 'LI') {
+      if (currentSelection && currentSelection.parentElement && 
+          currentSelection.parentElement.parentElement &&
+          currentSelection.parentElement.parentElement.tagName === 'LI') {
         currentSelection.parentElement.remove();
       }
+
+      currentSelection = $('#sidenav > ul > li.active')[0];
+      if (currentSelection &&
+          currentSelection.nextElementSibling &&
+          currentSelection.nextElementSibling.firstElementChild &&
+          currentSelection.nextElementSibling.firstElementChild.tagName === 'UL') {
+        currentSelection.nextElementSibling.remove();
+      }
+
       $('#sidenav > ul > li').removeClass('active');
       $('#sidenav > ul > li:last').addClass('active');
     }
