@@ -9,8 +9,12 @@
 angular.module('sat5TelemetryApp')
   .directive('healthIcon', function () {
     return {
-      template: '<i class="fa fa-check-circle fa-1-5x text-success" title="No problems"></i>',
+      controller: 'HealthIcon',
+      templateUrl: 'scripts/views/healthIcon.html',
       restrict: 'E',
+      scope: {
+        sid: '='
+      },
       link: function postLink(scope, element, attrs) {
       }
     };

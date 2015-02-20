@@ -9,8 +9,11 @@
  * Main module of the application.
  */
 angular.module('sat5TelemetryApp', [])
+.constant('EVENTS', {
+  'SYSTEMS_POPULATED': 'systems_populated'
+})
 .constant('SYSTEM_PAGE_URLS', {
-  'SYSTEM_OVERVIEW': 'systems/Overview.do',
+  'SYSTEM_OVERVIEW': 'systems/Overview.do?',
   'SYSTEMS': 'systems/SystemList.do',
   'PHYSICAL': 'systems/PhysicalList.do',
   'VIRTUAL': 'systems/VirtualSystemsList.do',
@@ -43,61 +46,45 @@ angular.module('sat5TelemetryApp', [])
   'SYSTEM_DETAILS': 'systems/details'
 })
 .constant('_', window._)
-.config(function(
-SYSTEM_PAGE_URLS, 
-ROOT_URLS, 
-ADMIN_PAGE_URLS, 
-SYSTEM_DETAILS_PAGE_URLS) {
-
-  function isOnPage(page) {
-    var response = false;
-    if (window.location.pathname.indexOf('/rhn/' + page) === 0) {
-      response = true;
-    }
-    return response;
-  }
-
-  function isOnSystemDetailsPage() {
-    var response = false;
-    if (isOnPage(SYSTEM_DETAILS_PAGE_URLS.OVERVIEW) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.PROPERTIES) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.HARDWARE) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.MIGRATE) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.NOTES) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
-      response = true;
-    }
-    return response;
-  }
-
-  function getSidFromQueryParams() {
-    var sidIndex = window.location.search.indexOf('sid=');
-    var nextParamIndex = window.location.search.indexOf('&', sidIndex);
-    var sid = null;
-    if (nextParamIndex === -1) {
-      sid = window.location.search.slice(sidIndex + 4);
-    } else {
-      sid = window.location.search.slice(sidIndex + 4, nextParamIndex);
-    }
-    return sid;
-  }
+.run(function(
+          _,
+          $http,
+          Systems,
+          Util,
+          SYSTEM_PAGE_URLS, 
+          ROOT_URLS, 
+          ADMIN_PAGE_URLS, 
+          SYSTEM_DETAILS_PAGE_URLS) {
 
   //Check which page we're on then make appropriate changes to dom
-  if (isOnPage(SYSTEM_PAGE_URLS.SYSTEM_OVERVIEW)) {
+  if (Util.isOnPage(SYSTEM_PAGE_URLS.SYSTEMS) ||
+      Util.isOnPage(SYSTEM_PAGE_URLS.PHYSICAL) ||
+      Util.isOnPage(SYSTEM_PAGE_URLS.OUT_OF_DATE) ||
+      Util.isOnPage(SYSTEM_PAGE_URLS.REQUIRING_REBOOT) ||
+      Util.isOnPage(SYSTEM_PAGE_URLS.UNGROUPED) ||
+      Util.isOnPage(SYSTEM_PAGE_URLS.INACTIVE) ||
+      Util.isOnPage(SYSTEM_PAGE_URLS.RECENTLY_REGISTERED)) {
+
     var HEALTH_TABLE_POS = 1;
 
     $('<th>Insight</th>').insertAfter(
       $('.table > thead > tr > th:eq(' + HEALTH_TABLE_POS + ')'));
-    
+
     var count = $('.table > tbody > tr').length;
     for(var i = 0; i < count; i++) {
-      $('<th><health-icon/></th>').insertAfter(
+      var systemUrl = $('.table > tbody > tr:eq(' + i + ') > td:eq(1) > a')[0].href;
+      var sid = Util.getSidFromUrl(systemUrl);
+
+      $('<th><health-icon sid="' + sid + '"/></th>').insertAfter(
         $('.table > tbody > tr:eq(' + i + ') > td:eq(' + HEALTH_TABLE_POS + ')'));
     }
-  } else if (isOnPage(ROOT_URLS.ADMIN)) {
+
+    Systems.populate();
+
+  } else if (Util.isOnPage(ROOT_URLS.ADMIN)) {
     $('<li><a href="/rhn/admin/Insights.do">Insights</a></li>').
       insertAfter($('#sidenav > ul > li:last'));
-    if (isOnPage(ADMIN_PAGE_URLS.INSIGHTS)) {
+    if (Util.isOnPage(ADMIN_PAGE_URLS.INSIGHTS)) {
       var currentSelection = $('#sidenav > ul > li .active')[0];
       if (currentSelection && currentSelection.parentElement && 
           currentSelection.parentElement.parentElement &&
@@ -118,28 +105,19 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
       $('#spacewalk-content').append('<basic-auth-form/>');
     }
-  } else if (isOnSystemDetailsPage()) {
+  } else if (Util.isOnSystemDetailsPage()) {
     $('<li><a href="/rhn/systems/details/Insights.do?' + 
-      'sid=' + getSidFromQueryParams() + '">Insights</a></li>').insertAfter(
+      'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(
         $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last')); 
-    if (isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
+    if (Util.isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
       $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li').
         removeClass('active');
       $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last').
         addClass('active');
     }
   }
-})
-.run(function($http) {
-  $http.get('/insights/rs/telemetry/api/groups').
-    success(function(response) {
-      console.log('success get api/groups');
-    }).
-    error(function(error) {
-      console.log('error get api/groups');
-    });
 });
 
 angular.element(document).ready(function() {
   angular.bootstrap(document, ['sat5TelemetryApp']);
-}) 
+});
