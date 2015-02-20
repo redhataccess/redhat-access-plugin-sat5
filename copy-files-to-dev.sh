@@ -6,7 +6,8 @@ SAT_HOSTNAME=sat57.usersys.redhat.com
 cd /home/chris/dev/projects/active/sat5-telemetry
 
 echo "Copying javascript..."
-scp source/gui/dist/scripts/$JS_NAME root@$SAT_HOSTNAME:/var/www/html/javascript/rhn-third-party.js
+scp source/gui/dist/scripts/$JS_NAME root@$SAT_HOSTNAME:/var/www/html/javascript/scripts.js
+scp source/gui/dist/scripts/$JS_NAME.map root@$SAT_HOSTNAME:/var/www/html/javascript/scripts.js.map
 echo -e "Done.\n"
 
 echo "Copying war..."

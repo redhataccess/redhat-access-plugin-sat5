@@ -42,6 +42,7 @@ angular.module('sat5TelemetryApp', [])
   'SYSTEMS': 'systems',
   'SYSTEM_DETAILS': 'systems/details'
 })
+.constant('_', window._)
 .config(function(
 SYSTEM_PAGE_URLS, 
 ROOT_URLS, 
@@ -50,7 +51,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   function isOnPage(page) {
     var response = false;
-    if (window.location.href.indexOf('rhn/' + page) !== -1) {
+    if (window.location.pathname.indexOf('/rhn/' + page) === 0) {
       response = true;
     }
     return response;
@@ -114,6 +115,8 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
       $('#sidenav > ul > li').removeClass('active');
       $('#sidenav > ul > li:last').addClass('active');
+
+      $('#spacewalk-content').append('<basic-auth-form/>');
     }
   } else if (isOnSystemDetailsPage()) {
     $('<li><a href="/rhn/systems/details/Insights.do?' + 

@@ -11,6 +11,7 @@ public class SmartProxyApplication extends Application {
 
    public SmartProxyApplication() {
       singletons.add(new ProxyService());
+      singletons.add(new ConfigService());
    }
 
    @Override

@@ -26,12 +26,19 @@ module.exports = function (grunt) {
 
     // Project settings
     yeoman: appConfig,
-
+    pkg: grunt.file.readJSON('package.json'),
     // Watches files for changes and runs tasks based on the changed files
     watch: {
       bower: {
         files: ['bower.json'],
         tasks: ['wiredep']
+      },
+      jade: {
+        files: [
+          '<%= yeoman.app %>/{app,components}/*',
+          '<%= yeoman.app %>/{app,components}/**/*.jade'
+        ],
+        tasks: ['jade']
       },
       js: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
@@ -60,6 +67,49 @@ module.exports = function (grunt) {
           '.tmp/styles/{,*/}*.css',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
+      }
+    },
+
+    jade: {
+      compile: {
+        options: {
+          pretty: true,
+          data: {
+            debug: false
+          }
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>/scripts/views',
+          src: [
+            '**/*.jade'
+          ],
+          dest: '<%= yeoman.app %>/scripts/views',
+          ext: '.html'
+        }]
+      }
+    },
+
+    // Package all the html partials into a single javascript payload
+    ngtemplates: {
+      options: {
+        // This should be the name of your apps angular module
+        module: '<%= pkg.name %>',
+        htmlmin: {
+          collapseBooleanAttributes: true,
+          collapseWhitespace: true,
+          removeAttributeQuotes: true,
+          removeEmptyAttributes: true,
+          removeRedundantAttributes: true,
+          removeScriptTypeAttributes: true,
+          removeStyleLinkTypeAttributes: true
+        },
+        usemin: 'scripts/scripts.js'
+      },
+      main: {
+        cwd: '<%= yeoman.app %>',
+        src: ['scripts/views/**/*.html'],
+        dest: '.tmp/templates.js'
       }
     },
 
@@ -235,12 +285,14 @@ module.exports = function (grunt) {
     useminPrepare: {
       html: '<%= yeoman.app %>/index.html',
       options: {
-        dest: '<%= yeoman.dist %>',
+        dest: '<%= yeoman.dist %>'
+        ,
         flow: {
           html: {
             steps: {
-              js: ['concat'
-                //,'uglifyjs'
+              js: [
+                'concat'
+                ,'uglifyjs'
               ],
               css: ['cssmin']
             },
@@ -267,27 +319,42 @@ module.exports = function (grunt) {
     // By default, your `index.html`'s <!-- Usemin block --> will take care of
     // minification. These next options are pre-configured if you do not wish
     // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/scripts/scripts.js': [
-    //         '<%= yeoman.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
+    cssmin: {
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/styles/main.css': [
+            '.tmp/styles/{,*/}*.css'
+          ]
+        }
+      }
+    },
+    uglify: {
+      options: {
+        beautify: true,
+        compress: false,
+        mangle: false,
+        preserveComments: 'all'
+      }
+    },
+    //uglify: {
+      //dist: {
+        //files: {
+          //'<%= yeoman.dist %>/scripts/scripts.js': [
+            //'<%= yeoman.dist %>/scripts/scripts.js'
+          //]
+        //}
+      //}
+    //},
+
+    //concat: {
+      //options: {
+        //separator: ';',
+      //},
+      //dist: {
+        //src: ['.tmp/concat/scripts/scripts.js', '.tmp/templates.js'],
+        //dest: 'dist/scripts/scripts2.js',
+      //},
+    //},
 
     imagemin: {
       dist: {
@@ -383,12 +450,14 @@ module.exports = function (grunt) {
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
+        'jade',
         'compass:server'
       ],
       test: [
         'compass'
       ],
       dist: [
+        'jade',
         'compass:dist',
         'imagemin',
         'svgmin'
@@ -440,12 +509,13 @@ module.exports = function (grunt) {
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
+    'ngtemplates',
     'concat',
     'ngAnnotate',
     'copy:dist',
     'cdnify',
     'cssmin',
-    //'uglify',
+    'uglify',
     //'filerev',
     'usemin',
     'htmlmin'
