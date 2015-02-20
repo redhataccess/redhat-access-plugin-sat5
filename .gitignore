@@ -9,6 +9,7 @@ source/gui/bower_components
 source/gui/dist
 source/gui/node_modules
 source/gui/scripts.js.map
+source/gui/app/scripts/views/*.html
 source/proxy/smartproxy/bin
 source/proxy/smartproxy/.classpath
 source/proxy/smartproxy/target
