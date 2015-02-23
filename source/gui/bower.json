@@ -2,7 +2,7 @@
   "name": "sat5-telemetry",
   "version": "0.0.0",
   "dependencies": {
-    "angular": "^1.3.0"
+    "angular": "~1.3.0"
   },
   "devDependencies": {
     "lodash": "~3.3.0"

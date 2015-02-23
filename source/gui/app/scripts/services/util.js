@@ -8,7 +8,7 @@
  * Service in the sat5TelemetryApp.
  */
 angular.module('sat5TelemetryApp')
-.service('Util', function () {
+.service('Util', function (SYSTEM_DETAILS_PAGE_URLS) {
 
   this.isOnPage = function(page) {
     var response = false;
@@ -20,27 +20,20 @@ angular.module('sat5TelemetryApp')
 
   this.isOnSystemDetailsPage = function() {
     var response = false;
-    if (isOnPage(SYSTEM_DETAILS_PAGE_URLS.OVERVIEW) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.PROPERTIES) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.HARDWARE) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.MIGRATE) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.NOTES) ||
-        isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
+    if (this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.OVERVIEW) ||
+        this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.PROPERTIES) ||
+        this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.HARDWARE) ||
+        this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.MIGRATE) ||
+        this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.NOTES) ||
+        this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
       response = true;
     }
     return response;
   };
 
   this.getSidFromUrl = function(url) {
-    var sidIndex = url.indexOf('sid=');
-    var nextParamIndex = url.indexOf('&', sidIndex);
-    var sid = null;
-    if (nextParamIndex === -1) {
-      sid = url.slice(sidIndex + 4);
-    } else {
-      sid = url.slice(sidIndex + 4, nextParamIndex);
-    }
-    return sid;
+    var query = new URI(window.location.href).query(true);
+    return query.sid;
   };
 
 });
