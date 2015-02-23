@@ -13,7 +13,7 @@ angular.module('sat5TelemetryApp', [])
   'SYSTEMS_POPULATED': 'systems_populated'
 })
 .constant('SYSTEM_PAGE_URLS', {
-  'SYSTEM_OVERVIEW': 'systems/Overview.do?',
+  'SYSTEM_OVERVIEW': 'systems/Overview.do',
   'SYSTEMS': 'systems/SystemList.do',
   'PHYSICAL': 'systems/PhysicalList.do',
   'VIRTUAL': 'systems/VirtualSystemsList.do',
@@ -63,7 +63,8 @@ angular.module('sat5TelemetryApp', [])
       Util.isOnPage(SYSTEM_PAGE_URLS.REQUIRING_REBOOT) ||
       Util.isOnPage(SYSTEM_PAGE_URLS.UNGROUPED) ||
       Util.isOnPage(SYSTEM_PAGE_URLS.INACTIVE) ||
-      Util.isOnPage(SYSTEM_PAGE_URLS.RECENTLY_REGISTERED)) {
+      Util.isOnPage(SYSTEM_PAGE_URLS.RECENTLY_REGISTERED) ||
+      Util.isOnSystemOverviewPage()) {
 
     var HEALTH_TABLE_POS = 1;
 

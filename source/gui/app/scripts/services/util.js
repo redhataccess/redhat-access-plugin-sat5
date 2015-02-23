@@ -8,7 +8,7 @@
  * Service in the sat5TelemetryApp.
  */
 angular.module('sat5TelemetryApp')
-.service('Util', function (SYSTEM_DETAILS_PAGE_URLS) {
+.service('Util', function (SYSTEM_DETAILS_PAGE_URLS, SYSTEM_PAGE_URLS) {
 
   this.isOnPage = function(page) {
     var response = false;
@@ -31,8 +31,20 @@ angular.module('sat5TelemetryApp')
     return response;
   };
 
-  this.getSidFromUrl = function(url) {
+  this.isOnSystemOverviewPage = function() {
+    var response = false;
     var query = new URI(window.location.href).query(true);
+    if (this.isOnPage(SYSTEM_PAGE_URLS.SYSTEM_OVERVIEW) &&
+        (query === undefined ||
+        query.showgroups === undefined ||
+        !$.parseJSON(query.showgroups))) {
+      response = true;
+    }
+    return response;
+  };
+
+  this.getSidFromUrl = function(url) {
+    var query = new URI(url).query(true);
     return query.sid;
   };
 
