@@ -8,7 +8,7 @@
  *
  * Main module of the application.
  */
-angular.module('sat5TelemetryApp', [])
+angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
 .constant('EVENTS', {
   'SYSTEMS_POPULATED': 'systems_populated'
 })
@@ -27,7 +27,8 @@ angular.module('sat5TelemetryApp', [])
   'PROXY': 'systems/ProxyList.do',
   'DUPLICATE': 'systems/DuplicateIPList.do',
   'CURRENCY': 'systems/SystemCurrency.do',
-  'DETAILS_OVERVIEW': 'systems/details/Overview.do'
+  'DETAILS_OVERVIEW': 'systems/details/Overview.do',
+  'INSIGHTS': 'systems/Insights.do'
 })
 .constant('ADMIN_PAGE_URLS', {
   'INSIGHTS': 'admin/Insights.do'
@@ -43,12 +44,24 @@ angular.module('sat5TelemetryApp', [])
 .constant('ROOT_URLS', {
   'ADMIN': 'admin',
   'SYSTEMS': 'systems',
-  'SYSTEM_DETAILS': 'systems/details'
+  'SYSTEM_DETAILS': 'systems/details',
+  'SSM': 'ssm',
+  'ACTIVATIONKEYS': 'activationkeys',
+  'PROFILES': 'profiles',
+  'KICKSTART': 'kickstart',
+  'KEYS': 'keys',
+  'RHN': 'rhn'
 })
 .constant('_', window._)
+.config(function($urlRouterProvider, $locationProvider) {
+  //$urlRouterProvider.otherwise('/');
+  $locationProvider.html5Mode(false);
+})
 .run(function(
           _,
           $http,
+          $state,
+          CONFIG,
           Systems,
           Util,
           SYSTEM_PAGE_URLS, 
@@ -56,7 +69,52 @@ angular.module('sat5TelemetryApp', [])
           ADMIN_PAGE_URLS, 
           SYSTEM_DETAILS_PAGE_URLS) {
 
+  CONFIG.API_ROOT = '/insights/rs/telemetry/api/';
+  CONFIG.authenticate = false;
+  CONFIG.preloadData = false;
+
+  function appendToSideNav(url, content) {
+    $('#sidenav > ul').append(
+      '<li><a href="/' + ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
+
+    //highlight Insights nav>li when selected
+    if (Util.isOnPage(url)) {
+      var currentSelection = $('#sidenav > ul > li .active')[0];
+      if (currentSelection && currentSelection.parentElement && 
+          currentSelection.parentElement.parentElement &&
+          currentSelection.parentElement.parentElement.tagName === 'LI') {
+        currentSelection.parentElement.remove();
+      }
+
+      currentSelection = $('#sidenav > ul > li.active')[0];
+      if (currentSelection &&
+          currentSelection.nextElementSibling &&
+          currentSelection.nextElementSibling.firstElementChild &&
+          currentSelection.nextElementSibling.firstElementChild.tagName === 'UL') {
+        currentSelection.nextElementSibling.remove();
+      }
+
+      $('#sidenav > ul > li').removeClass('active');
+      $('#sidenav > ul > li:last').addClass('active');
+
+      //***REMOVE BELOW COMMENT
+      //$('#spacewalk-content').append(content);
+      $('#spacewalk-content').append('<div ui-view="" class="wrapper ng-cloak" style="padding-top: 25px;"></div>');
+      $state.go('overview');
+    }
+  }
+
   //Check which page we're on then make appropriate changes to dom
+  if (Util.isOnPage(ROOT_URLS.SYSTEMS) || 
+      Util.isOnPage(ROOT_URLS.SSM) || 
+      Util.isOnPage(ROOT_URLS.ACTIVATIONKEYS) ||
+      Util.isOnPage(ROOT_URLS.PROFILES) ||
+      Util.isOnPage(ROOT_URLS.KICKSTART) ||
+      Util.isOnPage(ROOT_URLS.KEYS)) {
+    //Add Insights to side nav
+    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, '<rha-insights-overview/>');
+  }
+
   if (Util.isOnPage(SYSTEM_PAGE_URLS.SYSTEMS) ||
       Util.isOnPage(SYSTEM_PAGE_URLS.PHYSICAL) ||
       Util.isOnPage(SYSTEM_PAGE_URLS.OUT_OF_DATE) ||
@@ -81,31 +139,8 @@ angular.module('sat5TelemetryApp', [])
     }
 
     Systems.populate();
-
   } else if (Util.isOnPage(ROOT_URLS.ADMIN)) {
-    $('<li><a href="/rhn/admin/Insights.do">Insights</a></li>').
-      insertAfter($('#sidenav > ul > li:last'));
-    if (Util.isOnPage(ADMIN_PAGE_URLS.INSIGHTS)) {
-      var currentSelection = $('#sidenav > ul > li .active')[0];
-      if (currentSelection && currentSelection.parentElement && 
-          currentSelection.parentElement.parentElement &&
-          currentSelection.parentElement.parentElement.tagName === 'LI') {
-        currentSelection.parentElement.remove();
-      }
-
-      currentSelection = $('#sidenav > ul > li.active')[0];
-      if (currentSelection &&
-          currentSelection.nextElementSibling &&
-          currentSelection.nextElementSibling.firstElementChild &&
-          currentSelection.nextElementSibling.firstElementChild.tagName === 'UL') {
-        currentSelection.nextElementSibling.remove();
-      }
-
-      $('#sidenav > ul > li').removeClass('active');
-      $('#sidenav > ul > li:last').addClass('active');
-
-      $('#spacewalk-content').append('<basic-auth-form/>');
-    }
+    appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, '<basic-auth-form/>');
   } else if (Util.isOnSystemDetailsPage()) {
     $('<li><a href="/rhn/systems/details/Insights.do?' + 
       'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(
@@ -115,6 +150,7 @@ angular.module('sat5TelemetryApp', [])
         removeClass('active');
       $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last').
         addClass('active');
+      $('#spacewalk-content').append('<rha-insights-system-details/>');
     }
   }
 });
