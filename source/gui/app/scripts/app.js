@@ -60,6 +60,7 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
 .run(function(
           _,
           $http,
+          $location,
           $state,
           CONFIG,
           Systems,
@@ -73,7 +74,7 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
   CONFIG.authenticate = false;
   CONFIG.preloadData = false;
 
-  function appendToSideNav(url, content) {
+  function appendToSideNav(url, isState, content) {
     $('#sidenav > ul').append(
       '<li><a href="/' + ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
 
@@ -98,9 +99,12 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
       $('#sidenav > ul > li:last').addClass('active');
 
       //***REMOVE BELOW COMMENT
-      //$('#spacewalk-content').append(content);
-      $('#spacewalk-content').append('<div ui-view="" class="wrapper ng-cloak" style="padding-top: 25px;"></div>');
-      $state.go('overview');
+      if (isState) {
+        //$('#spacewalk-content').append('<div ui-view="" class="wrapper ng-cloak" style="padding-top: 25px;"></div>');
+        $state.go(content);
+      } else {
+        $('#spacewalk-content').append(content);
+      }
     }
   }
 
@@ -112,7 +116,7 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
       Util.isOnPage(ROOT_URLS.KICKSTART) ||
       Util.isOnPage(ROOT_URLS.KEYS)) {
     //Add Insights to side nav
-    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, '<rha-insights-overview/>');
+    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'overview');
   }
 
   if (Util.isOnPage(SYSTEM_PAGE_URLS.SYSTEMS) ||
@@ -140,7 +144,7 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
 
     Systems.populate();
   } else if (Util.isOnPage(ROOT_URLS.ADMIN)) {
-    appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, '<basic-auth-form/>');
+    appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<basic-auth-form/>');
   } else if (Util.isOnSystemDetailsPage()) {
     $('<li><a href="/rhn/systems/details/Insights.do?' + 
       'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(
@@ -150,7 +154,9 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
         removeClass('active');
       $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last').
         addClass('active');
-      $('#spacewalk-content').append('<rha-insights-system-details/>');
+      
+      $('#spacewalk-content').
+        append('<error-info-summary machine-id="' + Util.getSidFromUrl(window.location.search) + '" error-info=""/>');
     }
   }
 });
