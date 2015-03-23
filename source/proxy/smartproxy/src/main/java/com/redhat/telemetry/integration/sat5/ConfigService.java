@@ -23,7 +23,7 @@ public class ConfigService {
   @GET
   @Path("/credentials")
   @Produces("application/json")
-  public String getCreds(
+  public PortalCredentials getCreds(
       @CookieParam("pxt-session-cookie") String user) throws ConfigurationException, MalformedURLException {
 
     //TODO: only let satellite admin users read this file
@@ -31,7 +31,8 @@ public class ConfigService {
     //properties.setFile(new File(context.getRealPath("WEB-INF/insights.properties")));
     properties.load(context.getResourceAsStream("WEB-INF/insights.properties"));
     String username = properties.getString("username");
-    return username;
+    PortalCredentials creds = new PortalCredentials(username, "");
+    return creds;
   }
 
   @POST

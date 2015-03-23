@@ -8,43 +8,43 @@
  * Controller of the sat5TelemetryApp
  */
 angular.module('sat5TelemetryApp')
-.controller('BasicAuthForm', function (_, $scope, $http) {
+.controller('BasicAuthForm', function (_, $scope, $http, Sat5TelemetryAdmin) {
   $scope.username = '';
   $scope.password = '';
+  $scope.loading = true;
 
   $scope.disableUpdateButton = function() {
     var response = false;
-    if (_.isEmpty($scope.username) || _.isEmpty($scope.password)) {
+    if (_.isEmpty($scope.username) || 
+        _.isEmpty($scope.password) || 
+        $scope.loading) {
       response = true;
     }
     return response;
   };
 
+  $scope.postCreds = Sat5TelemetryAdmin.postCreds;
+
   $scope.doUpdate = function() {
-    $http({
-      method: 'POST',
-      url: '/insights/config/credentials',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      data: {'username': $scope.username, 'password': $scope.password}
-    }).success(function(response) {
-      console.log('updated username/password');
-    }).error(function(error) {
-      console.log(error);
-    });
+    $scope.loading = true;
+    Sat5TelemetryAdmin.postCreds($scope.username, $scope.password)
+      .success(function(response) {
+        $scope.loading = false;
+        $scope.password = '';
+      })
+      .error(function(error) {
+        console.log(error);
+        $scope.loading = false;
+      });
   };
 
-  $http({
-      method: 'GET',
-      url: '/insights/config/credentials',
-      headers: {
-        'Accept': 'application/json'
-      }
-    }).success(function(response) {
+  Sat5TelemetryAdmin.getCreds()
+    .success(function(response) {
       $scope.username = response.username;
-    }).error(function(error) {
+      $scope.loading = false;
+    })
+    .error(function(error) {
       console.log(error);
+      $scope.loading = false;
     });
 });

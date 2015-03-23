@@ -9,74 +9,31 @@
  * Main module of the application.
  */
 angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
-.constant('EVENTS', {
-  'SYSTEMS_POPULATED': 'systems_populated'
-})
-.constant('SYSTEM_PAGE_URLS', {
-  'SYSTEM_OVERVIEW': 'systems/Overview.do',
-  'SYSTEMS': 'systems/SystemList.do',
-  'PHYSICAL': 'systems/PhysicalList.do',
-  'VIRTUAL': 'systems/VirtualSystemsList.do',
-  'OUT_OF_DATE': 'systems/OutOfDate.do',
-  'REQUIRING_REBOOT': 'systems/RequiringReboot.do',
-  'EXTRA_PACKAGES': 'systems/ExtraPackagesSystems.do',
-  'UNENTITLED': 'systems/Unentitled.do',
-  'UNGROUPED': 'systems/Ungrouped.do',
-  'INACTIVE': 'systems/Inactive.do',
-  'RECENTLY_REGISTERED': 'systems/Registered.do',
-  'PROXY': 'systems/ProxyList.do',
-  'DUPLICATE': 'systems/DuplicateIPList.do',
-  'CURRENCY': 'systems/SystemCurrency.do',
-  'DETAILS_OVERVIEW': 'systems/details/Overview.do',
-  'INSIGHTS': 'systems/Insights.do'
-})
-.constant('ADMIN_PAGE_URLS', {
-  'INSIGHTS': 'admin/Insights.do'
-})
-.constant('SYSTEM_DETAILS_PAGE_URLS', {
-  'OVERVIEW': 'systems/details/Overview.do',
-  'PROPERTIES': 'systems/details/Edit.do',
-  'HARDWARE': 'systems/details/SystemHardware.do',
-  'MIGRATE': 'systems/details/SystemMigrate.do',
-  'NOTES': 'systems/details/Notes.do',
-  'INSIGHTS': 'systems/details/Insights.do'
-})
-.constant('ROOT_URLS', {
-  'ADMIN': 'admin',
-  'SYSTEMS': 'systems',
-  'SYSTEM_DETAILS': 'systems/details',
-  'SSM': 'ssm',
-  'ACTIVATIONKEYS': 'activationkeys',
-  'PROFILES': 'profiles',
-  'KICKSTART': 'kickstart',
-  'KEYS': 'keys',
-  'RHN': 'rhn'
-})
-.constant('_', window._)
 .config(function($urlRouterProvider, $locationProvider) {
   //$urlRouterProvider.otherwise('/');
   $locationProvider.html5Mode(false);
 })
 .run(function(
-          _,
-          $http,
-          $location,
-          $state,
-          CONFIG,
-          Systems,
-          Util,
-          SYSTEM_PAGE_URLS, 
-          ROOT_URLS, 
-          ADMIN_PAGE_URLS, 
-          SYSTEM_DETAILS_PAGE_URLS) {
+_,
+$http,
+$location,
+$state,
+CONFIG,
+Sat5TelemetrySystems,
+Util,
+SYSTEM_PAGE_URLS, 
+SAT5_ROOT_URLS, 
+ADMIN_PAGE_URLS, 
+SYSTEM_DETAILS_PAGE_URLS,
+TELEMETRY_URLS) {
 
-  CONFIG.API_ROOT = '/insights/rs/telemetry/api/';
+  CONFIG.API_ROOT = '/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/';
   CONFIG.authenticate = false;
   CONFIG.preloadData = false;
 
   function appendToSideNav(url, isState, content) {
     $('#sidenav > ul').append(
-      '<li><a href="/' + ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
+      '<li><a href="/' + SAT5_ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
 
     //highlight Insights nav>li when selected
     if (Util.isOnPage(url)) {
@@ -109,12 +66,12 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
   }
 
   //Check which page we're on then make appropriate changes to dom
-  if (Util.isOnPage(ROOT_URLS.SYSTEMS) || 
-      Util.isOnPage(ROOT_URLS.SSM) || 
-      Util.isOnPage(ROOT_URLS.ACTIVATIONKEYS) ||
-      Util.isOnPage(ROOT_URLS.PROFILES) ||
-      Util.isOnPage(ROOT_URLS.KICKSTART) ||
-      Util.isOnPage(ROOT_URLS.KEYS)) {
+  if (Util.isOnPage(SAT5_ROOT_URLS.SYSTEMS) || 
+      Util.isOnPage(SAT5_ROOT_URLS.SSM) || 
+      Util.isOnPage(SAT5_ROOT_URLS.ACTIVATIONKEYS) ||
+      Util.isOnPage(SAT5_ROOT_URLS.PROFILES) ||
+      Util.isOnPage(SAT5_ROOT_URLS.KICKSTART) ||
+      Util.isOnPage(SAT5_ROOT_URLS.KEYS)) {
     //Add Insights to side nav
     appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'overview');
   }
@@ -142,8 +99,8 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
         $('.table > tbody > tr:eq(' + i + ') > td:eq(' + HEALTH_TABLE_POS + ')'));
     }
 
-    Systems.populate();
-  } else if (Util.isOnPage(ROOT_URLS.ADMIN)) {
+    Sat5TelemetrySystems.populate();
+  } else if (Util.isOnPage(SAT5_ROOT_URLS.ADMIN)) {
     appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<basic-auth-form/>');
   } else if (Util.isOnSystemDetailsPage()) {
     $('<li><a href="/rhn/systems/details/Insights.do?' + 

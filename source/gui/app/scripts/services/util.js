@@ -8,11 +8,11 @@
  * Service in the sat5TelemetryApp.
  */
 angular.module('sat5TelemetryApp')
-.service('Util', function (SYSTEM_DETAILS_PAGE_URLS, SYSTEM_PAGE_URLS) {
+.service('Util', function (SYSTEM_DETAILS_PAGE_URLS, SYSTEM_PAGE_URLS, SAT5_ROOT_URLS) {
 
   this.isOnPage = function(page) {
     var response = false;
-    if (window.location.pathname.indexOf('/rhn/' + page) === 0) {
+    if (window.location.pathname.indexOf('/' + SAT5_ROOT_URLS.RHN + '/' + page) === 0) {
       response = true;
     }
     return response;
