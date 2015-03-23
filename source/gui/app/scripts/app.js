@@ -100,7 +100,7 @@ angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
 
       //***REMOVE BELOW COMMENT
       if (isState) {
-        //$('#spacewalk-content').append('<div ui-view="" class="wrapper ng-cloak" style="padding-top: 25px;"></div>');
+        $('#spacewalk-content').append('<ul><rha-telemetry-overview-side-nav/></ul>');
         $state.go(content);
       } else {
         $('#spacewalk-content').append(content);
