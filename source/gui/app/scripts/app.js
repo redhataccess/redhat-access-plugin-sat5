@@ -55,9 +55,7 @@ TELEMETRY_URLS) {
       $('#sidenav > ul > li').removeClass('active');
       $('#sidenav > ul > li:last').addClass('active');
 
-      //***REMOVE BELOW COMMENT
       if (isState) {
-        $('#spacewalk-content').append('<ul><rha-telemetry-overview-side-nav/></ul>');
         $state.go(content);
       } else {
         $('#spacewalk-content').append(content);
@@ -101,7 +99,7 @@ TELEMETRY_URLS) {
 
     Sat5TelemetrySystems.populate();
   } else if (Util.isOnPage(SAT5_ROOT_URLS.ADMIN)) {
-    appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<basic-auth-form/>');
+    appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>');
   } else if (Util.isOnSystemDetailsPage()) {
     $('<li><a href="/rhn/systems/details/Insights.do?' + 
       'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(

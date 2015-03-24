@@ -1,12 +1,18 @@
-div.spacewalk-toolbar-h1
-  h1
-    i.fa.fa-group
-    | Insights Configuration
 div.panel.panel-default
   div.panel-heading
-    h4 Red Hat Insights Configuration
+    h4 
+      | General Configuration&nbsp;&nbsp;
+      i.fa.fa-spinner.fa-spin.fa-1-5x(ng-show='loading')
   div.panel-body
     form.form-horizontal
+      div.form-group
+        label.col-lg-3.control-label(for='rha-insights-sat5-enabled') Enable Insights Service
+        div.col-lg-6
+          div.checkbox
+            input(
+              id='rha-insights-sat5-enabled',
+              type='checkbox', 
+              ng-model='enabled')
       div.form-group
         label(for='rha-insights-password').col-lg-3.control-label Customer Portal Username
         div.col-lg-6
@@ -17,5 +23,4 @@ div.panel.panel-default
           input#rha-insights-password.form-control(type='password', size='32', ng-model='password')
       div.form-group
         div.col-lg-offset-3.col-lg-6
-          input.btn.btn-success(value='Update', ng-click='doUpdate()', ng-disabled='disableUpdateButton()')
-          i.fa.fa-spinner.fa-spin.fa-1-5x(ng-show='loading')
+          input.btn.btn-success(type='submit', value='Update', ng-click='doUpdate()', ng-disabled='disableUpdateButton()')

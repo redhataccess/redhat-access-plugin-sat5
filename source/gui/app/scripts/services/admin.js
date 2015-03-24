@@ -2,19 +2,38 @@
 
 /**
  * @ngdoc service
- * @name sat5TelemetryApp.Sat5TelemetryAdmin
+ * @name sat5TelemetryApp.Admin
  * @description
  * # Systems
  * Service in the sat5TelemetryApp.
  */
 angular.module('sat5TelemetryApp')
-.factory('Sat5TelemetryAdmin', function (
+.factory('Admin', function (
 $http, 
 $rootScope, 
 EVENTS, 
 CONFIG_URLS, 
 HTTP_CONST,
-CONFIG_KEYS) {
+CONFIG_KEYS,
+ADMIN_TABS) {
+
+  var _tab = ADMIN_TABS.GENERAL;
+
+  var setTab = function(tab) {
+    _tab = tab;
+  };
+
+  var getTab = function() {
+    return _tab;
+  };
+
+  var generalTabSelected = function() {
+    return _tab === ADMIN_TABS.GENERAL;
+  };
+
+  var systemsTabSelected = function() {
+    return _tab === ADMIN_TABS.SYSTEMS;
+  };
 
   /**
    * Scrape the username off the page. 
@@ -24,13 +43,14 @@ CONFIG_KEYS) {
     return $('nav.navbar-pf > div.navbar-collapse > ul.navbar-nav > li > a[href="/rhn/account/UserDetails.do"]').text().trim();
   };
 
-  var postCreds = function(username, password) {
+  var postConfig = function(enabled, username, password) {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
     headers[HTTP_CONST.CONTENT_TYPE] = HTTP_CONST.APPLICATION_JSON;
     var params = {};
     params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
     var data = {};
+    data[CONFIG_KEYS.ENABLED] = enabled;
     data[CONFIG_KEYS.USERNAME] = username;
     data[CONFIG_KEYS.PASSWORD] = password;
     var promise = $http({
@@ -43,7 +63,7 @@ CONFIG_KEYS) {
     return promise;
   };
 
-  var getCreds = function() {
+  var getConfig = function() {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
     var params = {};
@@ -58,7 +78,11 @@ CONFIG_KEYS) {
   };
 
   return {
-    postCreds: postCreds,
-    getCreds: getCreds
+    postConfig: postConfig,
+    getConfig: getConfig,
+    setTab: setTab,
+    getTab: getTab,
+    generalTabSelected: generalTabSelected,
+    systemsTabSelected: systemsTabSelected
   };
 });

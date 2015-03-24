@@ -23,9 +23,9 @@ public class ConfigService {
   @Context ServletContext context;
 
   @GET
-  @Path("/credentials")
+  @Path("/")
   @Produces("application/json")
-  public PortalCredentials getCreds(
+  public Config getConfig(
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) 
           throws ConfigurationException, MalformedURLException {
@@ -34,18 +34,19 @@ public class ConfigService {
       PropertiesConfiguration properties = new PropertiesConfiguration();
       properties.load(context.getResourceAsStream("WEB-INF/insights.properties"));
       String username = properties.getString("username");
-      PortalCredentials creds = new PortalCredentials(username, "");
-      return creds;
+      boolean enabled = properties.getBoolean("enabled");
+      Config config = new Config(enabled, username, "");
+      return config;
     } else {
       throw new ForbiddenException("Must be satellite admin.");
     }   
   }
 
   @POST
-  @Path("/credentials")
+  @Path("/")
   @Consumes("application/json")
-  public Response postCreds(
-      PortalCredentials credentials,
+  public Response postConfig(
+      Config config,
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) 
           throws ConfigurationException, MalformedURLException {
@@ -53,8 +54,9 @@ public class ConfigService {
     if (userIsAdmin(sessionKey, satelliteUser)) {
       PropertiesConfiguration properties = new PropertiesConfiguration();
       properties.setFile(new File(context.getRealPath("WEB-INF/insights.properties")));
-      properties.setProperty("username", credentials.getUsername());
-      properties.setProperty("password", credentials.getPassword());
+      properties.setProperty("enabled", config.getEnabled());
+      properties.setProperty("username", config.getUsername());
+      properties.setProperty("password", config.getPassword());
       properties.save();
       return Response.status(200).build();
     } else {

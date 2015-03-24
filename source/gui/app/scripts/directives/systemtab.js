@@ -2,15 +2,15 @@
 
 /**
  * @ngdoc directive
- * @name sat5TelemetryApp.directive:basicAuthForm
+ * @name sat5TelemetryApp.directive:systemTab
  * @description
- * # healthIcon
+ * # systemTab
  */
 angular.module('sat5TelemetryApp')
-  .directive('basicAuthForm', function () {
+  .directive('rhaInsightsSat5SystemTab', function () {
     return {
-      controller: 'BasicAuthForm',
-      templateUrl: 'scripts/views/basicAuthForm.html',
+      controller: 'SystemTab',
+      templateUrl: 'scripts/views/systemTab.html',
       restrict: 'E',
       link: function postLink(scope, element, attrs) {
       }

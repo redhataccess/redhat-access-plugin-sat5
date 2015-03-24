@@ -54,16 +54,27 @@ angular.module('sat5TelemetryApp')
 .constant('CONFIG_KEYS', {
   'USERNAME': 'username',
   'PASSWORD': 'password',
-  'SATELLITE_USER': 'satellite_user'
+  'SATELLITE_USER': 'satellite_user',
+  'ENABLED': 'enabled'
 })
 .constant('TELEMETRY_API_KEYS', {
   'REMOTE_LEAF': 'REMOTE_LEAF'
 })
 .constant('CONFIG_URLS', {
-  'CREDENTIALS': '/insights/config/credentials'
+  'CREDENTIALS': '/insights/config'
 })
 .constant('TELEMETRY_URLS', {
   'SYSTEMS_SUMMARY': '/insights/rs/telemetry/api/v1/systems?summary=true',
   'API_ROOT': '/rs/telemetry/api'
+})
+.constant('ADMIN_TABS', {
+  'GENERAL': 'general',
+  'SYSTEMS': 'systems'
+})
+.constant('ALERT_TYPES', {
+  'DANGER': 'danger',
+  'WARNING': 'warning',
+  'INFO': 'info',
+  'SUCCESS': 'success'
 })
 .constant('_', window._);

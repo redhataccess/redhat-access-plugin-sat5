@@ -1,16 +1,26 @@
 package com.redhat.telemetry.integration.sat5;
 
-public class PortalCredentials {
+public class Config {
 
+  private boolean enabled;
   private String username;
   private String password;
 
-  public PortalCredentials() {
+  public Config() {
   }
 
-  public PortalCredentials(String username, String password) {
+  public Config(boolean enabled, String username, String password) {
+    this.enabled = enabled;
     this.username = username;
     this.password = password;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  public boolean getEnabled() {
+    return this.enabled;
   }
 
   public void setPassword(String password) {

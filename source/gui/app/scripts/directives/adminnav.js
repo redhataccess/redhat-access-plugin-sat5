@@ -2,15 +2,15 @@
 
 /**
  * @ngdoc directive
- * @name sat5TelemetryApp.directive:rhaInsightsOverview
+ * @name sat5TelemetryApp.directive:adminNav
  * @description
- * # healthIcon
+ * # adminNav
  */
 angular.module('sat5TelemetryApp')
-  .directive('rhaInsightsOverview', function () {
+  .directive('rhaInsightsSat5AdminNav', function () {
     return {
-      controller: 'Overview',
-      templateUrl: 'scripts/views/overview.html',
+      controller: 'AdminNav',
+      templateUrl: 'scripts/views/adminNav.html',
       restrict: 'E',
       link: function postLink(scope, element, attrs) {
       }

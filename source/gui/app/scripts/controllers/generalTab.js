@@ -2,13 +2,20 @@
 
 /**
  * @ngdoc function
- * @name sat5TelemetryApp.controller:BasicAuthForm
+ * @name sat5TelemetryApp.controller:GeneralTab
  * @description
  * # BasicAuthForm
  * Controller of the sat5TelemetryApp
  */
 angular.module('sat5TelemetryApp')
-.controller('BasicAuthForm', function (_, $scope, $http, Sat5TelemetryAdmin) {
+.controller('GeneralTab', function (
+_,
+$scope,
+$http,
+Admin,
+Alert) {
+
+  $scope.enabled = false;
   $scope.username = '';
   $scope.password = '';
   $scope.loading = true;
@@ -16,31 +23,32 @@ angular.module('sat5TelemetryApp')
   $scope.disableUpdateButton = function() {
     var response = false;
     if (_.isEmpty($scope.username) || 
-        _.isEmpty($scope.password) || 
+    _.isEmpty($scope.password) || 
         $scope.loading) {
       response = true;
     }
     return response;
   };
 
-  $scope.postCreds = Sat5TelemetryAdmin.postCreds;
-
   $scope.doUpdate = function() {
     $scope.loading = true;
-    Sat5TelemetryAdmin.postCreds($scope.username, $scope.password)
+    Admin.postConfig($scope.enabled, $scope.username, $scope.password)
       .success(function(response) {
         $scope.loading = false;
         $scope.password = '';
+        Alert.success(
+          'Insights configuration was successfully updated.', true);
       })
       .error(function(error) {
-        console.log(error);
+        Alert.danger('Error while updating insights config. Please try again or contact support.', false);
         $scope.loading = false;
       });
   };
 
-  Sat5TelemetryAdmin.getCreds()
+  Admin.getConfig()
     .success(function(response) {
       $scope.username = response.username;
+      $scope.enabled = response.enabled;
       $scope.loading = false;
     })
     .error(function(error) {
