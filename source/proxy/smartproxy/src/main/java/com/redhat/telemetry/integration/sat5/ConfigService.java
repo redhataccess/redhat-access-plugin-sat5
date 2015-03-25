@@ -23,7 +23,7 @@ public class ConfigService {
   @Context ServletContext context;
 
   @GET
-  @Path("/")
+  @Path("/general")
   @Produces("application/json")
   public Config getConfig(
       @CookieParam("pxt-session-cookie") String sessionKey,
@@ -43,7 +43,7 @@ public class ConfigService {
   }
 
   @POST
-  @Path("/")
+  @Path("/general")
   @Consumes("application/json")
   public Response postConfig(
       Config config,
@@ -62,6 +62,17 @@ public class ConfigService {
     } else {
       throw new ForbiddenException("Must be satellite admin.");
     }
+  }
+
+  @GET
+  @Path("/systems")
+  @Produces("application/json")
+  public Object[] getSystems(
+      @CookieParam("pxt-session-cookie") String sessionKey,
+      @QueryParam("satellite_user") String satelliteUser) {
+
+    Object[] systems = SatApi.listSystems(sessionKey);
+    return systems;
   }
 
   private boolean userIsAdmin(String sessionKey, String username) {

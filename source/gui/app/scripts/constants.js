@@ -61,7 +61,8 @@ angular.module('sat5TelemetryApp')
   'REMOTE_LEAF': 'REMOTE_LEAF'
 })
 .constant('CONFIG_URLS', {
-  'CREDENTIALS': '/insights/config'
+  'GENERAL': '/insights/config/general',
+  'SYSTEMS': '/insights/config/systems'
 })
 .constant('TELEMETRY_URLS', {
   'SYSTEMS_SUMMARY': '/insights/rs/telemetry/api/v1/systems?summary=true',

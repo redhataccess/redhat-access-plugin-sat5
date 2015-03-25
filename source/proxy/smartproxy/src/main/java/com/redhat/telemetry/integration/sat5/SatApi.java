@@ -18,24 +18,33 @@ public class SatApi {
   public static Object[]
   listUsersInOrg(String sessionKey) {
     Object[] params = new Object[] {sessionKey};
-    String method = "user.listUsers";
-    Object[] response = (Object[]) makeRequest(method, params);
+    Object[] response = 
+      (Object[]) makeRequest("user.listUsers", params);
     return response;
   }
 
   public static Object 
   getUserDetails(String sessionKey, String login) {
     Object[] params = new Object[] {sessionKey, login};
-    String method = "user.getDetails";
-    Object userDetails = (Object) makeRequest(method, params);
+    Object userDetails = 
+      (Object) makeRequest("user.getDetails", params);
     return userDetails;
   }
 
   public static Object[]
   listUserRoles(String sessionKey, String username) {
     Object[] params = new Object[] {sessionKey, username};
-    Object[] roles = (Object[]) makeRequest("user.listRoles", params);
+    Object[] roles = 
+      (Object[]) makeRequest("user.listRoles", params);
     return roles;
+  }
+
+  public static Object[]
+  listSystems(String sessionKey) {
+    Object[] params = new Object[] {sessionKey};
+    Object[] response = 
+      (Object[]) makeRequest("system.listSystems", params);
+    return response;
   }
 
   private static Object 

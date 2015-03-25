@@ -55,7 +55,7 @@ ADMIN_TABS) {
     data[CONFIG_KEYS.PASSWORD] = password;
     var promise = $http({
       method: HTTP_CONST.POST,
-      url: CONFIG_URLS.CREDENTIALS,
+      url: CONFIG_URLS.GENERAL,
       headers: headers,
       data: data,
       params: params
@@ -70,7 +70,21 @@ ADMIN_TABS) {
     params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
     var promise = $http({
       method: HTTP_CONST.GET,
-      url: CONFIG_URLS.CREDENTIALS,
+      url: CONFIG_URLS.GENERAL,
+      headers: headers,
+      params: params
+    });
+    return promise;
+  };
+
+  var getSystems = function() {
+    var headers = {};
+    headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
+    var params = {};
+    params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
+    var promise = $http({
+      method: HTTP_CONST.GET,
+      url: CONFIG_URLS.SYSTEMS,
       headers: headers,
       params: params
     });
@@ -83,6 +97,7 @@ ADMIN_TABS) {
     setTab: setTab,
     getTab: getTab,
     generalTabSelected: generalTabSelected,
-    systemsTabSelected: systemsTabSelected
+    systemsTabSelected: systemsTabSelected,
+    getSystems: getSystems
   };
 });

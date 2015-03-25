@@ -22,7 +22,7 @@ TELEMETRY_URLS) {
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
     var promise = $http({
       method: HTTP_CONST.GET,
-      url: TELEMETRY_URLS.SYSTEM_SUMMARY,
+      url: TELEMETRY_URLS.SYSTEMS_SUMMARY,
       headers: headers
     });
     promise.success(angular.bind(this, function(systems) {
