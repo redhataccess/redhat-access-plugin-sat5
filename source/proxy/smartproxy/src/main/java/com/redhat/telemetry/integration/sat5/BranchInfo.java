@@ -2,30 +2,30 @@ package com.redhat.telemetry.integration.sat5;
 
 public class BranchInfo {
 
-  private String branchId;
-  private String leafId;
+  private String remote_branch;
+  private int remote_leaf;
 
   public BranchInfo() {
   }
 
-  public BranchInfo(String branchId, String leafId) {
-    this.branchId = branchId;
-    this.leafId = leafId;
+  public BranchInfo(String remote_branch, int remote_leaf) {
+    this.remote_branch = remote_branch;
+    this.remote_leaf = remote_leaf;
   }
 
-  public void setLeafId(String leafId) {
-    this.leafId = leafId;
+  public void setRemote_leaf(int remote_leaf) {
+    this.remote_leaf = remote_leaf;
   }
 
-  public String getLeafId() {
-    return this.leafId;
+  public int getRemote_leaf() {
+    return this.remote_leaf;
   }
 
-  public void setBranchId(String branchId) {
-    this.branchId = branchId;
+  public void setRemote_branch(String remote_branch) {
+    this.remote_branch = remote_branch;
   }
 
-  public String getBranchId() {
-    return this.branchId;
+  public String getRemote_branch() {
+    return this.remote_branch;
   }
 }
