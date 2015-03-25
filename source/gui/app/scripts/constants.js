@@ -58,7 +58,7 @@ angular.module('sat5TelemetryApp')
   'ENABLED': 'enabled'
 })
 .constant('TELEMETRY_API_KEYS', {
-  'REMOTE_LEAF': 'REMOTE_LEAF'
+  'REMOTE_LEAF': 'remote_leaf'
 })
 .constant('CONFIG_URLS', {
   'GENERAL': '/insights/config/general',

@@ -111,7 +111,7 @@ TELEMETRY_URLS) {
         addClass('active');
       
       $('#spacewalk-content').
-        append('<error-info-summary machine-id="' + Util.getSidFromUrl(window.location.search) + '" error-info=""/>');
+        append('<rule-summary machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/>');
     }
   }
 });
