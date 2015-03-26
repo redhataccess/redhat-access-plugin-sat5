@@ -9,11 +9,4 @@
  */
 angular.module('sat5TelemetryApp')
 .controller('SystemTab', function ($scope, Admin) {
-  Admin.getSystems()
-    .success(function(response) {
-      console.log(response);
-    })
-    .error(function(error) {
-      console.log(error);
-    });
 });

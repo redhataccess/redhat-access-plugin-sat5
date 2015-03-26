@@ -1,0 +1,55 @@
+form
+  div.spacewalk-list.list
+    div.spacewalk-list-top-addons
+      div.spacewalk-list-alphabar
+      div.spacewalk-list-pagination
+    div.spacewalk-list-top-extra
+    div.panel.panel-default
+      div.panel-heading
+        div.spacewalk-list-head-addons
+          div.spacewalk-list-filter
+            div.input-group.input-group-sm
+              input.form-control(ng-disabled='loading', type='text', placeholder='Filter by System Name')
+              span.input-group-btn
+                button.btn.btn-default.spacewalk-button-filter(type='submit', ng-disabled='loading')
+                  i.fa.fa-eye
+          div.spacewalk-list-head-addons-extra
+            div.list-sizeselector
+              select.display-number(ng-disabled='loading')
+                | items per page
+                option 5
+                option 10
+                option.selected 25
+                option 50
+                option 100
+                option 250
+                option 500
+      div.table-responsive
+        table.table.table-striped
+          thead
+            tr
+              th
+                input(type='checkbox', ng-disabled='loading')
+              th.ascSort
+                a(ng-disabled='loading') System
+          tbody
+            tr(
+              ng-repeat='system in getSystems()', 
+              ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
+              td(width='20px')
+                input(type='checkbox')
+              td.sortedCol
+                a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
+      div.panel-footer
+        div.spacewalk-list-footer-addons
+          div.spacewalk-list-footer-addons-extra
+            span.spacewalk-list-selection-btns
+              button.btn.btn-default(type='submit', value='Select All', ng-disabled='loading') Select All
+    div.spacewalk-list-bottom-addons
+      div.spacewalk-list-pagination
+        | 1 - 1 of 1&nbsp;
+        strong
+          span (1 selected)
+    div.text-right
+      hr
+      input.btn.btn-default(type='submit', value='Apply', ng-disabled='loading')

@@ -18,6 +18,15 @@ CONFIG_KEYS,
 ADMIN_TABS) {
 
   var _tab = ADMIN_TABS.GENERAL;
+  var _systems = [];
+
+  var setSystems = function(systems) {
+    _systems = systems;
+  };
+  
+  var getSystems = function() {
+    return _systems;
+  };
 
   var setTab = function(tab) {
     _tab = tab;
@@ -77,7 +86,7 @@ ADMIN_TABS) {
     return promise;
   };
 
-  var getSystems = function() {
+  var getSystemsPromise = function() {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
     var params = {};
@@ -98,6 +107,8 @@ ADMIN_TABS) {
     getTab: getTab,
     generalTabSelected: generalTabSelected,
     systemsTabSelected: systemsTabSelected,
-    getSystems: getSystems
+    getSystemsPromise: getSystemsPromise,
+    getSystems: getSystems,
+    setSystems: setSystems
   };
 });
