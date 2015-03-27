@@ -32,6 +32,7 @@ form
                 input(type='checkbox', ng-disabled='loading')
               th.ascSort
                 a(ng-disabled='loading') System
+              th Status
           tbody
             tr(
               ng-repeat='system in getSystems()', 
@@ -40,6 +41,7 @@ form
                 input(type='checkbox')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
+              td(width='150px') Not installed
       div.panel-footer
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra

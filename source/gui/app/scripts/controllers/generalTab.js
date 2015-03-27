@@ -15,6 +15,7 @@ $http,
 Admin,
 Alert) {
 
+  $scope.softwareChannels = [];
   $scope.enabled = false;
   $scope.username = '';
   $scope.password = '';
@@ -55,4 +56,5 @@ Alert) {
       console.log(error);
       $scope.loading = false;
     });
+
 });

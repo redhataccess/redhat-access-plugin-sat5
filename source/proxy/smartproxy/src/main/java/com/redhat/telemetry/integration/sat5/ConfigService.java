@@ -2,6 +2,8 @@ package com.redhat.telemetry.integration.sat5;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -13,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -22,9 +25,19 @@ import org.apache.commons.configuration.ConfigurationException;
 public class ConfigService {
   @Context ServletContext context;
 
+  private static final String REPO_LABEL = "Red Hat Insights";
+  private static final String CHANNEL_LABEL = "rh-insights-x86_64";
+  private static final String REPO_URL = 
+    "http://people.redhat.com/dvarga/projects/redhat_access_proactive/6Server/";
+  private static final String PROPERTIES_URL = "WEB-INF/insights.properties";
+  private static final String ENABLED_PROPERTY = "enabled";
+  private static final String USERNAME_PROPERTY = "username";
+  private static final String PASSWORD_PROPERTY = "password";
+
+
   @GET
   @Path("/general")
-  @Produces("application/json")
+  @Produces(MediaType.APPLICATION_JSON)
   public Config getConfig(
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) 
@@ -32,9 +45,9 @@ public class ConfigService {
 
     if (userIsAdmin(sessionKey, satelliteUser)) {
       PropertiesConfiguration properties = new PropertiesConfiguration();
-      properties.load(context.getResourceAsStream("WEB-INF/insights.properties"));
-      String username = properties.getString("username");
-      boolean enabled = properties.getBoolean("enabled");
+      properties.load(context.getResourceAsStream(PROPERTIES_URL));
+      String username = properties.getString(USERNAME_PROPERTY);
+      boolean enabled = properties.getBoolean(ENABLED_PROPERTY);
       Config config = new Config(enabled, username, "");
       return config;
     } else {
@@ -44,7 +57,7 @@ public class ConfigService {
 
   @POST
   @Path("/general")
-  @Consumes("application/json")
+  @Consumes(MediaType.APPLICATION_JSON)
   public Response postConfig(
       Config config,
       @CookieParam("pxt-session-cookie") String sessionKey,
@@ -53,11 +66,16 @@ public class ConfigService {
 
     if (userIsAdmin(sessionKey, satelliteUser)) {
       PropertiesConfiguration properties = new PropertiesConfiguration();
-      properties.setFile(new File(context.getRealPath("WEB-INF/insights.properties")));
-      properties.setProperty("enabled", config.getEnabled());
-      properties.setProperty("username", config.getUsername());
-      properties.setProperty("password", config.getPassword());
+      properties.load(context.getRealPath(PROPERTIES_URL));
+      createRepo(sessionKey);
+      createChannel(sessionKey);
+
+      properties.setFile(new File(context.getRealPath(PROPERTIES_URL)));
+      properties.setProperty(ENABLED_PROPERTY, config.getEnabled());
+      properties.setProperty(USERNAME_PROPERTY, config.getUsername());
+      properties.setProperty(PASSWORD_PROPERTY, config.getPassword());
       properties.save();
+
       return Response.status(200).build();
     } else {
       throw new ForbiddenException("Must be satellite admin.");
@@ -66,13 +84,133 @@ public class ConfigService {
 
   @GET
   @Path("/systems")
-  @Produces("application/json")
+  @Produces(MediaType.APPLICATION_JSON)
   public Object[] getSystems(
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) {
 
     Object[] systems = SatApi.listSystems(sessionKey);
     return systems;
+  }
+
+  @POST
+  @Path("/systems")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public SatSystem[] postSystems(
+      SatSystem[] systems) {
+
+    return systems;
+  };
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Integer> channelsExist(String sessionKey) {
+    Object[] channels = SatApi.listSoftwareChannels(sessionKey);
+    Map<String, Integer> response = new HashMap<String, Integer>();
+    response.put("rhel6", -1);
+    response.put("rhel7", -1);
+    for (Object channel : channels) {
+      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
+      String label = (String) channelMap.get("label");
+      if (label.equals("rhel6-telemetry-label")) {
+        response.put("rhel6", 1);
+      } else if (label.equals("rhel7-telemetry-label")) {
+        response.put("rhel7", 1);
+      }
+    }
+    return response;
+  }
+  @SuppressWarnings("unchecked")
+  private boolean channelExists(String sessionKey) {
+    Object[] channels = SatApi.listSoftwareChannels(sessionKey);
+    boolean response = false;
+    for (Object channel : channels) {
+      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
+      String label = (String) channelMap.get("label");
+      if (label.equals(CHANNEL_LABEL)) {
+        response = true;
+      }
+    }
+    return response;
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean repoExists(String sessionKey) {
+    Object[] repos = SatApi.listUserRepos(sessionKey);
+    boolean exists = false;
+    for (Object repo : repos) {
+      HashMap<Object, Object> repoMap = (HashMap<Object, Object>) repo;
+      String label = (String) repoMap.get("label"); 
+      if (label.equals(REPO_LABEL)) {
+        exists = true;
+      }
+    }
+    return exists;
+  }
+
+  /**
+   * Create the repo via sat5 api if it doesn't already exist
+   * Returns the new or existing repo id
+   */
+  private void createRepo(String sessionKey) {
+    if (!repoExists(sessionKey)) {
+      SatApi.createRepo(
+          sessionKey, 
+          REPO_LABEL, 
+          "YUM", 
+          REPO_URL);
+    } 
+  }
+
+  private boolean createChannel(String sessionKey) {
+    boolean response = false;
+    if (!channelExists(sessionKey)) {
+      int created = SatApi.createChannel(
+          sessionKey, 
+          CHANNEL_LABEL,
+          "x86_64 - Red Hat Insights",
+          "Red Hat Insights is the coolest",
+          "channel-x86_64");
+      if (created == 0) {
+        response = false;
+      } else {
+        response = true;
+        //associate repo with this channel
+        SatApi.associateRepo(sessionKey, CHANNEL_LABEL, REPO_LABEL);
+        SatApi.syncRepo(sessionKey, CHANNEL_LABEL);
+      }
+    } else {
+      //channel already created
+      //TODO: verify the repo is associated?
+      response = true;
+    }
+    return response;
+  }
+
+  /**
+   * Create the rhel6 and rhel7 channels and associate the repo to them
+   * Returns a map of the new or existing repo IDs
+   */
+  private Map<String, Integer> createChannels(String sessionKey, int repoId) {
+    Map<String, Integer> existingChannelsMap = channelsExist(sessionKey);
+    if (existingChannelsMap.get("rhel6") == -1) {
+      int rhel6Id = SatApi.createChannel(
+          sessionKey, 
+          "rhel6-telemetry-label",
+          "rhel6 telemetry name",
+          "rhel6 telemetry summary",
+          "x86_64");
+      existingChannelsMap.put("rhel6", rhel6Id);
+    }
+    if (existingChannelsMap.get("rhel7") == -1) {
+      int rhel7Id = SatApi.createChannel(
+          sessionKey, 
+          "rhel7-telemetry-label",
+          "rhel7 telemetry name",
+          "rhel7 telemetry summary",
+          "x86_64");
+      existingChannelsMap.put("rhel7", rhel7Id);
+    }
+    return existingChannelsMap;
   }
 
   private boolean userIsAdmin(String sessionKey, String username) {

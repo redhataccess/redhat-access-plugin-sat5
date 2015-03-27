@@ -62,7 +62,8 @@ angular.module('sat5TelemetryApp')
 })
 .constant('CONFIG_URLS', {
   'GENERAL': '/insights/config/general',
-  'SYSTEMS': '/insights/config/systems'
+  'SYSTEMS': '/insights/config/systems',
+  'SOFTWARE_CHANNELS': '/insights/config/channels/software'
 })
 .constant('TELEMETRY_URLS', {
   'SYSTEMS_SUMMARY': '/insights/rs/telemetry/api/v1/systems?summary=true',
