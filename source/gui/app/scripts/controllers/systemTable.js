@@ -22,6 +22,16 @@ SYSTEM_DETAILS_PAGE_URLS) {
       SYSTEM_DETAILS_PAGE_URLS.OVERVIEW + '?sid=' + system.id;
   };
 
+  $scope.doApply = function() {
+    Admin.postSystems(Admin.getSystems())
+      .success(function(response) {
+        console.log(response);
+      })
+      .error(function(error) {
+        Alert.danger('Problem updating systems. Please try again.');
+      });
+  };
+
   Admin.getSystemsPromise()
     .success(function(response) {
       $scope.loading = false;

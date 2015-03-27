@@ -86,6 +86,23 @@ ADMIN_TABS) {
     return promise;
   };
 
+  var postSystems = function(systems) {
+    var headers = {};
+    headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
+    headers[HTTP_CONST.CONTENT_TYPE] = HTTP_CONST.APPLICATION_JSON;
+    var params = {};
+    params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
+    var data = systems;
+    var promise = $http({
+      method: HTTP_CONST.POST,
+      url: CONFIG_URLS.SYSTEMS,
+      headers: headers,
+      params: params,
+      data: data
+    });
+    return promise;
+  };
+
   var getSystemsPromise = function() {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
@@ -109,6 +126,7 @@ ADMIN_TABS) {
     systemsTabSelected: systemsTabSelected,
     getSystemsPromise: getSystemsPromise,
     getSystems: getSystems,
-    setSystems: setSystems
+    setSystems: setSystems,
+    postSystems: postSystems
   };
 });

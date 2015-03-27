@@ -2,6 +2,7 @@ package com.redhat.telemetry.integration.sat5;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class ConfigService {
   private static final String ENABLED_PROPERTY = "enabled";
   private static final String USERNAME_PROPERTY = "username";
   private static final String PASSWORD_PROPERTY = "password";
+  private static final String PACKAGE_NAME = "redhat-access-proactive";
 
 
   @GET
@@ -82,23 +84,64 @@ public class ConfigService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @GET
   @Path("/systems")
   @Produces(MediaType.APPLICATION_JSON)
-  public Object[] getSystems(
-      @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("satellite_user") String satelliteUser) {
+  public ArrayList<SatSystem> getSystems(
+      @CookieParam("pxt-session-cookie") String sessionKey) {
 
-    Object[] systems = SatApi.listSystems(sessionKey);
-    return systems;
+    Object[] apiSystems = SatApi.listSystems(sessionKey);
+    ArrayList<SatSystem> satSystems = new ArrayList<SatSystem>();
+    for (Object apiSys : apiSystems) {
+      HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) apiSys;
+      Object systemDetails = SatApi.getSystemDetails(sessionKey, (int) apiSysMap.get("id"));
+      HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
+      String systemVersion = (String) systemDetailsMap.get("release");
+      int systemId = (int) apiSysMap.get("id");
+      if (systemVersion.equals("6Server")) {
+        Object[] installedPackages = 
+          SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, CHANNEL_LABEL);
+      }
+
+      SatSystem satSys = new SatSystem(
+          systemId,
+          (String) apiSysMap.get("name"),
+          systemVersion);
+      satSystems.add(satSys);
+    }
+
+    return satSystems;
   }
 
+  @SuppressWarnings("unchecked")
   @POST
   @Path("/systems")
   @Consumes(MediaType.APPLICATION_JSON)
-  public SatSystem[] postSystems(
-      SatSystem[] systems) {
+  public ArrayList<SatSystem> postSystems(
+      @CookieParam("pxt-session-cookie") String sessionKey,
+      ArrayList<SatSystem> systems) {
 
+    //grab the redhat-access-proactive packageId from the channel
+    Object[] channelPackages = 
+      SatApi.listAllPackagesInChannel(sessionKey, CHANNEL_LABEL);
+    int packageId = -1;
+    for (Object channelPackage : channelPackages) {
+      HashMap<Object, Object> channelPackageMap = (HashMap<Object, Object>) channelPackage;
+      String packageName = (String) channelPackageMap.get("name");
+      if (packageName.equals(PACKAGE_NAME)) {
+        packageId = (int) channelPackageMap.get("id");
+      }
+    }
+
+    //install the redhat-access-proactive package on the system
+    for (SatSystem sys : systems) {
+      if (sys.getVersion().equals("6Server")) {
+        ArrayList<Integer> packageIds = new ArrayList<Integer>();
+        packageIds.add(packageId);
+        SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds);
+      }
+    }
     return systems;
   };
 

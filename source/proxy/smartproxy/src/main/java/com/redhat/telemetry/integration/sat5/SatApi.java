@@ -2,6 +2,8 @@ package com.redhat.telemetry.integration.sat5;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -33,10 +35,42 @@ public class SatApi {
   }
 
   public static Object 
-  getSystemDetails(String sessionKey, String serverId) {
+  getSystemDetails(String sessionKey, int serverId) {
     Object[] params = new Object[] {sessionKey, serverId};
     Object response = 
       (Object) makeRequest("system.getDetails", params);
+    return response;
+  }
+
+  public static int
+  schedulePackageInstall(String sessionKey, int serverId, ArrayList<Integer> packageIds) {
+    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date()};
+    int response = 
+      (int) makeRequest("system.schedulePackageInstall", params);
+    return response;
+  }
+
+  public static Object[]
+  listAllInstallablePackages(String sessionKey, int serverId) {
+    Object[] params = new Object[] {sessionKey, serverId};
+    Object[] response = 
+      (Object[]) makeRequest("system.listAllInstallablePackages", params);
+    return response;
+  }
+
+  public static Object[]
+  listInstalledPackagesFromChannel(String sessionKey, int serverId, String channelLabel) {
+    Object[] params = new Object[] {sessionKey, serverId, channelLabel};
+    Object[] response = 
+      (Object[]) makeRequest("system.listPackagesFromChannel", params);
+    return response;
+  }
+
+  public static Object[]
+  listAllPackagesInChannel(String sessionKey, String channelLabel) {
+    Object[] params = new Object[] {sessionKey, channelLabel};
+    Object[] response = 
+      (Object[]) makeRequest("channel.software.listAllPackages", params);
     return response;
   }
 
