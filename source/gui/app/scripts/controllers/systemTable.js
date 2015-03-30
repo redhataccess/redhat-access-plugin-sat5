@@ -15,6 +15,7 @@ Alert,
 SAT5_ROOT_URLS, 
 SYSTEM_DETAILS_PAGE_URLS) {
   $scope.loading = true;
+  $scope.filter = '';
   $scope.getSystems = Admin.getSystems;
 
   $scope.getSystemUrl = function(system) {

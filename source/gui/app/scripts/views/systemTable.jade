@@ -9,7 +9,7 @@ form
         div.spacewalk-list-head-addons
           div.spacewalk-list-filter
             div.input-group.input-group-sm
-              input.form-control(ng-disabled='loading', type='text', placeholder='Filter by System Name')
+              input.form-control(ng-model='filter', ng-disabled='loading', type='text', placeholder='Filter by System Name')
               span.input-group-btn
                 button.btn.btn-default.spacewalk-button-filter(type='submit', ng-disabled='loading')
                   i.fa.fa-eye
@@ -35,7 +35,7 @@ form
               th Status
           tbody
             tr(
-              ng-repeat='system in getSystems()', 
+              ng-repeat='system in getSystems() | filter: filter', 
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
                 input(type='checkbox')
