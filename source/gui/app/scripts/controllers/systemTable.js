@@ -49,6 +49,10 @@ SYSTEM_DETAILS_PAGE_URLS) {
     $scope.toggleAll();
   };
 
+  $scope.getNumSelected = function() {
+    return _.where($scope.systems, {'selected': true}).length;
+  };
+
   $scope.getSystemUrl = function(system) {
     return '/' + SAT5_ROOT_URLS.RHN + '/' + 
       SYSTEM_DETAILS_PAGE_URLS.OVERVIEW + '?sid=' + system.id;

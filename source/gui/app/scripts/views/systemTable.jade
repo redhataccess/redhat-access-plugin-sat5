@@ -17,6 +17,7 @@ form
             div.list-sizeselector
               select.display-number(ng-disabled='loading')
                 | items per page
+                option 1
                 option 5
                 option 10
                 option.selected 25
@@ -52,7 +53,7 @@ form
       div.spacewalk-list-pagination
         | 1 - 1 of 1&nbsp;
         strong
-          span (1 selected)
+          span ({{getNumSelected()}} selected)
     div.text-right
       hr
       input.btn.btn-default(type='submit', value='Apply', ng-disabled='loading', ng-click='doApply()')
