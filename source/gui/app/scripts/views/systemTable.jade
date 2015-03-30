@@ -30,12 +30,13 @@ form
             tr
               th
                 input(type='checkbox', ng-disabled='loading', ng-model='allSelected', ng-click='toggleAll()')
-              th.ascSort
-                a(ng-disabled='loading') System
-              th Status
+              th(ng-class='{ascSort: orderBy === "name", descSort: orderBy === "-name"}')
+                a(ng-disabled='loading', ng-click='toggleNameSort()') System
+              th(ng-class='{ascSort: orderBy === "status", descSort: orderBy === "-status"}')
+                a(ng-disabled='loading', ng-click='toggleStatusSort()') Status
           tbody
             tr(
-              ng-repeat='system in systems | filter: filter', 
+              ng-repeat='system in systems | filter: filter | orderBy: orderBy', 
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
                 input(type='checkbox', ng-model='system.selected')

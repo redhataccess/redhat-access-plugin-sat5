@@ -20,6 +20,23 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.getSystems = Admin.getSystems;
   $scope.systems = [];
   $scope.allSelected = false;
+  $scope.orderBy = 'name';
+
+  $scope.toggleStatusSort = function() {
+    if ($scope.orderBy === 'status') {
+      $scope.orderBy = '-status';
+    } else {
+      $scope.orderBy = 'status';
+    }
+  };
+
+  $scope.toggleNameSort = function() {
+    if ($scope.orderBy === 'name') {
+      $scope.orderBy = '-name';
+    } else {
+      $scope.orderBy = 'name';
+    }
+  };
 
   $scope.toggleAll = function() {
     _.forEach($scope.systems, function(system) {
