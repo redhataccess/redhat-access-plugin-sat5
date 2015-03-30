@@ -44,7 +44,7 @@ public class SatApi {
 
   public static int
   schedulePackageInstall(String sessionKey, int serverId, ArrayList<Integer> packageIds) {
-    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date()};
+    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis() + 60000)};
     int response = 
       (int) makeRequest("system.schedulePackageInstall", params);
     return response;
@@ -130,6 +130,30 @@ public class SatApi {
     return response;
   }
 
+  public static int
+  setChildChannels(String sessionKey, int serverId, ArrayList<String> channelLabels) {
+    Object[] params = new Object[] {sessionKey, serverId, channelLabels};
+    int response = 
+      (int) makeRequest("system.setChildChannels", params);
+    return response;
+  }
+
+  public static Object[]
+  listVendorChannels(String sessionKey) {
+    Object[] params = new Object[] {sessionKey};
+    Object[] response = 
+      (Object[]) makeRequest("channel.listVendorChannels", params);
+    return response;
+  }
+
+  public static Object[]
+  listSystemChannels(String sessionKey, int serverId) {
+    Object[] params = new Object[] {sessionKey, serverId};
+    Object[] response = 
+      (Object[]) makeRequest("channel.software.listSystemChannels", params);
+    return response;
+  }
+
   @SuppressWarnings("unchecked")
   public static int
   createRepo(String sessionKey, String label, String type, String url) {
@@ -154,9 +178,10 @@ public class SatApi {
       String label, 
       String name, 
       String summary, 
-      String archLabel) {
+      String archLabel,
+      String parent) {
 
-    Object[] params = new Object[] {sessionKey, label, name, summary, archLabel, ""};
+    Object[] params = new Object[] {sessionKey, label, name, summary, archLabel, parent};
     Object response =
       (Object) makeRequest("channel.software.create", params);
     if (response != null) {

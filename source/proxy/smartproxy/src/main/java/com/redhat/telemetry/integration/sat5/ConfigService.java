@@ -137,6 +137,20 @@ public class ConfigService {
     //install the redhat-access-proactive package on the system
     for (SatSystem sys : systems) {
       if (sys.getVersion().equals("6Server")) {
+        //list existing channels system is subscribed to
+        Object[] systemChannels = SatApi.listSystemChannels(sessionKey, sys.getId());
+        ArrayList<String> systemChannelLabels = new ArrayList<String>();
+        for (Object systemChannel : systemChannels) {
+          String label = 
+            (String)((HashMap<Object, Object>) systemChannel).get("label");
+          systemChannelLabels.add(label);
+        }
+        systemChannelLabels.add(CHANNEL_LABEL);
+
+        //subscribe system to Red Hat Insights child channel
+        SatApi.setChildChannels(sessionKey, sys.getId(), systemChannelLabels);
+
+        //install the package
         ArrayList<Integer> packageIds = new ArrayList<Integer>();
         packageIds.add(packageId);
         SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds);
@@ -212,7 +226,8 @@ public class ConfigService {
           CHANNEL_LABEL,
           "x86_64 - Red Hat Insights",
           "Red Hat Insights is the coolest",
-          "channel-x86_64");
+          "channel-x86_64",
+          "rhel-x86_64-server-6");
       if (created == 0) {
         response = false;
       } else {
@@ -241,7 +256,8 @@ public class ConfigService {
           "rhel6-telemetry-label",
           "rhel6 telemetry name",
           "rhel6 telemetry summary",
-          "x86_64");
+          "x86_64",
+          "");
       existingChannelsMap.put("rhel6", rhel6Id);
     }
     if (existingChannelsMap.get("rhel7") == -1) {
@@ -250,7 +266,8 @@ public class ConfigService {
           "rhel7-telemetry-label",
           "rhel7 telemetry name",
           "rhel7 telemetry summary",
-          "x86_64");
+          "x86_64",
+          "");
       existingChannelsMap.put("rhel7", rhel7Id);
     }
     return existingChannelsMap;
