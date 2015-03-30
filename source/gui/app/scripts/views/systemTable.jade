@@ -29,16 +29,16 @@ form
           thead
             tr
               th
-                input(type='checkbox', ng-disabled='loading')
+                input(type='checkbox', ng-disabled='loading', ng-model='allSelected', ng-click='toggleAll()')
               th.ascSort
                 a(ng-disabled='loading') System
               th Status
           tbody
             tr(
-              ng-repeat='system in getSystems() | filter: filter', 
+              ng-repeat='system in systems | filter: filter', 
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
-                input(type='checkbox')
+                input(type='checkbox', ng-model='system.selected')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
               td(width='150px') Not installed
@@ -46,7 +46,7 @@ form
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra
             span.spacewalk-list-selection-btns
-              button.btn.btn-default(type='submit', value='Select All', ng-disabled='loading') Select All
+              button.btn.btn-default(type='submit', value='Select All', ng-disabled='loading', ng-click='selectAll()') Select All
     div.spacewalk-list-bottom-addons
       div.spacewalk-list-pagination
         | 1 - 1 of 1&nbsp;

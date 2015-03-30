@@ -9,6 +9,7 @@
  */
 angular.module('sat5TelemetryApp')
 .controller('SystemTable', function (
+_,
 $scope, 
 Admin, 
 Alert, 
@@ -17,6 +18,19 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.loading = true;
   $scope.filter = '';
   $scope.getSystems = Admin.getSystems;
+  $scope.systems = [];
+  $scope.allSelected = false;
+
+  $scope.toggleAll = function() {
+    _.forEach($scope.systems, function(system) {
+      system.selected = $scope.allSelected;
+    });
+  };
+
+  $scope.selectAll = function() {
+    $scope.allSelected = true;
+    $scope.toggleAll();
+  };
 
   $scope.getSystemUrl = function(system) {
     return '/' + SAT5_ROOT_URLS.RHN + '/' + 
@@ -36,7 +50,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   Admin.getSystemsPromise()
     .success(function(response) {
       $scope.loading = false;
-      Admin.setSystems(response);
+      $scope.systems = response;
     })
     .error(function(error) {
       $scope.loading = false;

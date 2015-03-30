@@ -18,15 +18,6 @@ CONFIG_KEYS,
 ADMIN_TABS) {
 
   var _tab = ADMIN_TABS.GENERAL;
-  var _systems = [];
-
-  var setSystems = function(systems) {
-    _systems = systems;
-  };
-  
-  var getSystems = function() {
-    return _systems;
-  };
 
   var setTab = function(tab) {
     _tab = tab;
@@ -125,8 +116,6 @@ ADMIN_TABS) {
     generalTabSelected: generalTabSelected,
     systemsTabSelected: systemsTabSelected,
     getSystemsPromise: getSystemsPromise,
-    getSystems: getSystems,
-    setSystems: setSystems,
     postSystems: postSystems
   };
 });
