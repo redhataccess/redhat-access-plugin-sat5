@@ -35,7 +35,13 @@ public class ConfigService {
   private static final String USERNAME_PROPERTY = "username";
   private static final String PASSWORD_PROPERTY = "password";
   private static final String PACKAGE_NAME = "redhat-access-proactive";
-
+  private static final String CONFIG_CHANNEL_LABEL = "rh-insights-config";
+  private static final String CONFIG_CHANNEL_NAME = 
+    "Red Hat Insights client configuration";
+  private static final String CONFIG_CHANNEL_DESCRIPTION = 
+    "Red Hat Insights client configuration";
+  private static final String CONFIG_PATH = 
+    "/etc/redhat_access_proactive/redhat_access_proactive.conf";
 
   @GET
   @Path("/general")
@@ -71,6 +77,7 @@ public class ConfigService {
       properties.load(context.getRealPath(PROPERTIES_URL));
       createRepo(sessionKey);
       createChannel(sessionKey);
+      createConfigChannel(sessionKey);
 
       properties.setFile(new File(context.getRealPath(PROPERTIES_URL)));
       properties.setProperty(ENABLED_PROPERTY, config.getEnabled());
@@ -242,6 +249,50 @@ public class ConfigService {
       response = true;
     }
     return response;
+  }
+
+  private void createConfigChannel(String sessionKey) {
+    if (SatApi.configChannelExists(sessionKey, CONFIG_CHANNEL_LABEL) != 1) {
+      SatApi.createConfigChannel(
+          sessionKey, 
+          CONFIG_CHANNEL_LABEL, 
+          CONFIG_CHANNEL_NAME, 
+          CONFIG_CHANNEL_DESCRIPTION);
+      HashMap<String, Object> pathInfo = new  HashMap<String, Object>();
+      pathInfo.put("contents", 
+          "[redhat_access_proactive]" + 
+          System.getProperty("line.separator") +
+          "# Change log level, valid options DEBUG, INFO, WARNING, ERROR, CRITICAL. Default DEBUG" +
+          System.getProperty("line.separator") +
+          "#loglevel=DEBUG" + 
+          System.getProperty("line.separator") +
+          "# Change authentication method, valid options BASIC, CERT. Default BASIC" +
+          System.getProperty("line.separator") +
+          "authmethod=BASIC" + 
+          System.getProperty("line.separator") +
+          "# URL to send uploads to" + 
+          System.getProperty("line.separator") +
+          "upload_url=https://sat57.usersys.redhat.com/insights/rs/telemetry" + 
+          System.getProperty("line.separator") +
+          "# URL to send API requests to" + 
+          System.getProperty("line.separator") +
+          "api_url=https://sat57.usersys.redhat.com/insights/rs/telemetry/api" + 
+          System.getProperty("line.separator") +
+          "username=" +
+          System.getProperty("line.separator") +
+          "password=");
+      pathInfo.put("contents_enc64", false);
+      pathInfo.put("owner", "root");
+      pathInfo.put("group", "root");
+      pathInfo.put("permissions", "644");
+      pathInfo.put("binary", false);
+      SatApi.configCreateOrUpdatePath(
+          sessionKey,
+          CONFIG_CHANNEL_LABEL,
+          CONFIG_PATH,
+          false,
+          pathInfo);
+    }
   }
 
   /**

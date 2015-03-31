@@ -138,6 +138,41 @@ public class SatApi {
     return response;
   }
 
+  public static int
+  configChannelExists(String sessionKey, String configChannelLabel) {
+    Object[] params = new Object[] {sessionKey, configChannelLabel};
+    int response = 
+      (int) makeRequest("configchannel.channelExists", params);
+    return response;
+  }
+
+  public static Object
+  configCreateOrUpdatePath(
+      String sessionKey, 
+      String channelLabel, 
+      String path,
+      boolean isDir, 
+      HashMap<String, Object> pathInfo) {
+
+    Object[] params = new Object[] {sessionKey, channelLabel, path, isDir, pathInfo};
+    Object response = 
+      (Object) makeRequest("configchannel.createOrUpdatePath", params);
+    return response;
+  }
+
+  public static Object
+  createConfigChannel(
+      String sessionKey, 
+      String channelLabel, 
+      String channelName, 
+      String channelDescription) {
+
+    Object[] params = new Object[] {sessionKey, channelLabel, channelName, channelDescription};
+    Object response = 
+      (Object) makeRequest("configchannel.create", params);
+    return response;
+  }
+
   public static Object[]
   listVendorChannels(String sessionKey) {
     Object[] params = new Object[] {sessionKey};
