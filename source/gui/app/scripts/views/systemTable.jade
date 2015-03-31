@@ -35,7 +35,10 @@ form
                 a(ng-disabled='loading', ng-click='toggleNameSort()') System
               th(ng-class='{ascSort: orderBy === "status", descSort: orderBy === "-status"}')
                 a(ng-disabled='loading', ng-click='toggleStatusSort()') Status
-          tbody
+          div(ng-show='loading')
+            i.fa.fa-spinner.fa-spin.fa-1-5x
+            | Loading systems...
+          tbody(ng-hide='loading')
             tr(
               ng-repeat='system in systems | filter: filter | orderBy: orderBy', 
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
@@ -48,7 +51,11 @@ form
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra
             span.spacewalk-list-selection-btns
-              button.btn.btn-default(type='submit', value='Select All', ng-disabled='loading', ng-click='selectAll()') Select All
+              button.btn.btn-default(
+                type='submit', 
+                value='Select All', 
+                ng-disabled='loading', 
+                ng-click='selectAll()') Select All
     div.spacewalk-list-bottom-addons
       div.spacewalk-list-pagination
         | 1 - 1 of 1&nbsp;
