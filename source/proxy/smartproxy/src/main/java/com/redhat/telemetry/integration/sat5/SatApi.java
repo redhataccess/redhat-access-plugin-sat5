@@ -146,6 +146,28 @@ public class SatApi {
     return response;
   }
 
+  public static int
+  addConfigChannelsToSystem(
+      String sessionKey,
+      ArrayList<Integer> systemIds,
+      ArrayList<String> channelLabels,
+      boolean addToTop) {
+    Object[] params = new Object[] {sessionKey, systemIds, channelLabels, addToTop};
+    int response = 
+      (int) makeRequest("system.config.addChannels", params);
+    return response;
+  }
+
+  public static int
+  deployAllSystems(
+      String sessionKey,
+      String channelLabel) {
+    Object[] params = new Object[] {sessionKey, channelLabel};
+    int response = 
+      (int) makeRequest("configchannel.deployAllSystems", params);
+    return response;
+  }
+
   public static Object
   configCreateOrUpdatePath(
       String sessionKey, 

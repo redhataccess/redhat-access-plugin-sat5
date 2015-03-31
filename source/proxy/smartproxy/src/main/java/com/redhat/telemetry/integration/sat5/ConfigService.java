@@ -161,8 +161,16 @@ public class ConfigService {
         ArrayList<Integer> packageIds = new ArrayList<Integer>();
         packageIds.add(packageId);
         SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
+
+        //subscribe system to Red Hat Insights config channel
+        ArrayList<Integer> systemIds = new ArrayList<Integer>();
+        systemIds.add(sys.getId());
+        ArrayList<String> channelLabels = new ArrayList<String>();
+        channelLabels.add(CONFIG_CHANNEL_LABEL);
+        SatApi.addConfigChannelsToSystem(sessionKey, systemIds, channelLabels, true);
       }
     }
+    SatApi.deployAllSystems(sessionKey, CONFIG_CHANNEL_LABEL);
     return systems;
   };
 
