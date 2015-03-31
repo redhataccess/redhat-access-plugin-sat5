@@ -17,7 +17,6 @@ SAT5_ROOT_URLS,
 SYSTEM_DETAILS_PAGE_URLS) {
   $scope.loading = true;
   $scope.filter = '';
-  $scope.getSystems = Admin.getSystems;
   $scope.systems = [];
   $scope.allSelected = false;
   $scope.orderBy = 'name';
@@ -59,7 +58,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.doApply = function() {
-    Admin.postSystems(Admin.getSystems())
+    Admin.postSystems($scope.systems)
       .success(function(response) {
         console.log(response);
       })
