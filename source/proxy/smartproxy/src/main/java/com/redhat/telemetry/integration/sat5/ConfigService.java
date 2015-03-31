@@ -153,7 +153,7 @@ public class ConfigService {
         //install the package
         ArrayList<Integer> packageIds = new ArrayList<Integer>();
         packageIds.add(packageId);
-        SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds);
+        SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
       }
     }
     return systems;

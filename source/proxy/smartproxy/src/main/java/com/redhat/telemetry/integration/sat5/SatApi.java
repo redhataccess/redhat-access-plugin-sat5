@@ -43,8 +43,8 @@ public class SatApi {
   }
 
   public static int
-  schedulePackageInstall(String sessionKey, int serverId, ArrayList<Integer> packageIds) {
-    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis() + 60000)};
+  schedulePackageInstall(String sessionKey, int serverId, ArrayList<Integer> packageIds, int delay) {
+    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis() + delay)};
     int response = 
       (int) makeRequest("system.schedulePackageInstall", params);
     return response;
@@ -180,8 +180,20 @@ public class SatApi {
       String summary, 
       String archLabel,
       String parent) {
+    HashMap<String, String> gpgKey = new HashMap<String, String>();
+    gpgKey.put("url", "http://sat57.usersys.redhat.com/pub/rhinsights.gpg");
+    gpgKey.put("id", "A3753C6C");
+    gpgKey.put("fingerprint", "C08B 170E 016E CDEB 10A5  AFCB 7649 4742 A375 3C6C");
 
-    Object[] params = new Object[] {sessionKey, label, name, summary, archLabel, parent};
+    Object[] params = new Object[] {
+      sessionKey, 
+      label, 
+      name, 
+      summary, 
+      archLabel, 
+      parent, 
+      "sha256", 
+      gpgKey};
     Object response =
       (Object) makeRequest("channel.software.create", params);
     if (response != null) {
