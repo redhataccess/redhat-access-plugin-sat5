@@ -8,7 +8,7 @@
     <artifactId>sat5-proxy</artifactId>
     <version>1.0</version>
     <packaging>war</packaging>
-    <name>insights</name>
+    <name>redhataccess</name>
     <description/>
 
     <repositories>
@@ -98,7 +98,7 @@
 
     <build>
         <defaultGoal>install</defaultGoal>
-        <finalName>insights</finalName>
+        <finalName>redhataccess</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

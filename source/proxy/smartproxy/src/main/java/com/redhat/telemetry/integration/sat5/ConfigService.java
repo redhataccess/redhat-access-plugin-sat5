@@ -28,7 +28,7 @@ public class ConfigService {
   private static final String REPO_LABEL = "Red Hat Insights";
   private static final String CHANNEL_LABEL = "rh-insights-x86_64";
   private static final String REPO_URL = 
-    "http://people.redhat.com/dvarga/projects/redhat_access_proactive/6Server/";
+    "http://people.redhat.com/dvarga/projects/redhataccess_proactive/6Server/";
   private static final String PROPERTIES_URL = "WEB-INF/insights.properties";
   private static final String ENABLED_PROPERTY = "enabled";
   private static final String USERNAME_PROPERTY = "username";
@@ -279,11 +279,11 @@ public class ConfigService {
           System.getProperty("line.separator") +
           "# URL to send uploads to" + 
           System.getProperty("line.separator") +
-          "upload_url=https://sat57.usersys.redhat.com/insights/rs/telemetry" + 
+          "upload_url=https://sat57.usersys.redhat.com/redhataccess/rs/telemetry" + 
           System.getProperty("line.separator") +
           "# URL to send API requests to" + 
           System.getProperty("line.separator") +
-          "api_url=https://sat57.usersys.redhat.com/insights/rs/telemetry/api" + 
+          "api_url=https://sat57.usersys.redhat.com/redhataccess/rs/telemetry/api" + 
           System.getProperty("line.separator") +
           "username=" +
           System.getProperty("line.separator") +

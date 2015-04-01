@@ -30,13 +30,13 @@ cp rh-telemetry-proxy-sat5.6.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/rh-telemetry-
 mkdir -p $RPM_BUILD_ROOT/var/www/html/javascript
 cp scripts.js $RPM_BUILD_ROOT/var/www/html/javascript/rhn-third-party.js
 mkdir -p $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
-cp insights.war $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
+cp redhataccess.war $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
 
 
 %files
 %config %attr(0644,root,root) /etc/httpd/conf.d/rh-telemetry-proxy-sat5.6.conf
 %config %attr(0644,root,root) /var/www/html/javascript/rhn-third-party.js
-%config %attr(0644,root,root) /usr/share/tomcat6/webapps/insights.war
+%config %attr(0644,root,root) /usr/share/tomcat6/webapps/redhataccess.war
 
 
 %changelog

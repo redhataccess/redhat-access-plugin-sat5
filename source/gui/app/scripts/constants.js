@@ -42,7 +42,7 @@ angular.module('sat5TelemetryApp')
   'KICKSTART': 'kickstart',
   'KEYS': 'keys',
   'RHN': 'rhn',
-  'PROXY': 'insights'
+  'PROXY': 'redhataccess'
 })
 .constant('HTTP_CONST', {
   'ACCEPT': 'accept',
@@ -61,12 +61,12 @@ angular.module('sat5TelemetryApp')
   'REMOTE_LEAF': 'remote_leaf'
 })
 .constant('CONFIG_URLS', {
-  'GENERAL': '/insights/config/general',
-  'SYSTEMS': '/insights/config/systems',
-  'SOFTWARE_CHANNELS': '/insights/config/channels/software'
+  'GENERAL': '/redhataccess/config/general',
+  'SYSTEMS': '/redhataccess/config/systems',
+  'SOFTWARE_CHANNELS': '/redhataccess/config/channels/software'
 })
 .constant('TELEMETRY_URLS', {
-  'SYSTEMS_SUMMARY': '/insights/rs/telemetry/api/v1/systems?summary=true',
+  'SYSTEMS_SUMMARY': '/redhataccess/rs/telemetry/api/v1/systems?summary=true',
   'API_ROOT': '/rs/telemetry/api'
 })
 .constant('ADMIN_TABS', {
