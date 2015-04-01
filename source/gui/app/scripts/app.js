@@ -100,8 +100,6 @@ TELEMETRY_URLS) {
         }
 
         Sat5TelemetrySystems.populate();
-      } else if (Util.isOnPage(SAT5_ROOT_URLS.ADMIN)) {
-        appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>');
       } else if (Util.isOnSystemDetailsPage()) {
         $('<li><a href="/rhn/systems/details/Insights.do?' + 
           'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(
@@ -118,6 +116,10 @@ TELEMETRY_URLS) {
       }
     } else {
       console.log('Red Hat Insights is disabled.');
+    }
+
+    if (Util.isOnPage(SAT5_ROOT_URLS.ADMIN)) {
+      appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>');
     }
   })
   .error(function(response) {
