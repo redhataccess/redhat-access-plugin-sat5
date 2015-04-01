@@ -5,14 +5,24 @@ public class SatSystem {
   int id;
   String name;
   String version;
+  SystemInstallStatus installationStatus;
+  boolean enabled;
 
   public SatSystem() {
   }
 
-  public SatSystem(int id, String name, String version) {
+  public SatSystem(
+      int id, 
+      String name, 
+      String version, 
+      SystemInstallStatus installationStatus, 
+      boolean enabled) {
+
     this.id = id;
     this.name = name;
     this.version = version;
+    this.installationStatus = installationStatus;
+    this.enabled = enabled;
   }
 
   public void setId(int id) {
@@ -37,5 +47,21 @@ public class SatSystem {
 
   public String getVersion() {
     return this.version;
+  }
+
+  public void setInstallationStatus(SystemInstallStatus installationStatus) {
+    this.installationStatus = installationStatus;
+  }
+
+  public SystemInstallStatus getInstallationStatus() {
+    return this.installationStatus;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  public boolean getEnabled() {
+    return this.enabled;
   }
 }

@@ -78,6 +78,8 @@ public class ConfigService {
       createRepo(sessionKey);
       createChannel(sessionKey);
       createConfigChannel(sessionKey);
+    } else {
+      //TODO: push config to disable reporting?
     }
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.setFile(new File(context.getRealPath(PROPERTIES_URL)));
@@ -103,15 +105,21 @@ public class ConfigService {
       HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
       String systemVersion = (String) systemDetailsMap.get("release");
       int systemId = (int) apiSysMap.get("id");
+      SystemInstallStatus installationStatus = new SystemInstallStatus();
       if (systemVersion.equals("6Server")) {
-        //Object[] installedPackages = 
-          //SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, CHANNEL_LABEL);
-      }
+        if (channelExists(sessionKey)) {
+          if (packageInstalled(sessionKey, systemId)) {
+            installationStatus.setRpmInstalled(true);
+          };
+        }
+      } 
 
       SatSystem satSys = new SatSystem(
           systemId,
           (String) apiSysMap.get("name"),
-          systemVersion);
+          systemVersion,
+          installationStatus,
+          true);
       satSystems.add(satSys);
     }
 
@@ -171,6 +179,17 @@ public class ConfigService {
     return systems;
   };
 
+  @SuppressWarnings("unchecked")
+  private boolean packageInstalled(String sessionKey, int systemId) {
+    Object[] installedPackages = 
+      SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, CHANNEL_LABEL);
+    boolean found = false;
+    for (Object installedPackage : installedPackages) {
+      HashMap<Object, Object> packageMap = (HashMap<Object, Object>) installedPackage;
+      found = true;
+    }
+    return found;
+  }
   @SuppressWarnings("unchecked")
   private boolean channelExists(String sessionKey) {
     Object[] channels = SatApi.listSoftwareChannels(sessionKey);
