@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -72,23 +71,21 @@ public class ConfigService {
       @QueryParam("satellite_user") String satelliteUser) 
           throws ConfigurationException, MalformedURLException {
 
-    if (userIsAdmin(sessionKey, satelliteUser)) {
-      PropertiesConfiguration properties = new PropertiesConfiguration();
-      properties.load(context.getRealPath(PROPERTIES_URL));
+    if (!userIsAdmin(sessionKey, satelliteUser)) {
+      throw new ForbiddenException("Must be satellite admin.");
+    }
+    if (config.getEnabled()) {
       createRepo(sessionKey);
       createChannel(sessionKey);
       createConfigChannel(sessionKey);
-
-      properties.setFile(new File(context.getRealPath(PROPERTIES_URL)));
-      properties.setProperty(ENABLED_PROPERTY, config.getEnabled());
-      properties.setProperty(USERNAME_PROPERTY, config.getUsername());
-      properties.setProperty(PASSWORD_PROPERTY, config.getPassword());
-      properties.save();
-
-      return Response.status(200).build();
-    } else {
-      throw new ForbiddenException("Must be satellite admin.");
     }
+    PropertiesConfiguration properties = new PropertiesConfiguration();
+    properties.setFile(new File(context.getRealPath(PROPERTIES_URL)));
+    properties.setProperty(ENABLED_PROPERTY, config.getEnabled());
+    properties.setProperty(USERNAME_PROPERTY, config.getUsername());
+    properties.setProperty(PASSWORD_PROPERTY, config.getPassword());
+    properties.save();
+    return Response.status(200).build();
   }
 
   @SuppressWarnings("unchecked")
@@ -107,8 +104,8 @@ public class ConfigService {
       String systemVersion = (String) systemDetailsMap.get("release");
       int systemId = (int) apiSysMap.get("id");
       if (systemVersion.equals("6Server")) {
-        Object[] installedPackages = 
-          SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, CHANNEL_LABEL);
+        //Object[] installedPackages = 
+          //SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, CHANNEL_LABEL);
       }
 
       SatSystem satSys = new SatSystem(
@@ -174,23 +171,6 @@ public class ConfigService {
     return systems;
   };
 
-  @SuppressWarnings("unchecked")
-  private Map<String, Integer> channelsExist(String sessionKey) {
-    Object[] channels = SatApi.listSoftwareChannels(sessionKey);
-    Map<String, Integer> response = new HashMap<String, Integer>();
-    response.put("rhel6", -1);
-    response.put("rhel7", -1);
-    for (Object channel : channels) {
-      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
-      String label = (String) channelMap.get("label");
-      if (label.equals("rhel6-telemetry-label")) {
-        response.put("rhel6", 1);
-      } else if (label.equals("rhel7-telemetry-label")) {
-        response.put("rhel7", 1);
-      }
-    }
-    return response;
-  }
   @SuppressWarnings("unchecked")
   private boolean channelExists(String sessionKey) {
     Object[] channels = SatApi.listSoftwareChannels(sessionKey);
@@ -301,35 +281,6 @@ public class ConfigService {
           false,
           pathInfo);
     }
-  }
-
-  /**
-   * Create the rhel6 and rhel7 channels and associate the repo to them
-   * Returns a map of the new or existing repo IDs
-   */
-  private Map<String, Integer> createChannels(String sessionKey, int repoId) {
-    Map<String, Integer> existingChannelsMap = channelsExist(sessionKey);
-    if (existingChannelsMap.get("rhel6") == -1) {
-      int rhel6Id = SatApi.createChannel(
-          sessionKey, 
-          "rhel6-telemetry-label",
-          "rhel6 telemetry name",
-          "rhel6 telemetry summary",
-          "x86_64",
-          "");
-      existingChannelsMap.put("rhel6", rhel6Id);
-    }
-    if (existingChannelsMap.get("rhel7") == -1) {
-      int rhel7Id = SatApi.createChannel(
-          sessionKey, 
-          "rhel7-telemetry-label",
-          "rhel7 telemetry name",
-          "rhel7 telemetry summary",
-          "x86_64",
-          "");
-      existingChannelsMap.put("rhel7", rhel7Id);
-    }
-    return existingChannelsMap;
   }
 
   private boolean userIsAdmin(String sessionKey, String username) {
