@@ -1,7 +1,8 @@
 
 angular.module('sat5TelemetryApp')
 .constant('EVENTS', {
-  'SYSTEMS_POPULATED': 'systems_populated'
+  'SYSTEMS_POPULATED': 'systems_populated',
+  'GENERAL_CONFIG_LOADED': 'general_config_loaded'
 })
 .constant('SYSTEM_PAGE_URLS', {
   'SYSTEM_OVERVIEW': 'systems/Overview.do',

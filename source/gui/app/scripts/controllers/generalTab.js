@@ -13,7 +13,8 @@ _,
 $scope,
 $http,
 Admin,
-Alert) {
+Alert,
+EVENTS) {
 
   $scope.softwareChannels = [];
   $scope.enabled = false;
@@ -46,15 +47,9 @@ Alert) {
       });
   };
 
-  Admin.getConfig()
-    .success(function(response) {
-      $scope.username = response.username;
-      $scope.enabled = response.enabled;
-      $scope.loading = false;
-    })
-    .error(function(error) {
-      console.log(error);
-      $scope.loading = false;
-    });
-
+  $scope.$on(EVENTS.GENERAL_CONFIG_LOADED, function() {
+    $scope.username = Admin.getUsername();
+    $scope.enabled = Admin.getEnabled();
+    $scope.loading = false;
+  });
 });

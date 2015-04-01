@@ -43,6 +43,21 @@ angular.module('sat5TelemetryApp')
     return response;
   };
 
+  this.isOnSystemListPage = function() {
+    if (this.isOnPage(SYSTEM_PAGE_URLS.SYSTEMS) ||
+        this.isOnPage(SYSTEM_PAGE_URLS.PHYSICAL) ||
+        this.isOnPage(SYSTEM_PAGE_URLS.OUT_OF_DATE) ||
+        this.isOnPage(SYSTEM_PAGE_URLS.REQUIRING_REBOOT) ||
+        this.isOnPage(SYSTEM_PAGE_URLS.UNGROUPED) ||
+        this.isOnPage(SYSTEM_PAGE_URLS.INACTIVE) ||
+        this.isOnPage(SYSTEM_PAGE_URLS.RECENTLY_REGISTERED) ||
+        this.isOnSystemOverviewPage()) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   this.getSidFromUrl = function(url) {
     var query = new URI(url).query(true);
     return query.sid;

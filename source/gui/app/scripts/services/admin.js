@@ -18,6 +18,8 @@ CONFIG_KEYS,
 ADMIN_TABS) {
 
   var _tab = ADMIN_TABS.GENERAL;
+  var _enabled = false;
+  var _username = "";
 
   var setTab = function(tab) {
     _tab = tab;
@@ -33,6 +35,22 @@ ADMIN_TABS) {
 
   var systemsTabSelected = function() {
     return _tab === ADMIN_TABS.SYSTEMS;
+  };
+
+  var getEnabled = function() {
+    return _enabled;
+  };
+
+  var setEnabled = function(enabled) {
+    _enabled = enabled;
+  };
+
+  var getUsername = function() {
+    return _username;
+  };
+
+  var setUsername = function(username) {
+    _username = username;
   };
 
   /**
@@ -116,6 +134,10 @@ ADMIN_TABS) {
     generalTabSelected: generalTabSelected,
     systemsTabSelected: systemsTabSelected,
     getSystemsPromise: getSystemsPromise,
-    postSystems: postSystems
+    postSystems: postSystems,
+    getEnabled: getEnabled,
+    setEnabled: setEnabled,
+    setUsername: setUsername,
+    getUsername: getUsername
   };
 });
