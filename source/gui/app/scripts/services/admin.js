@@ -70,7 +70,9 @@ ADMIN_TABS) {
     var data = {};
     data[CONFIG_KEYS.ENABLED] = enabled;
     data[CONFIG_KEYS.USERNAME] = username;
-    data[CONFIG_KEYS.PASSWORD] = password;
+    if (password !== null) {
+      data[CONFIG_KEYS.PASSWORD] = password;
+    }
     var promise = $http({
       method: HTTP_CONST.POST,
       url: CONFIG_URLS.GENERAL,

@@ -22,14 +22,28 @@ EVENTS) {
   $scope.password = '';
   $scope.loading = true;
 
-  $scope.disableUpdateButton = function() {
+  function fieldIsDirty(field) {
     var response = false;
-    if (_.isEmpty($scope.username) || 
-    _.isEmpty($scope.password) || 
-        $scope.loading) {
+    if ($scope.enabled && _.isEmpty(field)) {
       response = true;
     }
     return response;
+  }
+
+  $scope.disableUpdateButton = function() {
+    var response = false;
+    if ($scope.usernameDirty() || $scope.passwordDirty() || $scope.loading) {
+      response = true;
+    }
+    return response;
+  };
+
+  $scope.usernameDirty = function() {
+    return fieldIsDirty($scope.username);
+  };
+
+  $scope.passwordDirty = function() {
+    return fieldIsDirty($scope.password);
   };
 
   $scope.doUpdate = function() {

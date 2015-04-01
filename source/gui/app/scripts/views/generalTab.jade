@@ -14,14 +14,22 @@ div.panel.panel-default
               type='checkbox', 
               ng-model='enabled',
               ng-disabled='loading')
-      div.form-group
+      div.form-group(ng-class='{"has-error":usernameDirty()}')
         label(for='rha-insights-password').col-lg-3.control-label Customer Portal Username
         div.col-lg-6
-          input#rha-insights-password.form-control(type='text', size='32', ng-model='username', ng-disabled='loading')
-      div.form-group
+          input#rha-insights-password.form-control(
+            type='text', 
+            size='32', 
+            ng-model='username', 
+            ng-disabled='loading') 
+      div.form-group(ng-class='{"has-error":passwordDirty()}')
         label(for='rha-insights-password').col-lg-3.control-label Customer Portal Password
         div.col-lg-6
-          input#rha-insights-password.form-control(type='password', size='32', ng-model='password', ng-disabled='loading')
+          input#rha-insights-password.form-control(
+            type='password', 
+            size='32', 
+            ng-model='password', 
+            ng-disabled='loading')
       div.form-group
         div.col-lg-offset-3.col-lg-6
           input.btn.btn-success(type='submit', value='Update', ng-click='doUpdate()', ng-disabled='disableUpdateButton()')
