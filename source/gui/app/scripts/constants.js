@@ -68,7 +68,7 @@ angular.module('sat5TelemetryApp')
 })
 .constant('TELEMETRY_URLS', {
   'SYSTEMS_SUMMARY': '/redhataccess/rs/telemetry/api/v1/systems?summary=true',
-  'API_ROOT': '/rs/telemetry/api'
+  'API_ROOT': '/rs/telemetry/api/v1'
 })
 .constant('ADMIN_TABS', {
   'GENERAL': 'general',

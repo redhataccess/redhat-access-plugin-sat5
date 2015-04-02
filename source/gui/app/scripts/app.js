@@ -82,7 +82,7 @@ TELEMETRY_URLS) {
 
     var HEALTH_TABLE_POS = 1;
 
-    $('<th id="rha-insights-system-health-col-head" class="ng-hide">Insight</th>').insertAfter(
+    $('<th id="rha-insights-system-health-col-head" class="ng-hide">Insights</th>').insertAfter(
       $('.table > thead > tr > th:eq(' + HEALTH_TABLE_POS + ')'));
 
     var count = $('.table > tbody > tr').length;

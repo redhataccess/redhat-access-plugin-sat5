@@ -92,9 +92,18 @@ public class ConfigService {
       SystemInstallStatus installationStatus = new SystemInstallStatus();
       if (systemVersion.equals("6Server")) {
         if (channelExists(sessionKey)) {
-          if (packageInstalled(sessionKey, systemId)) {
+          if (rpmInstalled(sessionKey, systemId)) {
             installationStatus.setRpmInstalled(true);
-          };
+          }
+          if (softwareChannelAssociated(sessionKey, systemId)) {
+            installationStatus.setSoftwareChannelAssociated(true);
+          }
+          if (configChannelAssociated(sessionKey, systemId)) {
+            installationStatus.setConfigChannelAssociated(true);
+          }
+          if (configDeployed(sessionKey, systemId)) {
+            installationStatus.setConfigDeployed(true);
+          }
         }
       } 
 
@@ -133,18 +142,8 @@ public class ConfigService {
     //install the redhat-access-proactive package on the system
     for (SatSystem sys : systems) {
       if (sys.getVersion().equals("6Server")) {
-        //list existing channels system is subscribed to
-        Object[] systemChannels = SatApi.listSystemChannels(sessionKey, sys.getId());
-        ArrayList<String> systemChannelLabels = new ArrayList<String>();
-        for (Object systemChannel : systemChannels) {
-          String label = 
-            (String)((HashMap<Object, Object>) systemChannel).get("label");
-          systemChannelLabels.add(label);
-        }
-        systemChannelLabels.add(Constants.CHANNEL_LABEL);
 
-        //subscribe system to Red Hat Insights child channel
-        SatApi.setChildChannels(sessionKey, sys.getId(), systemChannelLabels);
+        subscribeSystemToSoftwareChannel(sessionKey, sys.getId());
 
         //install the package
         ArrayList<Integer> packageIds = new ArrayList<Integer>();
@@ -164,7 +163,74 @@ public class ConfigService {
   };
 
   @SuppressWarnings("unchecked")
-  private boolean packageInstalled(String sessionKey, int systemId) {
+  private boolean softwareChannelAssociated(String sessionKey, int systemId) {
+    Object[] channels = SatApi.listSystemChannels(sessionKey, systemId);
+    boolean found = false;
+    for (Object channel : channels) {
+      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
+      if (channelMap.get("label").equals(Constants.CHANNEL_LABEL)) {
+        found = true;
+      }
+    }
+    return found;
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean configChannelAssociated(String sessionKey, int systemId) {
+    Object[] channels = SatApi.listConfigChannels(sessionKey, systemId);
+    boolean found = false;
+    for (Object channel : channels) {
+      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
+      if (channelMap.get("label").equals(Constants.CONFIG_CHANNEL_LABEL)) {
+        found = true;
+      }
+    }
+    return found;
+  }
+
+  @SuppressWarnings("unchecked")
+  private int getLatestFileRevision(String sessionKey) {
+    Object[] revisions =
+      (Object[]) SatApi.getFileRevisions(
+          sessionKey, Constants.CONFIG_CHANNEL_LABEL, Constants.CONFIG_PATH);
+    int version = -1;
+    if (revisions != null) {
+      for (Object revision : revisions) {
+        HashMap<Object, Object> revisionMap = (HashMap<Object, Object>) revision;
+        int currentVersion = (int) revisionMap.get("revision");
+        if (currentVersion > version) {
+          version = currentVersion;
+        }
+      }
+    }
+    return version;
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean configDeployed(String sessionKey, int systemId) {
+    boolean response = false;
+    int latestRevision = getLatestFileRevision(sessionKey);
+    if (latestRevision > 0) {
+      ArrayList<String> paths = new ArrayList<String>();
+      paths.add(Constants.CONFIG_PATH);
+      Object[] fileInfos = SatApi.lookupFileInfo(sessionKey, systemId, paths, 1);
+      for (Object fileInfo : fileInfos) {
+        HashMap<Object, Object> fileInfoMap = (HashMap<Object, Object>) fileInfo;
+        String channel = (String) fileInfoMap.get("channel");
+        if (channel.equals(Constants.CONFIG_CHANNEL_NAME)) {
+          int revision = (int) fileInfoMap.get("revision");
+          if (revision == latestRevision) {
+            response = true;
+          }
+        }
+      }
+    }
+
+    return response;
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean rpmInstalled(String sessionKey, int systemId) {
     Object[] installedPackages = 
       SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, Constants.CHANNEL_LABEL);
     boolean found = false;
@@ -174,6 +240,7 @@ public class ConfigService {
     }
     return found;
   }
+
   @SuppressWarnings("unchecked")
   private boolean channelExists(String sessionKey) {
     Object[] channels = SatApi.listSoftwareChannels(sessionKey);
@@ -216,6 +283,35 @@ public class ConfigService {
     } 
   }
 
+  @SuppressWarnings("unchecked")
+  private boolean subscribeSystemToSoftwareChannel(
+      String sessionKey,
+      int systemId) {
+
+    //list existing channels system is subscribed to
+    Object[] systemChannels = SatApi.listSystemChannels(sessionKey, systemId);
+    ArrayList<String> systemChannelLabels = new ArrayList<String>();
+    for (Object systemChannel : systemChannels) {
+      String label = 
+        (String)((HashMap<Object, Object>) systemChannel).get("label");
+      //insights channel already associated
+      if (label.equals(Constants.CHANNEL_LABEL)) {
+        return true;
+      }
+      systemChannelLabels.add(label);
+    }
+    systemChannelLabels.add(Constants.CHANNEL_LABEL);
+
+    //subscribe system to Red Hat Insights child channel
+    int response = 
+      SatApi.setChildChannels(sessionKey, systemId, systemChannelLabels);
+    if (response != 1) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   private boolean createChannel(String sessionKey) {
     boolean response = false;
     if (!channelExists(sessionKey)) {
@@ -253,25 +349,26 @@ public class ConfigService {
       pathInfo.put("contents", 
           "[redhat_access_proactive]" + 
           System.getProperty("line.separator") +
-          "# Change log level, valid options DEBUG, INFO, WARNING, ERROR, CRITICAL. Default DEBUG" +
-          System.getProperty("line.separator") +
-          "#loglevel=DEBUG" + 
-          System.getProperty("line.separator") +
-          "# Change authentication method, valid options BASIC, CERT. Default BASIC" +
-          System.getProperty("line.separator") +
-          "authmethod=BASIC" + 
-          System.getProperty("line.separator") +
-          "# URL to send uploads to" + 
-          System.getProperty("line.separator") +
-          "upload_url=https://sat57.usersys.redhat.com/redhataccess/rs/telemetry" + 
-          System.getProperty("line.separator") +
-          "# URL to send API requests to" + 
-          System.getProperty("line.separator") +
-          "api_url=https://sat57.usersys.redhat.com/redhataccess/rs/telemetry/api" + 
-          System.getProperty("line.separator") +
-          "username=" +
-          System.getProperty("line.separator") +
-          "password=");
+          "auto_config=true");
+          //"# Change log level, valid options DEBUG, INFO, WARNING, ERROR, CRITICAL. Default DEBUG" +
+          //System.getProperty("line.separator") +
+          //"#loglevel=DEBUG" + 
+          //System.getProperty("line.separator") +
+          //"# Change authentication method, valid options BASIC, CERT. Default BASIC" +
+          //System.getProperty("line.separator") +
+          //"authmethod=BASIC" + 
+          //System.getProperty("line.separator") +
+          //"# URL to send uploads to" + 
+          //System.getProperty("line.separator") +
+          //"upload_url=https://sat57.usersys.redhat.com/redhataccess/rs/telemetry" + 
+          //System.getProperty("line.separator") +
+          //"# URL to send API requests to" + 
+          //System.getProperty("line.separator") +
+          //"api_url=https://sat57.usersys.redhat.com/redhataccess/rs/telemetry/api" + 
+          //System.getProperty("line.separator") +
+          //"username=" +
+          //System.getProperty("line.separator") +
+          //"password=");
       pathInfo.put("contents_enc64", false);
       pathInfo.put("owner", "root");
       pathInfo.put("group", "root");

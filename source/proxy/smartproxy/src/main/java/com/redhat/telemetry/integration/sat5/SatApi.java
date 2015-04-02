@@ -211,6 +211,34 @@ public class SatApi {
     return response;
   }
 
+  public static Object[]
+  lookupFileInfo(
+      String sessionKey, 
+      int serverId, 
+      ArrayList<String> paths, 
+      int searchLocal) {
+    Object[] params = new Object[] {sessionKey, serverId, paths, searchLocal};
+    Object[] response = 
+      (Object[]) makeRequest("system.config.lookupFileInfo", params);
+    return response;
+  }
+
+  public static Object[]
+  listConfigChannels(String sessionKey, int serverId) {
+    Object[] params = new Object[] {sessionKey, serverId};
+    Object[] response = 
+      (Object[]) makeRequest("system.config.listChannels", params);
+    return response;
+  }
+
+  public static Object[]
+  getFileRevisions(String sessionKey, String channelLabel, String filePath) {
+    Object[] params = new Object[] {sessionKey, channelLabel, filePath};
+    Object[] response = 
+      (Object[]) makeRequest("configchannel.getFileRevisions", params);
+    return response;
+  }
+
   @SuppressWarnings("unchecked")
   public static int
   createRepo(String sessionKey, String label, String type, String url) {
