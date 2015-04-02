@@ -17,7 +17,6 @@ form
             div.list-sizeselector
               select.display-number(ng-disabled='loading')
                 | items per page
-                option 1
                 option 5
                 option 10
                 option.selected 25
@@ -46,7 +45,10 @@ form
                 input(type='checkbox', ng-model='system.selected')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
-              td(width='150px') Not installed
+              td(width='50px')
+                i.fa.fa-check-circle-o(style='color: #222222', ng-if='installationSuccess(system)')
+                i.fa.fa-exclamation-circle(style='color: #222222', ng-if='installationFail(system)')
+                i.fa.fa-spinner.fa-spin(style='color: #222222', ng-if='installationPending(system)')
       div.panel-footer
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra

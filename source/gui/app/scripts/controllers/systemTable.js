@@ -67,6 +67,53 @@ SYSTEM_DETAILS_PAGE_URLS) {
       });
   };
 
+  /**
+   * 0 - fail
+   * 1 - pending
+   * 2 - success
+   */
+  $scope.getInstallationStatus = function(system) {
+    var response = -1;
+    var installationStatus = system.installationStatus;
+    if (!installationStatus.rpmInstalled || 
+        !installationStatus.configDeployed || 
+        !installationStatus.configChannelAssociated || 
+        !installationStatus.softwareChannelAssociated) {
+      response = 0;
+    } else {
+      response = 2;
+    }
+
+    return response;
+  };
+
+  $scope.installationPending = function(system) {
+    var status = $scope.getInstallationStatus(system);
+    if (status === 1) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  $scope.installationSuccess = function(system) {
+    var status = $scope.getInstallationStatus(system);
+    if (status === 2) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  $scope.installationFail = function(system) {
+    var status = $scope.getInstallationStatus(system);
+    if (status === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   Admin.getSystemsPromise()
     .success(function(response) {
       $scope.loading = false;
