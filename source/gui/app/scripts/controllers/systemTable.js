@@ -67,29 +67,101 @@ SYSTEM_DETAILS_PAGE_URLS) {
       });
   };
 
+  //if status===true return systems with installationStatus===true
+  $scope.makeStatusMessage = function(system, status) {
+    var messages = [];
+    var groupedStatus = 
+      _.groupBy(Object.keys(system.installationStatus), function(value, key, statuses) {
+        if (system.installationStatus[value]) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+
+    if (!status) {
+      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['rpmInstalled'])) {
+        messages.push('RPM is not installed');
+      } 
+      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['softwareChannelAssociated'])) {
+        messages.push('Software channel not associated');
+      }
+      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['configChannelAssociated'])) {
+        messages.push('Config channel not associated');
+      }
+      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['configDeployed'])) {
+        messages.push('Config out of sync with latest revision');
+      }
+    } else {
+      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['rpmInstalled'])) {
+        messages.push('RPM installed');
+      } 
+      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['softwareChannelAssociated'])) {
+        messages.push('Software channel associated');
+      }
+      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['configChannelAssociated'])) {
+        messages.push('Config channel associated');
+      }
+      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['configDeployed'])) {
+        messages.push('Config in sync with latest revision');
+      }
+    }
+
+    var response = '';
+    _.forEach(messages, function(message, index) {
+      if (index === messages.length - 1) {
+        response = response + message;
+      } else {
+        response = response + message + ', ';
+      }
+    });
+    
+    return response;
+  };
+
   /**
-   * 0 - fail
-   * 1 - pending
-   * 2 - success
+   * -1 - what?
+   *  0 - failed install
+   *  1 - in progress install
+   *  2 - no install
+   *  3 - successful install
    */
+  var FAILED_INSTALL_STATUS = 0;
+  var IN_PROGRESS_INSTALL_STATUS = 1;
+  var NO_INSTALL_STATUS = 2;
+  var SUCCESSFUL_INSTALL_STATUS = 3;
   $scope.getInstallationStatus = function(system) {
     var response = -1;
     var installationStatus = system.installationStatus;
-    if (!installationStatus.rpmInstalled || 
+    if (!installationStatus.rpmInstalled &&
+        !installationStatus.configDeployed &&
+        !installationStatus.configChannelAssociated &&
+        !installationStatus.softwareChannelAssociated) {
+      response = NO_INSTALL_STATUS;
+    } else if (!installationStatus.rpmInstalled || 
         !installationStatus.configDeployed || 
         !installationStatus.configChannelAssociated || 
         !installationStatus.softwareChannelAssociated) {
-      response = 0;
+      response = FAILED_INSTALL_STATUS;
     } else {
-      response = 2;
+      response = SUCCESSFUL_INSTALL_STATUS;
     }
 
     return response;
   };
 
+  $scope.noInstallation = function(system) {
+    var status = $scope.getInstallationStatus(system);
+    if (status === NO_INSTALL_STATUS) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   $scope.installationPending = function(system) {
     var status = $scope.getInstallationStatus(system);
-    if (status === 1) {
+    if (status === IN_PROGRESS_INSTALL_STATUS) {
       return true;
     } else {
       return false;
@@ -98,7 +170,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.installationSuccess = function(system) {
     var status = $scope.getInstallationStatus(system);
-    if (status === 2) {
+    if (status === SUCCESSFUL_INSTALL_STATUS) {
       return true;
     } else {
       return false;
@@ -107,7 +179,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.installationFail = function(system) {
     var status = $scope.getInstallationStatus(system);
-    if (status === 0) {
+    if (status === FAILED_INSTALL_STATUS) {
       return true;
     } else {
       return false;
