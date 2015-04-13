@@ -18,6 +18,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.loading = true;
   $scope.filter = '';
   $scope.systems = [];
+  $scope.validSystems = [];
   $scope.orderBy = 'name';
 
   $scope.toggleStatusSort = function() {
@@ -38,7 +39,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.toggleAll = function() {
     var allSelected = $scope.allSelected();
-    _.forEach($scope.systems, function(system) {
+    _.forEach($scope.validSystems, function(system) {
       system.selected = !allSelected;
     });
   };
@@ -50,13 +51,13 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.allSelected = function() {
-    return !_.some($scope.systems, {'selected': false});
+    return !_.some($scope.validSystems, {'selected': false});
   };
 
   $scope.partiallySelected = function() {
     var response = false;
 
-    var someSelected = _.some($scope.systems, {'selected': true});
+    var someSelected = _.some($scope.validSystems, {'selected': true});
 
     if ($scope.allSelected()) {
       response = false;
@@ -68,7 +69,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.getNumSelected = function() {
-    return _.where($scope.systems, {'selected': true}).length;
+    return _.where($scope.validSystems, {'selected': true}).length;
   };
 
   $scope.getSystemUrl = function(system) {
@@ -77,7 +78,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.doApply = function() {
-    Admin.postSystems($scope.systems)
+    Admin.postSystems($scope.validSystems)
       .success(function(response) {
         console.log(response);
       })
@@ -152,15 +153,19 @@ SYSTEM_DETAILS_PAGE_URLS) {
    *  1 - in progress install
    *  2 - no install
    *  3 - successful install
+   *  4 - invalid system type
    */
   var FAILED_INSTALL_STATUS = 0;
   var IN_PROGRESS_INSTALL_STATUS = 1;
   var NO_INSTALL_STATUS = 2;
   var SUCCESSFUL_INSTALL_STATUS = 3;
+  var INVALID_TYPE_STATUS = 4;
   $scope.getInstallationStatus = function(system) {
     var response = -1;
     var installationStatus = system.installationStatus;
-    if (!installationStatus.rpmInstalled &&
+    if (!system.validType) {
+      response = INVALID_TYPE_STATUS;
+    } else if (!installationStatus.rpmInstalled &&
         !installationStatus.configDeployed &&
         !installationStatus.configChannelAssociated &&
         !installationStatus.softwareChannelAssociated) {
@@ -213,8 +218,17 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
+  $scope.invalidType = function(system) {
+    var status = $scope.getInstallationStatus(system);
+    if (status == INVALID_TYPE_STATUS) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   $scope.setSelectionState = function() {
-    _.forEach($scope.systems, function(system) {
+    _.forEach($scope.validSystems, function(system) {
       if ($scope.installationSuccess(system)) {
         system.selected = true;
       } else if ($scope.noInstallation(system)) {
@@ -229,6 +243,10 @@ SYSTEM_DETAILS_PAGE_URLS) {
     .success(function(response) {
       $scope.loading = false;
       $scope.systems = response;
+      $scope.validSystems = 
+        _.filter(
+          response, 
+          {'validType': true});
       $scope.setSelectionState();
     })
     .error(function(error) {

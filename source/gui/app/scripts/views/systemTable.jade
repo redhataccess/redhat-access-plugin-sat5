@@ -53,7 +53,7 @@ form
               ng-repeat='system in systems | filter: filter | orderBy: orderBy', 
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
-                input(type='checkbox', ng-model='system.selected')
+                input(type='checkbox', ng-model='system.selected', ng-if='!invalidType(system)')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
               td.text-center(width='50px')
@@ -63,6 +63,8 @@ form
                   ng-if='installationFail(system)') 
                 i.fa.fa-check-circle.fa-1-5x.success(
                   ng-if='installationSuccess(system)') 
+                i.fa.fa-ban.fa-1-5x(
+                  ng-if='invalidType(system)') 
       div.panel-footer
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra

@@ -7,6 +7,7 @@ public class SatSystem {
   String version;
   SystemInstallStatus installationStatus;
   boolean enabled;
+  boolean validType;
 
   public SatSystem() {
   }
@@ -16,13 +17,15 @@ public class SatSystem {
       String name, 
       String version, 
       SystemInstallStatus installationStatus, 
-      boolean enabled) {
+      boolean enabled,
+      boolean validType) {
 
     this.id = id;
     this.name = name;
     this.version = version;
     this.installationStatus = installationStatus;
     this.enabled = enabled;
+    this.validType = validType;
   }
 
   public void setId(int id) {
@@ -63,5 +66,13 @@ public class SatSystem {
 
   public boolean getEnabled() {
     return this.enabled;
+  }
+
+  public void setValidType(boolean validType) {
+    this.validType = validType;
+  }
+
+  public boolean getValidType() {
+    return this.validType;
   }
 }

@@ -26,6 +26,9 @@ public class ConfigService {
   @Context ServletContext context;
 
 
+  /**
+   * Retrieve general config values
+   */
   @GET
   @Path("/general")
   @Produces(MediaType.APPLICATION_JSON)
@@ -46,6 +49,9 @@ public class ConfigService {
     }   
   }
 
+  /**
+   * Update general config values
+   */
   @POST
   @Path("/general")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -74,6 +80,10 @@ public class ConfigService {
     return Response.status(200).build();
   }
 
+  /**
+   * Retrieve a list of systems visible to the user
+   * Includes the installation status for each system
+   */
   @SuppressWarnings("unchecked")
   @GET
   @Path("/systems")
@@ -90,7 +100,9 @@ public class ConfigService {
       String systemVersion = (String) systemDetailsMap.get("release");
       int systemId = (int) apiSysMap.get("id");
       SystemInstallStatus installationStatus = new SystemInstallStatus();
-      if (systemVersion.equals("6Server")) {
+      boolean validSystem = false;
+      if (systemVersion.equals("6Server") || systemVersion.equals("7Server")) {
+        validSystem = true;
         if (channelExists(sessionKey)) {
           if (rpmInstalled(sessionKey, systemId)) {
             installationStatus.setRpmInstalled(true);
@@ -105,20 +117,24 @@ public class ConfigService {
             installationStatus.setConfigDeployed(true);
           }
         }
-      } 
+      }
 
       SatSystem satSys = new SatSystem(
           systemId,
           (String) apiSysMap.get("name"),
           systemVersion,
           installationStatus,
-          true);
+          true,
+          validSystem);
       satSystems.add(satSys);
     }
 
     return satSystems;
   }
 
+  /**
+   * (Un)Install insights on multiple systems
+   */
   @SuppressWarnings("unchecked")
   @POST
   @Path("/systems")
@@ -162,32 +178,45 @@ public class ConfigService {
     return systems;
   };
 
+  /**
+   * Check if a system has the insights channel associated
+   */
   @SuppressWarnings("unchecked")
   private boolean softwareChannelAssociated(String sessionKey, int systemId) {
     Object[] channels = SatApi.listSystemChannels(sessionKey, systemId);
     boolean found = false;
-    for (Object channel : channels) {
-      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
-      if (channelMap.get("label").equals(Constants.CHANNEL_LABEL)) {
-        found = true;
+    if (channels != null) {
+      for (Object channel : channels) {
+        HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
+        if (channelMap.get("label").equals(Constants.CHANNEL_LABEL)) {
+          found = true;
+        }
       }
     }
     return found;
   }
 
+  /**
+   * Check if a system has the config channel associated
+   */
   @SuppressWarnings("unchecked")
   private boolean configChannelAssociated(String sessionKey, int systemId) {
     Object[] channels = SatApi.listConfigChannels(sessionKey, systemId);
     boolean found = false;
-    for (Object channel : channels) {
-      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
-      if (channelMap.get("label").equals(Constants.CONFIG_CHANNEL_LABEL)) {
-        found = true;
+    if (channels != null) {
+      for (Object channel : channels) {
+        HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
+        if (channelMap.get("label").equals(Constants.CONFIG_CHANNEL_LABEL)) {
+          found = true;
+        }
       }
     }
     return found;
   }
 
+  /**
+   * Get the latest insights config file revision
+   */
   @SuppressWarnings("unchecked")
   private int getLatestFileRevision(String sessionKey) {
     Object[] revisions =
@@ -206,6 +235,9 @@ public class ConfigService {
     return version;
   }
 
+  /**
+   * Check if a system has the latest config file rev deployed
+   */
   @SuppressWarnings("unchecked")
   private boolean configDeployed(String sessionKey, int systemId) {
     boolean response = false;
@@ -214,13 +246,15 @@ public class ConfigService {
       ArrayList<String> paths = new ArrayList<String>();
       paths.add(Constants.CONFIG_PATH);
       Object[] fileInfos = SatApi.lookupFileInfo(sessionKey, systemId, paths, 1);
-      for (Object fileInfo : fileInfos) {
-        HashMap<Object, Object> fileInfoMap = (HashMap<Object, Object>) fileInfo;
-        String channel = (String) fileInfoMap.get("channel");
-        if (channel.equals(Constants.CONFIG_CHANNEL_NAME)) {
-          int revision = (int) fileInfoMap.get("revision");
-          if (revision == latestRevision) {
-            response = true;
+      if (fileInfos != null) {
+        for (Object fileInfo : fileInfos) {
+          HashMap<Object, Object> fileInfoMap = (HashMap<Object, Object>) fileInfo;
+          String channel = (String) fileInfoMap.get("channel");
+          if (channel.equals(Constants.CONFIG_CHANNEL_NAME)) {
+            int revision = (int) fileInfoMap.get("revision");
+            if (revision == latestRevision) {
+              response = true;
+            }
           }
         }
       }
@@ -229,41 +263,56 @@ public class ConfigService {
     return response;
   }
 
+  /**
+   * Check if a system has the RPM installed
+   */
   @SuppressWarnings("unchecked")
   private boolean rpmInstalled(String sessionKey, int systemId) {
     Object[] installedPackages = 
       SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, Constants.CHANNEL_LABEL);
     boolean found = false;
-    for (Object installedPackage : installedPackages) {
-      HashMap<Object, Object> packageMap = (HashMap<Object, Object>) installedPackage;
-      found = true;
+    if (installedPackages != null) {
+      for (Object installedPackage : installedPackages) {
+        HashMap<Object, Object> packageMap = (HashMap<Object, Object>) installedPackage;
+        found = true;
+      }
     }
     return found;
   }
 
+  /**
+   * Check if the insights software channel exists
+   */
   @SuppressWarnings("unchecked")
   private boolean channelExists(String sessionKey) {
     Object[] channels = SatApi.listSoftwareChannels(sessionKey);
     boolean response = false;
-    for (Object channel : channels) {
-      HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
-      String label = (String) channelMap.get("label");
-      if (label.equals(Constants.CHANNEL_LABEL)) {
-        response = true;
+    if (channels != null) {
+      for (Object channel : channels) {
+        HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
+        String label = (String) channelMap.get("label");
+        if (label.equals(Constants.CHANNEL_LABEL)) {
+          response = true;
+        }
       }
     }
     return response;
   }
 
+  /**
+   * Check if the insights repo exists
+   */
   @SuppressWarnings("unchecked")
   private boolean repoExists(String sessionKey) {
     Object[] repos = SatApi.listUserRepos(sessionKey);
     boolean exists = false;
-    for (Object repo : repos) {
-      HashMap<Object, Object> repoMap = (HashMap<Object, Object>) repo;
-      String label = (String) repoMap.get("label"); 
-      if (label.equals(Constants.REPO_LABEL)) {
-        exists = true;
+    if (repos != null) {
+      for (Object repo : repos) {
+        HashMap<Object, Object> repoMap = (HashMap<Object, Object>) repo;
+        String label = (String) repoMap.get("label"); 
+        if (label.equals(Constants.REPO_LABEL)) {
+          exists = true;
+        }
       }
     }
     return exists;
@@ -283,6 +332,9 @@ public class ConfigService {
     } 
   }
 
+  /**
+   * Subscribe a system to the insights software channel
+   */
   @SuppressWarnings("unchecked")
   private boolean subscribeSystemToSoftwareChannel(
       String sessionKey,
@@ -291,14 +343,16 @@ public class ConfigService {
     //list existing channels system is subscribed to
     Object[] systemChannels = SatApi.listSystemChannels(sessionKey, systemId);
     ArrayList<String> systemChannelLabels = new ArrayList<String>();
-    for (Object systemChannel : systemChannels) {
-      String label = 
-        (String)((HashMap<Object, Object>) systemChannel).get("label");
-      //insights channel already associated
-      if (label.equals(Constants.CHANNEL_LABEL)) {
-        return true;
+    if (systemChannels != null) {
+      for (Object systemChannel : systemChannels) {
+        String label = 
+          (String)((HashMap<Object, Object>) systemChannel).get("label");
+        //insights channel already associated
+        if (label.equals(Constants.CHANNEL_LABEL)) {
+          return true;
+        }
+        systemChannelLabels.add(label);
       }
-      systemChannelLabels.add(label);
     }
     systemChannelLabels.add(Constants.CHANNEL_LABEL);
 
@@ -312,6 +366,11 @@ public class ConfigService {
     }
   }
 
+  /**
+   * Create the insights custom software channel,
+   * assocate to the insights repo,
+   * syncronize the repo.
+   */
   private boolean createChannel(String sessionKey) {
     boolean response = false;
     if (!channelExists(sessionKey)) {
@@ -338,6 +397,9 @@ public class ConfigService {
     return response;
   }
 
+  /**
+   * Create the insights config channel and add a default file
+   */
   private void createConfigChannel(String sessionKey) {
     if (SatApi.configChannelExists(sessionKey, Constants.CONFIG_CHANNEL_LABEL) != 1) {
       SatApi.createConfigChannel(
@@ -383,6 +445,9 @@ public class ConfigService {
     }
   }
 
+  /**
+   * Check if a user is the satellite administrator
+   */
   private boolean userIsAdmin(String sessionKey, String username) {
     Object[] userRoles = SatApi.listUserRoles(sessionKey, username);
     boolean response = false;
