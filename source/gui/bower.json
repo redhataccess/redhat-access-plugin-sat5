@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "dependencies": {
     "angular": "~1.3.0",
-    "uri.js": "~1.14.1"
+    "uri.js": "~1.14.1",
+    "angular-ui-utils": "bower-indeterminate"
   },
   "devDependencies": {
     "lodash": "~3.3.0"

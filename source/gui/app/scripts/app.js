@@ -8,7 +8,7 @@
  *
  * Main module of the application.
  */
-angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig'])
+angular.module('sat5TelemetryApp', ['telemetryWidgets', 'telemetryConfig', 'ui.indeterminate'])
 .config(function($urlRouterProvider, $locationProvider) {
   //$urlRouterProvider.otherwise('/');
   $locationProvider.html5Mode(false);

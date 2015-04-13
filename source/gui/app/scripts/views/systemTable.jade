@@ -9,9 +9,15 @@ form
         div.spacewalk-list-head-addons
           div.spacewalk-list-filter
             div.input-group.input-group-sm
-              input.form-control(ng-model='filter', ng-disabled='loading', type='text', placeholder='Filter by System Name')
+              input.form-control(
+                ng-model='filter',
+                ng-disabled='loading',
+                type='text',
+                placeholder='Filter by System Name')
               span.input-group-btn
-                button.btn.btn-default.spacewalk-button-filter(type='submit', ng-disabled='loading')
+                button.btn.btn-default.spacewalk-button-filter(
+                  type='submit',
+                  ng-disabled='loading')
                   i.fa.fa-eye
           div.spacewalk-list-head-addons-extra
             div.list-sizeselector
@@ -29,7 +35,12 @@ form
           thead
             tr
               th
-                input(type='checkbox', ng-disabled='loading', ng-model='allSelected', ng-click='toggleAll()')
+                input(
+                  ui-indeterminate="partiallySelected()",
+                  ng-checked='allSelected()',
+                  type='checkbox',
+                  ng-disabled='loading',
+                  ng-click='toggleAll()')
               th(ng-class='{ascSort: orderBy === "name", descSort: orderBy === "-name"}')
                 a(ng-disabled='loading', ng-click='toggleNameSort()') System
               th(ng-class='{ascSort: orderBy === "status", descSort: orderBy === "-status"}')
@@ -68,4 +79,9 @@ form
           span ({{getNumSelected()}} selected)
     div.text-right
       hr
-      input.btn.btn-default(type='submit', value='Apply', ng-disabled='loading', ng-click='doApply()')
+      div.row
+        div.col-md-12
+          a View Changes
+      div.row
+        div.col-md-12
+          input.btn.btn-default(type='submit', value='Apply', ng-disabled='loading', ng-click='doApply()')

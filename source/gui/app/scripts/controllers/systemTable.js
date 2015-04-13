@@ -18,7 +18,6 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.loading = true;
   $scope.filter = '';
   $scope.systems = [];
-  $scope.allSelected = false;
   $scope.orderBy = 'name';
 
   $scope.toggleStatusSort = function() {
@@ -38,14 +37,34 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.toggleAll = function() {
+    var allSelected = $scope.allSelected();
     _.forEach($scope.systems, function(system) {
-      system.selected = $scope.allSelected;
+      system.selected = !allSelected;
     });
   };
 
   $scope.selectAll = function() {
     $scope.allSelected = true;
     $scope.toggleAll();
+    $scope.partiallySelected = true;
+  };
+
+  $scope.allSelected = function() {
+    return !_.some($scope.systems, {'selected': false});
+  };
+
+  $scope.partiallySelected = function() {
+    var response = false;
+
+    var someSelected = _.some($scope.systems, {'selected': true});
+
+    if ($scope.allSelected()) {
+      response = false;
+    } else if (someSelected) {
+      response = true;
+    }
+
+    return response;
   };
 
   $scope.getNumSelected = function() {
@@ -80,29 +99,37 @@ SYSTEM_DETAILS_PAGE_URLS) {
       });
 
     if (!status) {
-      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['rpmInstalled'])) {
+      if (!_.isEmpty(groupedStatus['false']) && 
+          !_.isEmpty(groupedStatus['false']['rpmInstalled'])) {
         messages.push('RPM is not installed');
       } 
-      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['softwareChannelAssociated'])) {
+      if (!_.isEmpty(groupedStatus['false']) && 
+          !_.isEmpty(groupedStatus['false']['softwareChannelAssociated'])) {
         messages.push('Software channel not associated');
       }
-      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['configChannelAssociated'])) {
+      if (!_.isEmpty(groupedStatus['false']) && 
+          !_.isEmpty(groupedStatus['false']['configChannelAssociated'])) {
         messages.push('Config channel not associated');
       }
-      if (!_.isEmpty(groupedStatus['false']) && !_.isEmpty(groupedStatus['false']['configDeployed'])) {
+      if (!_.isEmpty(groupedStatus['false']) && 
+          !_.isEmpty(groupedStatus['false']['configDeployed'])) {
         messages.push('Config out of sync with latest revision');
       }
     } else {
-      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['rpmInstalled'])) {
+      if (!_.isEmpty(groupedStatus['true']) && 
+          !_.isEmpty(groupedStatus['true']['rpmInstalled'])) {
         messages.push('RPM installed');
       } 
-      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['softwareChannelAssociated'])) {
+      if (!_.isEmpty(groupedStatus['true']) && 
+          !_.isEmpty(groupedStatus['true']['softwareChannelAssociated'])) {
         messages.push('Software channel associated');
       }
-      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['configChannelAssociated'])) {
+      if (!_.isEmpty(groupedStatus['true']) && 
+          !_.isEmpty(groupedStatus['true']['configChannelAssociated'])) {
         messages.push('Config channel associated');
       }
-      if (!_.isEmpty(groupedStatus['true']) && !_.isEmpty(groupedStatus['true']['configDeployed'])) {
+      if (!_.isEmpty(groupedStatus['true']) && 
+          !_.isEmpty(groupedStatus['true']['configDeployed'])) {
         messages.push('Config in sync with latest revision');
       }
     }
@@ -186,10 +213,23 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
+  $scope.setSelectionState = function() {
+    _.forEach($scope.systems, function(system) {
+      if ($scope.installationSuccess(system)) {
+        system.selected = true;
+      } else if ($scope.noInstallation(system)) {
+        system.selected = false;
+      } else {
+        system.selected = false;
+      }
+    });
+  };
+
   Admin.getSystemsPromise()
     .success(function(response) {
       $scope.loading = false;
       $scope.systems = response;
+      $scope.setSelectionState();
     })
     .error(function(error) {
       $scope.loading = false;
