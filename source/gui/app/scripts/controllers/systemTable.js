@@ -40,36 +40,42 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.toggleAll = function() {
     var allSelected = $scope.allSelected();
     _.forEach($scope.validSystems, function(system) {
-      system.selected = !allSelected;
+      system.enabled = !allSelected;
     });
   };
 
   $scope.selectAll = function() {
     $scope.allSelected = true;
     $scope.toggleAll();
-    $scope.partiallySelected = true;
+    $scope.allPartiallySelected = true;
   };
 
   $scope.allSelected = function() {
-    return !_.some($scope.validSystems, {'selected': false});
+    return !_.some($scope.validSystems, {'enabled': false});
   };
 
-  $scope.partiallySelected = function() {
+  $scope.allPartiallySelected = function() {
     var response = false;
-
-    var someSelected = _.some($scope.validSystems, {'selected': true});
-
+    var someSelected = _.some($scope.validSystems, {'enabled': true});
     if ($scope.allSelected()) {
       response = false;
     } else if (someSelected) {
       response = true;
     }
+    return response;
+  };
 
+  $scope.systemPartiallySelected = function(system) {
+    var response = false;
+    if ($scope.getInstallationStatus(system) === 0 ||
+        $scope.getInstallationStatus(system) === 1) {
+      response = true;
+    }
     return response;
   };
 
   $scope.getNumSelected = function() {
-    return _.where($scope.validSystems, {'selected': true}).length;
+    return _.where($scope.validSystems, {'enabled': true}).length;
   };
 
   $scope.getSystemUrl = function(system) {
@@ -230,11 +236,11 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.setSelectionState = function() {
     _.forEach($scope.validSystems, function(system) {
       if ($scope.installationSuccess(system)) {
-        system.selected = true;
+        system.enabled = true;
       } else if ($scope.noInstallation(system)) {
-        system.selected = false;
+        system.enabled = false;
       } else {
-        system.selected = false;
+        system.enabled = false;
       }
     });
   };

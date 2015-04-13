@@ -6,7 +6,7 @@ public class SatSystem {
   String name;
   String version;
   SystemInstallStatus installationStatus;
-  boolean enabled;
+  boolean enabled; // 0 -> unchecked, 1 -> partial, 2 -> checked
   boolean validType;
 
   public SatSystem() {

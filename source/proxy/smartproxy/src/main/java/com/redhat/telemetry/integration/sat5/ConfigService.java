@@ -101,20 +101,25 @@ public class ConfigService {
       int systemId = (int) apiSysMap.get("id");
       SystemInstallStatus installationStatus = new SystemInstallStatus();
       boolean validSystem = false;
+      boolean enabled = false;
       if (systemVersion.equals("6Server") || systemVersion.equals("7Server")) {
         validSystem = true;
         if (channelExists(sessionKey)) {
           if (rpmInstalled(sessionKey, systemId)) {
             installationStatus.setRpmInstalled(true);
+            enabled = true;
           }
           if (softwareChannelAssociated(sessionKey, systemId)) {
             installationStatus.setSoftwareChannelAssociated(true);
+            enabled = true;
           }
           if (configChannelAssociated(sessionKey, systemId)) {
             installationStatus.setConfigChannelAssociated(true);
+            enabled = true;
           }
           if (configDeployed(sessionKey, systemId)) {
             installationStatus.setConfigDeployed(true);
+            enabled = true;
           }
         }
       }
@@ -124,7 +129,7 @@ public class ConfigService {
           (String) apiSysMap.get("name"),
           systemVersion,
           installationStatus,
-          true,
+          enabled,
           validSystem);
       satSystems.add(satSys);
     }
@@ -155,23 +160,43 @@ public class ConfigService {
       }
     }
 
-    //install the redhat-access-proactive package on the system
     for (SatSystem sys : systems) {
-      if (sys.getVersion().equals("6Server")) {
+      if (sys.getValidType()) {
+        if (sys.getEnabled()) { //install missing pieces
+          setSystemSoftwareChannels(sessionKey, sys.getId(), true);
 
-        subscribeSystemToSoftwareChannel(sessionKey, sys.getId());
+          //install the package
+          if (!rpmInstalled(sessionKey, sys.getId())) {;
+            ArrayList<Integer> packageIds = new ArrayList<Integer>();
+            packageIds.add(packageId);
+            SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
+          }
 
-        //install the package
-        ArrayList<Integer> packageIds = new ArrayList<Integer>();
-        packageIds.add(packageId);
-        SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
-
-        //subscribe system to Red Hat Insights config channel
-        ArrayList<Integer> systemIds = new ArrayList<Integer>();
-        systemIds.add(sys.getId());
-        ArrayList<String> channelLabels = new ArrayList<String>();
-        channelLabels.add(Constants.CONFIG_CHANNEL_LABEL);
-        SatApi.addConfigChannelsToSystem(sessionKey, systemIds, channelLabels, true);
+          //subscribe system to Red Hat Insights config channel
+          if (!configChannelAssociated(sessionKey, sys.getId())) {
+            ArrayList<Integer> systemIds = new ArrayList<Integer>();
+            systemIds.add(sys.getId());
+            ArrayList<String> channelLabels = new ArrayList<String>();
+            channelLabels.add(Constants.CONFIG_CHANNEL_LABEL);
+            SatApi.addConfigChannelsToSystem(sessionKey, systemIds, channelLabels, true);
+          }
+        } else { //remove installed pieces
+          if (softwareChannelAssociated(sessionKey, sys.getId())) {
+            setSystemSoftwareChannels(sessionKey, sys.getId(), false);
+          }
+          if (rpmInstalled(sessionKey, sys.getId())) {
+            ArrayList<Integer> packageIds = new ArrayList<Integer>();
+            packageIds.add(packageId);
+            SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
+          }
+          if (configChannelAssociated(sessionKey, sys.getId())) {
+            ArrayList<Integer> systemIds = new ArrayList<Integer>();
+            systemIds.add(sys.getId());
+            ArrayList<String> channelLabels = new ArrayList<String>();
+            channelLabels.add(Constants.CONFIG_CHANNEL_LABEL);
+            SatApi.removeConfigChannelsFromSystem(sessionKey, systemIds, channelLabels);
+          }
+        }
       }
     }
     SatApi.deployAllSystems(sessionKey, Constants.CONFIG_CHANNEL_LABEL);
@@ -336,9 +361,10 @@ public class ConfigService {
    * Subscribe a system to the insights software channel
    */
   @SuppressWarnings("unchecked")
-  private boolean subscribeSystemToSoftwareChannel(
+  private boolean setSystemSoftwareChannels(
       String sessionKey,
-      int systemId) {
+      int systemId,
+      boolean addInsightsChannel) {
 
     //list existing channels system is subscribed to
     Object[] systemChannels = SatApi.listSystemChannels(sessionKey, systemId);
@@ -349,12 +375,17 @@ public class ConfigService {
           (String)((HashMap<Object, Object>) systemChannel).get("label");
         //insights channel already associated
         if (label.equals(Constants.CHANNEL_LABEL)) {
-          return true;
+          if (addInsightsChannel) {
+            return true;
+          }
+        } else {
+          systemChannelLabels.add(label);
         }
-        systemChannelLabels.add(label);
       }
     }
-    systemChannelLabels.add(Constants.CHANNEL_LABEL);
+    if (addInsightsChannel) {
+      systemChannelLabels.add(Constants.CHANNEL_LABEL);
+    }
 
     //subscribe system to Red Hat Insights child channel
     int response = 

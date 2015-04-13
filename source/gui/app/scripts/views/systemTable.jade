@@ -36,7 +36,7 @@ form
             tr
               th
                 input(
-                  ui-indeterminate="partiallySelected()",
+                  ui-indeterminate='allPartiallySelected()',
                   ng-checked='allSelected()',
                   type='checkbox',
                   ng-disabled='loading',
@@ -53,7 +53,11 @@ form
               ng-repeat='system in systems | filter: filter | orderBy: orderBy', 
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
-                input(type='checkbox', ng-model='system.selected', ng-if='!invalidType(system)')
+                input(
+                  ui-indeterminate='systemPartiallySelected(system)',
+                  type='checkbox',
+                  ng-model='system.enabled',
+                  ng-if='!invalidType(system)')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
               td.text-center(width='50px')

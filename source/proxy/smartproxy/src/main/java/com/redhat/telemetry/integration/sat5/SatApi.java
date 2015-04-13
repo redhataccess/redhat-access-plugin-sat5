@@ -50,6 +50,14 @@ public class SatApi {
     return response;
   }
 
+  public static int
+  schedulePackageRemove(String sessionKey, int serverId, ArrayList<Integer> packageIds) {
+    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis())};
+    int response = 
+      (int) makeRequest("system.schedulePackageRemove", params);
+    return response;
+  }
+
   public static Object[]
   listAllInstallablePackages(String sessionKey, int serverId) {
     Object[] params = new Object[] {sessionKey, serverId};
@@ -155,6 +163,17 @@ public class SatApi {
     Object[] params = new Object[] {sessionKey, systemIds, channelLabels, addToTop};
     int response = 
       (int) makeRequest("system.config.addChannels", params);
+    return response;
+  }
+
+  public static int
+  removeConfigChannelsFromSystem(
+      String sessionKey,
+      ArrayList<Integer> systemIds,
+      ArrayList<String> channelLabels) {
+    Object[] params = new Object[] {sessionKey, systemIds, channelLabels};
+    int response = 
+      (int) makeRequest("system.config.removeChannels", params);
     return response;
   }
 
