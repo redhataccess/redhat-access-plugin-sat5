@@ -39,7 +39,7 @@ echo "Creating source tar..."
 cd $PROJECT_ROOT/source
 cp rh-telemetry-proxy-sat5.6.conf ../.rpm-work/sat5-telemetry-${VERSION}
 cp gui/dist/scripts/scripts.js ../.rpm-work/sat5-telemetry-${VERSION}
-cp proxy/smartproxy/target/redhataccess.war ../.rpm-work/sat5-telemetry-${VERSION}
+cp proxy/smartproxy/target/redhat_access.war ../.rpm-work/sat5-telemetry-${VERSION}
 cd $PROJECT_ROOT/.rpm-work
 tar -cf ~/rpmbuild/SOURCES/sat5-telemetry-${VERSION}.tar.gz sat5-telemetry-${VERSION}
 echo "Done."

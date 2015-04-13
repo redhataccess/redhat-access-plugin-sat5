@@ -1,5 +1,5 @@
 #!/bin/bash
-WAR_NAME=redhataccess.war
+WAR_NAME=redhat_access.war
 JS_NAME=scripts.js
 SAT_HOSTNAME=sat57.usersys.redhat.com
 
