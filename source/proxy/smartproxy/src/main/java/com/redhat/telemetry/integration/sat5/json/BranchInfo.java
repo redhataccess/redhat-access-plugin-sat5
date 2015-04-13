@@ -1,4 +1,4 @@
-package com.redhat.telemetry.integration.sat5;
+package com.redhat.telemetry.integration.sat5.json;
 
 public class BranchInfo {
 

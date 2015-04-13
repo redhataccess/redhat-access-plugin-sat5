@@ -1,4 +1,4 @@
-package com.redhat.telemetry.integration.sat5;
+package com.redhat.telemetry.integration.sat5.rest;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -20,6 +20,12 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
+
+import com.redhat.telemetry.integration.sat5.json.Config;
+import com.redhat.telemetry.integration.sat5.json.SatSystem;
+import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
+import com.redhat.telemetry.integration.sat5.satellite.SatApi;
+import com.redhat.telemetry.integration.sat5.util.Constants;
 
 @Path("/config")
 public class ConfigService {
@@ -65,8 +71,10 @@ public class ConfigService {
       throw new ForbiddenException("Must be satellite admin.");
     }
     if (config.getEnabled()) {
-      createRepo(sessionKey);
-      createChannel(sessionKey);
+      createRepo(sessionKey, 6);
+      createChannel(sessionKey, 6);
+      createRepo(sessionKey, 7);
+      createChannel(sessionKey, 7);
       createConfigChannel(sessionKey);
     } else {
       //TODO: push config to disable reporting?
@@ -102,14 +110,20 @@ public class ConfigService {
       SystemInstallStatus installationStatus = new SystemInstallStatus();
       boolean validSystem = false;
       boolean enabled = false;
-      if (systemVersion.equals("6Server") || systemVersion.equals("7Server")) {
+      int version = -1;
+      if (systemVersion.equals(Constants.VERSION_RHEL6_SERVER)) {
+        version = 6;
+      } else if (systemVersion.equals(Constants.VERSION_RHEL7_SERVER)) {
+        version = 7;
+      }
+      if (version != -1) {
         validSystem = true;
-        if (channelExists(sessionKey)) {
-          if (rpmInstalled(sessionKey, systemId)) {
+        if (channelExists(sessionKey, version)) {
+          if (rpmInstalled(sessionKey, systemId, version)) {
             installationStatus.setRpmInstalled(true);
             enabled = true;
           }
-          if (softwareChannelAssociated(sessionKey, systemId)) {
+          if (softwareChannelAssociated(sessionKey, systemId, version)) {
             installationStatus.setSoftwareChannelAssociated(true);
             enabled = true;
           }
@@ -140,7 +154,6 @@ public class ConfigService {
   /**
    * (Un)Install insights on multiple systems
    */
-  @SuppressWarnings("unchecked")
   @POST
   @Path("/systems")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -148,25 +161,22 @@ public class ConfigService {
       @CookieParam("pxt-session-cookie") String sessionKey,
       ArrayList<SatSystem> systems) {
 
-    //grab the redhat-access-proactive packageId from the channel
-    Object[] channelPackages = 
-      SatApi.listAllPackagesInChannel(sessionKey, Constants.CHANNEL_LABEL);
-    int packageId = -1;
-    for (Object channelPackage : channelPackages) {
-      HashMap<Object, Object> channelPackageMap = (HashMap<Object, Object>) channelPackage;
-      String packageName = (String) channelPackageMap.get("name");
-      if (packageName.equals(Constants.PACKAGE_NAME)) {
-        packageId = (int) channelPackageMap.get("id");
-      }
-    }
 
     for (SatSystem sys : systems) {
       if (sys.getValidType()) {
+        int version = -1;
+        if (sys.getVersion().equals(Constants.VERSION_RHEL6_SERVER)) {
+          version = 6;
+        } else if (sys.getVersion().equals(Constants.VERSION_RHEL7_SERVER)) {
+          version = 7;
+        }
+        int packageId = getPackageId(sessionKey, version);
+
         if (sys.getEnabled()) { //install missing pieces
-          setSystemSoftwareChannels(sessionKey, sys.getId(), true);
+          setSystemSoftwareChannels(sessionKey, sys.getId(), true, version);
 
           //install the package
-          if (!rpmInstalled(sessionKey, sys.getId())) {;
+          if (!rpmInstalled(sessionKey, sys.getId(), version)) {;
             ArrayList<Integer> packageIds = new ArrayList<Integer>();
             packageIds.add(packageId);
             SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
@@ -181,10 +191,10 @@ public class ConfigService {
             SatApi.addConfigChannelsToSystem(sessionKey, systemIds, channelLabels, true);
           }
         } else { //remove installed pieces
-          if (softwareChannelAssociated(sessionKey, sys.getId())) {
-            setSystemSoftwareChannels(sessionKey, sys.getId(), false);
+          if (softwareChannelAssociated(sessionKey, sys.getId(), version)) {
+            setSystemSoftwareChannels(sessionKey, sys.getId(), false, version);
           }
-          if (rpmInstalled(sessionKey, sys.getId())) {
+          if (rpmInstalled(sessionKey, sys.getId(), version)) {
             ArrayList<Integer> packageIds = new ArrayList<Integer>();
             packageIds.add(packageId);
             SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
@@ -201,19 +211,38 @@ public class ConfigService {
     }
     SatApi.deployAllSystems(sessionKey, Constants.CONFIG_CHANNEL_LABEL);
     return systems;
-  };
+  }
+
+  @SuppressWarnings("unchecked")
+  private int getPackageId(String sessionKey, int version) {
+    String channelLabel = getVersionSpecificChannelLabel(version);
+    //grab the redhat-access-proactive packageId from the channel
+    Object[] channelPackages = 
+      SatApi.listAllPackagesInChannel(sessionKey, channelLabel);
+    int packageId = -1;
+    if (channelPackages != null) {
+      for (Object channelPackage : channelPackages) {
+        HashMap<Object, Object> channelPackageMap = (HashMap<Object, Object>) channelPackage;
+        String packageName = (String) channelPackageMap.get("name");
+        if (packageName.equals(Constants.PACKAGE_NAME)) {
+          packageId = (int) channelPackageMap.get("id");
+        }
+      }
+    }
+    return packageId;
+  }
 
   /**
    * Check if a system has the insights channel associated
    */
   @SuppressWarnings("unchecked")
-  private boolean softwareChannelAssociated(String sessionKey, int systemId) {
+  private boolean softwareChannelAssociated(String sessionKey, int systemId, int version) {
     Object[] channels = SatApi.listSystemChannels(sessionKey, systemId);
     boolean found = false;
     if (channels != null) {
       for (Object channel : channels) {
         HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
-        if (channelMap.get("label").equals(Constants.CHANNEL_LABEL)) {
+        if (channelMap.get("label").equals(getVersionSpecificChannelLabel(version))) {
           found = true;
         }
       }
@@ -288,13 +317,48 @@ public class ConfigService {
     return response;
   }
 
+  private String getVersionSpecificChannelLabel(int version) {
+    String channelLabel = "";
+    if (version == 6) {
+      channelLabel = Constants.CHANNEL_LABEL_RHEL6;
+    } else if (version == 7) {
+      channelLabel = Constants.CHANNEL_LABEL_RHEL7;
+    }
+    return channelLabel;
+  };
+
+
+  private String getVersionSpecificRepoUrl(int version) {
+    String repoUrl = "";
+
+    if (version == 6) {
+      repoUrl = Constants.REPO_URL_RHEL6;
+    } else if (version == 7) {
+      repoUrl = Constants.REPO_URL_RHEL7;
+    }
+    return repoUrl;
+  }
+
+  private String getVersionSpecificRepoLabel(int version) {
+    String repoLabel = "";
+    if (version == 6) {
+      repoLabel = Constants.REPO_LABEL_RHEL6;
+    } else if (version == 7) {
+      repoLabel = Constants.REPO_LABEL_RHEL7;
+    }
+    return repoLabel;
+  }
+
   /**
    * Check if a system has the RPM installed
    */
   @SuppressWarnings("unchecked")
-  private boolean rpmInstalled(String sessionKey, int systemId) {
+  private boolean rpmInstalled(String sessionKey, int systemId, int version) {
     Object[] installedPackages = 
-      SatApi.listInstalledPackagesFromChannel(sessionKey, systemId, Constants.CHANNEL_LABEL);
+      SatApi.listInstalledPackagesFromChannel(
+          sessionKey, 
+          systemId, 
+          getVersionSpecificChannelLabel(version));
     boolean found = false;
     if (installedPackages != null) {
       for (Object installedPackage : installedPackages) {
@@ -309,14 +373,15 @@ public class ConfigService {
    * Check if the insights software channel exists
    */
   @SuppressWarnings("unchecked")
-  private boolean channelExists(String sessionKey) {
+  private boolean channelExists(String sessionKey, int version) {
     Object[] channels = SatApi.listSoftwareChannels(sessionKey);
     boolean response = false;
+    String channelLabel = getVersionSpecificChannelLabel(version);
     if (channels != null) {
       for (Object channel : channels) {
         HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
         String label = (String) channelMap.get("label");
-        if (label.equals(Constants.CHANNEL_LABEL)) {
+        if (label.equals(channelLabel)) {
           response = true;
         }
       }
@@ -328,33 +393,19 @@ public class ConfigService {
    * Check if the insights repo exists
    */
   @SuppressWarnings("unchecked")
-  private boolean repoExists(String sessionKey) {
+  private boolean repoExists(String sessionKey, int version) {
     Object[] repos = SatApi.listUserRepos(sessionKey);
     boolean exists = false;
     if (repos != null) {
       for (Object repo : repos) {
         HashMap<Object, Object> repoMap = (HashMap<Object, Object>) repo;
         String label = (String) repoMap.get("label"); 
-        if (label.equals(Constants.REPO_LABEL)) {
+        if (label.equals(getVersionSpecificChannelLabel(version))) {
           exists = true;
         }
       }
     }
     return exists;
-  }
-
-  /**
-   * Create the repo via sat5 api if it doesn't already exist
-   * Returns the new or existing repo id
-   */
-  private void createRepo(String sessionKey) {
-    if (!repoExists(sessionKey)) {
-      SatApi.createRepo(
-          sessionKey, 
-          Constants.REPO_LABEL, 
-          "YUM", 
-          Constants.REPO_URL);
-    } 
   }
 
   /**
@@ -364,17 +415,19 @@ public class ConfigService {
   private boolean setSystemSoftwareChannels(
       String sessionKey,
       int systemId,
-      boolean addInsightsChannel) {
+      boolean addInsightsChannel,
+      int version) {
 
     //list existing channels system is subscribed to
     Object[] systemChannels = SatApi.listSystemChannels(sessionKey, systemId);
     ArrayList<String> systemChannelLabels = new ArrayList<String>();
+    String channelLabel = getVersionSpecificChannelLabel(version);
     if (systemChannels != null) {
       for (Object systemChannel : systemChannels) {
         String label = 
           (String)((HashMap<Object, Object>) systemChannel).get("label");
         //insights channel already associated
-        if (label.equals(Constants.CHANNEL_LABEL)) {
+        if (label.equals(channelLabel)) {
           if (addInsightsChannel) {
             return true;
           }
@@ -384,7 +437,7 @@ public class ConfigService {
       }
     }
     if (addInsightsChannel) {
-      systemChannelLabels.add(Constants.CHANNEL_LABEL);
+      systemChannelLabels.add(channelLabel);
     }
 
     //subscribe system to Red Hat Insights child channel
@@ -398,27 +451,65 @@ public class ConfigService {
   }
 
   /**
+   * Create the repo via sat5 api if it doesn't already exist
+   * Returns the new or existing repo id
+   */
+  private void createRepo(String sessionKey, int version) {
+    if (!repoExists(sessionKey, version)) {
+      String repoLabel = getVersionSpecificRepoLabel(version);
+      String repoUrl = getVersionSpecificRepoUrl(version);
+      SatApi.createRepo(
+          sessionKey, 
+          repoLabel, 
+          "YUM", 
+          repoUrl);
+    } 
+  }
+
+  /**
    * Create the insights custom software channel,
    * assocate to the insights repo,
    * syncronize the repo.
    */
-  private boolean createChannel(String sessionKey) {
+  private boolean createChannel(String sessionKey, int version) {
     boolean response = false;
-    if (!channelExists(sessionKey)) {
+    String channelLabel = "";
+    String name = "";
+    String summary = "";
+    String archLabel = "";
+    String parent = "";
+    String repoLabel = "";
+    if (version == 6) {
+      channelLabel = Constants.CHANNEL_LABEL_RHEL6;
+      name = Constants.CHANNEL_NAME_RHEL6;
+      summary = Constants.CHANNEL_SUMMARY_RHEL6;
+      archLabel = Constants.CHANNEL_ARCH_RHEL6;
+      parent = Constants.CHANNEL_PARENT_RHEL6;
+      repoLabel = Constants.REPO_LABEL_RHEL6;
+    } else if (version == 7) {
+      channelLabel = Constants.CHANNEL_LABEL_RHEL7;
+      name = Constants.CHANNEL_NAME_RHEL7;
+      summary = Constants.CHANNEL_SUMMARY_RHEL7;
+      archLabel = Constants.CHANNEL_ARCH_RHEL7;
+      parent = Constants.CHANNEL_PARENT_RHEL7;
+      repoLabel = Constants.REPO_LABEL_RHEL7;
+    }
+
+    if (!channelExists(sessionKey, version)) {
       int created = SatApi.createChannel(
           sessionKey, 
-          Constants.CHANNEL_LABEL,
-          "x86_64 - Red Hat Insights",
-          "Red Hat Insights is the coolest",
-          "channel-x86_64",
-          "rhel-x86_64-server-6");
+          channelLabel,
+          name,
+          summary,
+          archLabel,
+          parent);
       if (created == 0) {
         response = false;
       } else {
         response = true;
         //associate repo with this channel
-        SatApi.associateRepo(sessionKey, Constants.CHANNEL_LABEL, Constants.REPO_LABEL);
-        SatApi.syncRepo(sessionKey, Constants.CHANNEL_LABEL);
+        SatApi.associateRepo(sessionKey, channelLabel, repoLabel);
+        SatApi.syncRepo(sessionKey, channelLabel);
       }
     } else {
       //channel already created

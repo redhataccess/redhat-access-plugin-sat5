@@ -1,4 +1,6 @@
-package com.redhat.telemetry.integration.sat5;
+package com.redhat.telemetry.integration.sat5.json;
+
+import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
 
 public class SatSystem {
 
