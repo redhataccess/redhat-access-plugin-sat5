@@ -215,8 +215,8 @@ public class ProxyService {
             Constants.METHOD_POST, 
             Constants.API_URL + Constants.SUBSETS_URL, 
             buildNewSubsetPostBody(subsetHash, leafIds, branchId),
-            requestType,
-            responseType,
+            MediaType.APPLICATION_JSON,
+            MediaType.APPLICATION_JSON,
             body);
       if (portalResponse.getStatusCode() ==
           HttpServletResponse.SC_CREATED) {
