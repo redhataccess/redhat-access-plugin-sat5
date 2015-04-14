@@ -83,7 +83,7 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @CookieParam("pxt-session-cookie") String user)
       throws JSONException, IOException, ConfigurationException {
-    return proxy("", user, uriInfo, request, MediaType.MULTIPART_FORM_DATA, null);
+    return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null);
   }
 
   @POST
@@ -97,7 +97,20 @@ public class ProxyService {
       @CookieParam("pxt-session-cookie") String user,
       byte[] body) 
       throws JSONException, IOException, ConfigurationException {
-    return proxy("", user, uriInfo, request, contentType, body);
+    return proxy("", user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
+  }
+
+  @GET
+  @POST
+  @Path("/{path: .*}")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response proxyGetTextPlain(
+      @Context Request request,
+      @Context UriInfo uriInfo,
+      @PathParam("path") String path,
+      @CookieParam("pxt-session-cookie") String user)
+      throws JSONException, IOException, ConfigurationException {
+    return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null);
   }
 
   @POST
@@ -111,7 +124,7 @@ public class ProxyService {
       @CookieParam("pxt-session-cookie") String user,
       byte[] body) 
       throws JSONException, IOException, ConfigurationException {
-    return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, body);
+    return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body);
   }
 
   @GET
@@ -124,7 +137,7 @@ public class ProxyService {
       @PathParam("path") String path,
       @CookieParam("pxt-session-cookie") String user)
       throws JSONException, IOException, ConfigurationException {
-    return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, null);
+    return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
   }
 
   private Response proxy(
@@ -132,7 +145,8 @@ public class ProxyService {
       String user, 
       UriInfo uriInfo, 
       Request request,
-      String mediaType,
+      String requestType,
+      String responseType,
       byte[] body) 
           throws JSONException, IOException, ConfigurationException {
     //load config to check if service is enabled
@@ -166,12 +180,19 @@ public class ProxyService {
         request.getMethod(),
         Constants.API_URL + Constants.BRANCH_URL + branchId + "/" + Constants.LEAF_URL + leafId,
         null,
-        mediaType,
+        requestType,
+        responseType,
         body);
       JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
       String machineId = (String) responseJson.get("machine_id");
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
-    } else {
+    } else if (pathTypeInt == 3 || pathTypeInt == 4) {
+      String prepend = "?";
+      if (path.contains("?")) {
+        prepend = "&";
+      }
+      path = path + prepend + "branch_id=" + branchId;
+    } else if (user != null) {
       path = addSubsetToPath(path, subsetHash);
     }
 
@@ -182,7 +203,8 @@ public class ProxyService {
           request.getMethod(), 
           path, 
           null,
-          mediaType,
+          requestType,
+          responseType,
           body);
     if (portalResponse.getStatusCode() == 
         HttpServletResponse.SC_PRECONDITION_FAILED) { 
@@ -193,7 +215,8 @@ public class ProxyService {
             Constants.METHOD_POST, 
             Constants.API_URL + Constants.SUBSETS_URL, 
             buildNewSubsetPostBody(subsetHash, leafIds, branchId),
-            mediaType,
+            requestType,
+            responseType,
             body);
       if (portalResponse.getStatusCode() ==
           HttpServletResponse.SC_CREATED) {
@@ -204,7 +227,8 @@ public class ProxyService {
               request.getMethod(), 
               path, 
               null,
-              mediaType,
+              requestType,
+              responseType,
               body);
       }
     }
@@ -222,7 +246,8 @@ public class ProxyService {
       String method, 
       String path,
       HttpEntity entity,
-      String mediaType,
+      String requestType,
+      String responseType,
       byte[] body) throws ConfigurationException, IOException {
 
     HttpRequestBase request;
@@ -235,7 +260,7 @@ public class ProxyService {
         break;
       case Constants.METHOD_POST: 
         request = new HttpPost(Constants.PORTAL_URL + path);
-        request.addHeader(HttpHeaders.CONTENT_TYPE, mediaType);
+        request.addHeader(HttpHeaders.CONTENT_TYPE, requestType);
         if (entity != null) {
           ((HttpPost) request).setEntity(entity);
         } else if (body != null) {
@@ -244,7 +269,7 @@ public class ProxyService {
         break;
       case Constants.METHOD_PUT: 
         request = new HttpPut(Constants.PORTAL_URL + path);
-        request.addHeader(HttpHeaders.CONTENT_TYPE, mediaType);
+        request.addHeader(HttpHeaders.CONTENT_TYPE, requestType);
         if (entity != null) {
           ((HttpPut) request).setEntity(entity);
         } else if (body != null) {
@@ -256,7 +281,7 @@ public class ProxyService {
     }
 
     request.addHeader(getBasicAuthHeader());
-    request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+    request.addHeader(HttpHeaders.ACCEPT, responseType);
     HttpResponse response = client.execute(request);
     PortalResponse portalResponse = 
       new PortalResponse(
@@ -298,6 +323,8 @@ public class ProxyService {
    *  0 - /systems
    *  1 - /systems/.../reports
    *  2 - /reports
+   *  3 - /acks
+   *  4 - /rules
    * -1 - undefined
    */
   private HashMap<String, Integer> parsePathType(String path) {
@@ -310,6 +337,12 @@ public class ProxyService {
     Pattern reportsPattern = Pattern.compile("api/v1/reports/?(\\?.*)?$");
     Matcher reportsMatcher = reportsPattern.matcher(path);
 
+    Pattern acksPattern = Pattern.compile("api/v1/acks/?(\\?.*)$");
+    Matcher acksMatcher = acksPattern.matcher(path);
+
+    Pattern rulesPattern = Pattern.compile("api/v1/rules/?(\\?.*)$");
+    Matcher rulesMatcher = rulesPattern.matcher(path);
+
     HashMap<String, Integer> response = new HashMap<String, Integer>();
     if (systemMatcher.matches()) {
       response.put("type", 0);
@@ -321,6 +354,12 @@ public class ProxyService {
     } else if (reportsMatcher.matches()) {
       response.put("type", 2);
       response.put("index", path.indexOf("reports"));
+    } else if (acksMatcher.matches()) {
+      response.put("type", 3);
+      response.put("index", path.indexOf("acks"));
+    } else if (rulesMatcher.matches()) {
+      response.put("type", 4);
+      response.put("index", path.indexOf("rules"));
     } else {
       response.put("type", -1);
       response.put("index", -1);
@@ -348,11 +387,11 @@ public class ProxyService {
    */
   private StringEntity buildNewSubsetPostBody(
       String hash, 
-      ArrayList<Integer> ids, 
-      String branchId)
+      ArrayList<Integer> ids,
+      String branchId) 
       throws UnknownHostException {
     StringEntity entity = new StringEntity(
-      "{\"hash\":\"" + branchId + "__" + hash + "\"," + 
+      "{\"hash\":\"" + hash + "\"," + 
        "\"leaf_ids\":[" + StringUtils.join(ids.toArray(), ",") + "]," +
        "\"branch_id\":\"" + branchId + "\"}",
       ContentType.APPLICATION_JSON);
