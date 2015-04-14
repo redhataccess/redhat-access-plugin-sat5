@@ -4,15 +4,6 @@ import com.redhat.telemetry.integration.sat5.util.Constants;
 
 public class Server6System extends AbstractSystem{
   
-  //rhel6 software channel
-  private String channelLabel = Constants.CHANNEL_LABEL_RHEL6;
-  private String channelName = Constants.CHANNEL_NAME_RHEL6;
-  private String channelSummary = Constants.CHANNEL_SUMMARY_RHEL6;
-  private String channelArch = Constants.CHANNEL_ARCH_RHEL6;
-  private String channelParent = Constants.CHANNEL_PARENT_RHEL6;
-  private String repoLabel = Constants.REPO_LABEL_RHEL6;
-  private String repoUrl = Constants.REPO_URL_RHEL6;
-
   public Server6System(String sessionKey) {
     this.sessionKey = sessionKey;
   }
@@ -23,25 +14,25 @@ public class Server6System extends AbstractSystem{
   }
 
   public String getChannelLabel() {
-    return this.channelLabel;
+    return Constants.CHANNEL_LABEL_RHEL6;
   }
 
   public String getChannelName() {
-    return this.channelName;
+    return Constants.CHANNEL_NAME_RHEL6;
   } 
   public String getChannelSummary() {
-    return this.channelSummary;
+    return Constants.CHANNEL_SUMMARY_RHEL6;
   } 
   public String getChannelArch() {
-    return this.channelArch;
+    return Constants.CHANNEL_ARCH_RHEL6;
   } 
   public String getChannelParent() {
-    return this.channelParent;
+    return Constants.CHANNEL_PARENT_RHEL6;
   } 
   public String getRepoLabel() {
-    return this.repoLabel;
+    return Constants.REPO_LABEL_RHEL6;
   } 
   public String getRepoUrl() {
-    return this.repoUrl;
+    return Constants.REPO_URL_RHEL6;
   } 
 }
