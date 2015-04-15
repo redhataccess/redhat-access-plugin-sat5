@@ -60,6 +60,7 @@ import org.json.JSONObject;
 
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
+import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 
 @Path("/rs/telemetry")
@@ -164,7 +165,7 @@ public class ProxyService {
 
     //TODO: add a header to let the client decide when to follow subset path. Default no.
     if (user != null) {
-      leafIds = getUsersSystemIDs(user);
+      leafIds = SatApi.getUsersSystemIDs(user);
       subsetHash = createSubsetHash(leafIds, branchId);
     }
     path = addQueryToPath(path, uriInfo.getRequestUri().toString());
@@ -437,33 +438,5 @@ public class ProxyService {
   private String createSubsetHash(ArrayList<Integer> leafIds, String branchId) {
     Collections.sort(leafIds);
     return branchId + "__" + DigestUtils.sha1Hex(StringUtils.join(leafIds.toArray()));
-  }
-
-  /**
-   * Get the list of satellite systems visible to the logged in user.
-   */
-  @SuppressWarnings("unchecked")
-  private ArrayList<Integer> getUsersSystemIDs(String user) {
-    XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-    try {
-      config.setServerURL(new URL(Constants.SAT5_RPC_API_URL));
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-    }
-    XmlRpcClient satClient = new XmlRpcClient();
-    satClient.setConfig(config);
-
-    ArrayList<Integer> systemList = new ArrayList<Integer>();
-    try {
-      Object[] params = new Object[] {user};
-      Object[] systems = (Object[]) satClient.execute("system.listSystems", params);
-      for (Object system : systems) {
-        int id = (Integer) ((HashMap<Object, Object>) system).get("id");
-        systemList.add(id);
-      }
-    } catch (XmlRpcException e) {
-      e.printStackTrace();
-    }
-    return systemList;
   }
 }

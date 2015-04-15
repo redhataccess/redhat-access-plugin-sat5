@@ -306,6 +306,18 @@ public class SatApi {
       return -1;
     }
   }
+  
+  @SuppressWarnings("unchecked")
+  public static ArrayList<Integer> getUsersSystemIDs(String user) {
+    Object[] params = new Object[] {user};
+    Object[] systems = (Object[]) makeRequest("system.listSystems", params);
+    ArrayList<Integer> systemList = new ArrayList<Integer>();
+    for (Object system : systems) {
+      int id = (Integer) ((HashMap<Object, Object>) system).get("id");
+      systemList.add(id);
+    }
+    return systemList;
+  }
 
   private static Object 
   makeRequest(String method, Object[] params) {
