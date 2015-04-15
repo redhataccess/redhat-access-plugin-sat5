@@ -172,7 +172,7 @@ public class ProxyService {
     HashMap<String, Integer> pathType = parsePathType(path);
     int pathTypeInt = pathType.get("type");
 
-    if (pathTypeInt == 1) {
+    if (pathTypeInt == Constants.SYSTEM_REPORTS_PATH) {
       String leafId = Integer.toString(pathType.get("id"));
       PortalResponse getIdResponse = proxyRequest(
         client,
@@ -184,14 +184,14 @@ public class ProxyService {
         responseType,
         body);
       JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
-      String machineId = (String) responseJson.get("machine_id");
+      String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
-    } else if (pathTypeInt == 3 || pathTypeInt == 4) {
+    } else if (pathTypeInt == Constants.ACKS_PATH || pathTypeInt == Constants.RULES_PATH) {
       String prepend = "?";
       if (path.contains("?")) {
         prepend = "&";
       }
-      path = path + prepend + "branch_id=" + branchId;
+      path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
     } else if (user != null) {
       path = addSubsetToPath(path, subsetHash);
     }
@@ -318,7 +318,7 @@ public class ProxyService {
   /**
    * Given a path, determine the type
    *
-   * Returns map with type and index to start of type
+   * Returns map with type, index to start of type, [id]
    *
    *  0 - /systems
    *  1 - /systems/.../reports
@@ -345,20 +345,20 @@ public class ProxyService {
 
     HashMap<String, Integer> response = new HashMap<String, Integer>();
     if (systemMatcher.matches()) {
-      response.put("type", 0);
+      response.put("type", Constants.SYSTEMS_PATH);
       response.put("index", path.indexOf("systems"));
     } else if (systemReportsMatcher.matches()) {
-      response.put("type", 1);
+      response.put("type", Constants.SYSTEM_REPORTS_PATH);
       response.put("index", path.indexOf("reports"));
       response.put("id", Integer.parseInt(systemReportsMatcher.group(1)));
     } else if (reportsMatcher.matches()) {
-      response.put("type", 2);
+      response.put("type", Constants.REPORTS_PATH);
       response.put("index", path.indexOf("reports"));
     } else if (acksMatcher.matches()) {
-      response.put("type", 3);
+      response.put("type", Constants.ACKS_PATH);
       response.put("index", path.indexOf("acks"));
     } else if (rulesMatcher.matches()) {
-      response.put("type", 4);
+      response.put("type", Constants.RULES_PATH);
       response.put("index", path.indexOf("rules"));
     } else {
       response.put("type", -1);
@@ -391,9 +391,9 @@ public class ProxyService {
       String branchId) 
       throws UnknownHostException {
     StringEntity entity = new StringEntity(
-      "{\"hash\":\"" + hash + "\"," + 
-       "\"leaf_ids\":[" + StringUtils.join(ids.toArray(), ",") + "]," +
-       "\"branch_id\":\"" + branchId + "\"}",
+      "{\"" + Constants.HASH_KEY + "\":\"" + hash + "\"," + 
+       "\"" + Constants.LEAF_IDS_KEY + "\":[" + StringUtils.join(ids.toArray(), ",") + "]," +
+       "\"" + Constants.BRANCH_ID_KEY + "\":\"" + branchId + "\"}",
       ContentType.APPLICATION_JSON);
     return entity;
   }
