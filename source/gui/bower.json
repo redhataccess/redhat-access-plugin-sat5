@@ -4,7 +4,8 @@
   "dependencies": {
     "angular": "~1.3.0",
     "uri.js": "~1.14.1",
-    "angular-ui-utils": "bower-indeterminate"
+    "angular-ui-utils": "bower-indeterminate",
+    "telemetry": "git@labs-git.usersys.redhat.com:labs/insights.git#~1.2.3"
   },
   "devDependencies": {
     "lodash": "~3.3.0"

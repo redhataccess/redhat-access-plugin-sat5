@@ -1,7 +1,7 @@
 #!/bin/bash
 WAR_NAME=redhat_access.war
 JS_NAME=scripts.js
-SAT_HOSTNAME=sat57.usersys.redhat.com
+SAT_HOSTNAME=sat57-demo.usersys.redhat.com
 
 cd /home/chris/dev/projects/active/sat5-telemetry
 
