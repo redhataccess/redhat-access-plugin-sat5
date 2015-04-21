@@ -104,7 +104,7 @@ module.exports = function (grunt) {
           removeScriptTypeAttributes: true,
           removeStyleLinkTypeAttributes: true
         },
-        usemin: 'scripts/scripts.js'
+        usemin: 'scripts/insights.js'
       },
       main: {
         cwd: '<%= yeoman.app %>',
@@ -328,32 +328,24 @@ module.exports = function (grunt) {
         }
       }
     },
-    uglify: {
-      options: {
-        beautify: true,
-        compress: false,
-        mangle: false,
-        preserveComments: 'all'
-      }
-    },
+    //uncomment for easier debugging
+    //uglify: {
+      //options: {
+        //beautify: true,
+        //compress: false,
+        //mangle: false,
+        //preserveComments: 'all'
+      //}
+    //},
+    //uncomment uglify and concat for prod
     //uglify: {
       //dist: {
         //files: {
-          //'<%= yeoman.dist %>/scripts/scripts.js': [
-            //'<%= yeoman.dist %>/scripts/scripts.js'
+          //'<%= yeoman.dist %>/scripts/insights.js': [
+            //'<%= yeoman.dist %>/scripts/insights.js'
           //]
         //}
       //}
-    //},
-
-    //concat: {
-      //options: {
-        //separator: ';',
-      //},
-      //dist: {
-        //src: ['.tmp/concat/scripts/scripts.js', '.tmp/templates.js'],
-        //dest: 'dist/scripts/scripts2.js',
-      //},
     //},
 
     imagemin: {

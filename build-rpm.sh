@@ -20,7 +20,7 @@ rm -rf ${PROJECT_ROOT}/RPMS
 echo "Done."
 
 echo "Making tmp directory..."
-mkdir -p .rpm-work/sat5-telemetry-${VERSION}
+mkdir -p .rpm-work/sat5-insights
 echo "Done."
 
 echo "Building angular project..."
@@ -37,11 +37,11 @@ echo "Done."
 
 echo "Creating source tar..."
 cd $PROJECT_ROOT/source
-cp rh-insights-sat5.conf ../.rpm-work/sat5-telemetry-${VERSION}
-cp gui/dist/scripts/scripts.js ../.rpm-work/sat5-telemetry-${VERSION}
-cp proxy/smartproxy/target/redhat_access.war ../.rpm-work/sat5-telemetry-${VERSION}
+cp rh-insights-sat5.conf ../.rpm-work/sat5-insights
+cp gui/dist/scripts/insights.js ../.rpm-work/sat5-insights
+cp proxy/smartproxy/target/redhat_access.war ../.rpm-work/sat5-insights
 cd $PROJECT_ROOT/.rpm-work
-tar -cf ~/rpmbuild/SOURCES/sat5-telemetry-${VERSION}.tar.gz sat5-telemetry-${VERSION}
+tar -cf ~/rpmbuild/SOURCES/sat5-insights.tar.gz sat5-insights
 echo "Done."
 
 echo "Copying spec file to ~/rpmbuild..."

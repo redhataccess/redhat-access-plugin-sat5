@@ -6,13 +6,13 @@ Release:	1%{?dist}
 Summary:	Satellite 5 Telemetry
 Group:	Applications/System	
 License:	MIT
-Source0: sat5-telemetry-0.1.0.tar.gz 
+Source0: sat5-insights.tar.gz 
 BuildArch: noarch
 #BuildRequires:	
 #Requires:	
 
 %description
-Telemetry
+Red Hat Access Insights 
 
 
 %prep
@@ -26,16 +26,16 @@ echo OK
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d
-cp rh-telemetry-proxy-sat5.6.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/rh-telemetry-proxy-sat5.6.conf
+cp rh-insights-sat5.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/rh-insights-sat5.conf
 mkdir -p $RPM_BUILD_ROOT/var/www/html/javascript
-cp scripts.js $RPM_BUILD_ROOT/var/www/html/javascript/rhn-third-party.js
+cp insights.js $RPM_BUILD_ROOT/var/www/html/javascript/insights.js
 mkdir -p $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
 cp redhat_access.war $RPM_BUILD_ROOT/usr/share/tomcat6/webapps
 
 
 %files
-%config %attr(0644,root,root) /etc/httpd/conf.d/rh-telemetry-proxy-sat5.6.conf
-%config %attr(0644,root,root) /var/www/html/javascript/rhn-third-party.js
+%config %attr(0644,root,root) /etc/httpd/conf.d/rh-insights-sat5.conf
+%config %attr(0644,root,root) /var/www/html/javascript/insights.js
 %config %attr(0644,root,root) /usr/share/tomcat6/webapps/redhat_access.war
 
 
