@@ -1,6 +1,8 @@
 #!/bin/bash
 VERSION=$1
 PROJECT_ROOT=`pwd`
+PROJECT_NAME=sat5-insights
+SPEC_FILE_NAME=sat5-insights.spec
 
 if [ -z "$VERSION" ]; then
   echo "Usage: build.sh <version>";
@@ -10,7 +12,7 @@ else
   echo "Version: ${VERSION}"
 fi
 
-if [ -e !"./sat5-telemetry.spec" ]; then
+if [ -e !"./$SPEC_FILE_NAME" ]; then
   echo "Script must be executed from sat5-telemetry project root."
   exit 1
 fi
@@ -20,7 +22,8 @@ rm -rf ${PROJECT_ROOT}/RPMS
 echo "Done."
 
 echo "Making tmp directory..."
-mkdir -p .rpm-work/sat5-insights
+RPM_WORK_DIR=.rpm-work/$PROJECT_NAME-$VERSION
+mkdir -p $RPM_WORK_DIR
 echo "Done."
 
 echo "Building angular project..."
@@ -37,22 +40,24 @@ echo "Done."
 
 echo "Creating source tar..."
 cd $PROJECT_ROOT/source
-cp rh-insights-sat5.conf ../.rpm-work/sat5-insights
-cp gui/dist/scripts/insights.js ../.rpm-work/sat5-insights
-cp proxy/smartproxy/target/redhat_access.war ../.rpm-work/sat5-insights
+cp rh-insights-sat5.conf ../$RPM_WORK_DIR
+cp gui/dist/scripts/insights.js ../$RPM_WORK_DIR
+cp gui/dist/styles/insights.css ../$RPM_WORK_DIR
+cp proxy/smartproxy/target/redhat_access.war ../$RPM_WORK_DIR
+cp -r jsp ../$RPM_WORK_DIR
 cd $PROJECT_ROOT/.rpm-work
-tar -cf ~/rpmbuild/SOURCES/sat5-insights.tar.gz sat5-insights
+tar -cf ~/rpmbuild/SOURCES/$PROJECT_NAME.tar.gz $PROJECT_NAME-$VERSION
 echo "Done."
 
 echo "Copying spec file to ~/rpmbuild..."
 cd $PROJECT_ROOT
-cp sat5-telemetry.spec ~/rpmbuild/SPECS/sat5-telemetry.spec
+cp $SPEC_FILE_NAME ~/rpmbuild/SPECS/$SPEC_FILE_NAME
 rm -rf .rpm-work
 echo "Done."
 
 echo "Running rpmbuild..."
 cd ~/rpmbuild/BUILD
-rpmbuild --clean --rmsource --rmspec -ba ../SPECS/sat5-telemetry.spec
+rpmbuild --clean --rmsource --rmspec -ba ../SPECS/$SPEC_FILE_NAME
 echo "Done."
 
 echo "Copying RPMs..."
