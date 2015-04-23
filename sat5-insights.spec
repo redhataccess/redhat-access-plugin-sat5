@@ -50,9 +50,9 @@ cp jsp/systems/sdc/insights.jsp $RPM_BUILD_ROOT/usr/share/tomcat6/webapps/rhn/WE
 %config %attr(0644,root,root) /var/www/html/javascript/insights.js
 %config %attr(0644,root,root) /var/www/html/css/insights.css
 %config %attr(0644,root,root) /usr/share/tomcat6/webapps/redhat_access.war
-%config %attr(0674,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/insights.jsp
-%config %attr(0674,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc/insights.jsp
-%config %attr(0674,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin/insights.jsp
+%config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/insights.jsp
+%config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc/insights.jsp
+%config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin/insights.jsp
 
 
 %changelog
