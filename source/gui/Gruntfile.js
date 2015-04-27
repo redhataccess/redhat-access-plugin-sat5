@@ -329,14 +329,14 @@ module.exports = function (grunt) {
       }
     },
     //uncomment for easier debugging
-    //uglify: {
-      //options: {
-        //beautify: true,
-        //compress: false,
-        //mangle: false,
-        //preserveComments: 'all'
-      //}
-    //},
+    uglify: {
+      options: {
+        beautify: true,
+        compress: false,
+        mangle: false,
+        preserveComments: 'all'
+      }
+    },
     //uncomment uglify and concat for prod
     //uglify: {
       //dist: {

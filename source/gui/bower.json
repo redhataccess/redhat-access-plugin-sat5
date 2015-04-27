@@ -1,11 +1,21 @@
 {
   "name": "sat5-telemetry",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "dependencies": {
     "angular": "~1.3.0",
     "uri.js": "~1.14.1",
     "angular-ui-utils": "bower-indeterminate",
-    "telemetry": "git@labs-git.usersys.redhat.com:labs/insights.git"
+    "telemetry": "git@labs-git.usersys.redhat.com:labs/insights.git",
+    "angular-bootstrap": "~0.11.0",
+    "angular-ui-router": "~0.2.10",
+    "c3": "~0.4.8",
+    "angular-timeago": "~0.1.8",
+    "bootstrap-sass-official": "~3.1.1",
+    "angular-loading-bar": "~0.7.0",
+    "ng-table": "~0.5.0",
+    "angular-sweetalert": "~1.1.0",
+    "selectize-ng": "~0.1.0",
+    "angular-resource": "~1.3.15"
   },
   "devDependencies": {
     "lodash": "~3.3.0"
