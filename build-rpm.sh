@@ -1,8 +1,8 @@
 #!/bin/bash
 VERSION=$1
 PROJECT_ROOT=`pwd`
-PROJECT_NAME=sat5-insights
-SPEC_FILE_NAME=sat5-insights.spec
+PROJECT_NAME=redhat-access-plugin-sat5
+SPEC_FILE_NAME=redhat-access-plugin-sat5.spec
 
 if [ -z "$VERSION" ]; then
   echo "Usage: build.sh <version>";

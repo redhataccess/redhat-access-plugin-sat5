@@ -1,18 +1,18 @@
 %define version 0.1.0
 
-Name:	sat5-insights
+Name:	redhat-access-plugin-sat5
 Version:	%{version}
 Release:	1%{?dist}
-Summary:	Red Hat Access Insights for Satellite 5.7
+Summary:	Red Hat Access Plugin for Satellite 5.7
 Group:	Applications/System	
 License:	MIT
-Source0: sat5-insights.tar.gz 
+Source0: redhat-access-plugin-sat5.tar.gz 
 BuildArch: noarch
 #BuildRequires:	
 #Requires:	
 
 %description
-Red Hat Access Insights for Satellite 5.7
+Red Hat Access Plugin for Satellite 5.7
 
 
 %prep
