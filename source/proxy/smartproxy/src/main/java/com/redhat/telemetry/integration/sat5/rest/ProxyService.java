@@ -3,8 +3,6 @@ package com.redhat.telemetry.integration.sat5.rest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +14,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -51,10 +50,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.jboss.resteasy.spi.ForbiddenException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -187,15 +182,15 @@ public class ProxyService {
       JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
       String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
-    } else if (pathTypeInt == Constants.ACKS_PATH || pathTypeInt == Constants.RULES_PATH) {
-      String prepend = "?";
-      if (path.contains("?")) {
-        prepend = "&";
-      }
-      path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
     } else if (user != null) {
       path = addSubsetToPath(path, subsetHash);
     }
+
+    String prepend = "?";
+    if (path.contains("?")) {
+      prepend = "&";
+    }
+    path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
 
     PortalResponse portalResponse = 
       proxyRequest(
