@@ -12,6 +12,7 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -22,9 +23,10 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 
 import com.redhat.telemetry.integration.sat5.json.Config;
-import com.redhat.telemetry.integration.sat5.json.SatSystem;
+import com.redhat.telemetry.integration.sat5.json.Status;
 import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
 import com.redhat.telemetry.integration.sat5.satellite.AbstractSystem;
+import com.redhat.telemetry.integration.sat5.satellite.json.ApiSystem;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.satellite.Server6System;
 import com.redhat.telemetry.integration.sat5.satellite.Server7System;
@@ -98,59 +100,20 @@ public class ConfigService {
   @GET
   @Path("/systems")
   @Produces(MediaType.APPLICATION_JSON)
-  public ArrayList<SatSystem> getSystems(
+  public ArrayList<ApiSystem> getSystems(
       @CookieParam("pxt-session-cookie") String sessionKey) {
 
     Object[] apiSystems = SatApi.listSystems(sessionKey);
-    ArrayList<SatSystem> satSystems = new ArrayList<SatSystem>();
+    ArrayList<ApiSystem> systems = new ArrayList<ApiSystem>();
     for (Object apiSys : apiSystems) {
       HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) apiSys;
-      Object systemDetails = SatApi.getSystemDetails(sessionKey, (int) apiSysMap.get("id"));
-      HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
-      String systemVersion = (String) systemDetailsMap.get("release");
-      int systemId = (int) apiSysMap.get("id");
-      SystemInstallStatus installationStatus = new SystemInstallStatus();
-      boolean validSystem = false;
-      boolean enabled = false;
-      AbstractSystem system = null;
-      if (systemVersion.equals(Constants.VERSION_RHEL6_SERVER)) {
-        system = new Server6System(sessionKey, systemId);
-      } else if (systemVersion.equals(Constants.VERSION_RHEL7_SERVER)) {
-        system = new Server7System(sessionKey, systemId);
-      }
-      if (system != null) {
-        validSystem = true;
-        if(system.channelExists()) {
-          if (system.rpmInstalled()) {
-            installationStatus.setRpmInstalled(true);
-            enabled = true;
-          }
-          if (system.softwareChannelAssociated()) {
-            installationStatus.setSoftwareChannelAssociated(true);
-            enabled = true;
-          }
-          if (system.configChannelAssociated()) {
-            installationStatus.setConfigChannelAssociated(true);
-            enabled = true;
-          }
-          if (system.configDeployed()) {
-            installationStatus.setConfigDeployed(true);
-            enabled = true;
-          }
-        }
-      }
-
-      SatSystem satSys = new SatSystem(
-          systemId,
-          (String) apiSysMap.get("name"),
-          systemVersion,
-          installationStatus,
-          enabled,
-          validSystem);
-      satSystems.add(satSys);
+      ApiSystem sys = new ApiSystem(
+          (int) apiSysMap.get("id"),
+          (String) apiSysMap.get("name"));
+      systems.add(sys);
     }
 
-    return satSystems;
+    return systems;
   }
 
   /**
@@ -159,12 +122,12 @@ public class ConfigService {
   @POST
   @Path("/systems")
   @Consumes(MediaType.APPLICATION_JSON)
-  public ArrayList<SatSystem> postSystems(
+  public ArrayList<Status> postSystems(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      ArrayList<SatSystem> systems) {
+      ArrayList<Status> systems) {
 
 
-    for (SatSystem sys : systems) {
+    for (Status sys : systems) {
       if (sys.getValidType()) {
         AbstractSystem system = null;
         if (sys.getVersion().equals(Constants.VERSION_RHEL6_SERVER)) {
@@ -213,6 +176,81 @@ public class ConfigService {
     }
     SatApi.deployAllSystems(sessionKey, Constants.CONFIG_CHANNEL_LABEL);
     return systems;
+  }
+
+  @GET
+  @Path("/status")
+  @Produces(MediaType.APPLICATION_JSON)
+  public ArrayList<Status> getMultipleSystemStatus(
+      @CookieParam("pxt-session-cookie") String sessionKey,
+      @QueryParam("systems") ArrayList<String> systemIds) {
+
+    ArrayList<Status> statusList = new ArrayList<Status>();
+    for (String id : systemIds) {
+      int systemId = Integer.parseInt(id);
+      Status status = findSystemStatus(sessionKey, systemId);
+      statusList.add(status);
+    }
+    return statusList;
+  }
+
+  @GET
+  @Path("/status/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Status getSingleSystemStatus(
+      @CookieParam("pxt-session-cookie") String sessionKey,
+      @PathParam("id") String id) {
+
+    Status status = findSystemStatus(sessionKey, Integer.parseInt(id));
+    return status;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Status findSystemStatus(String sessionKey, int systemId) {
+
+    Object systemDetails = SatApi.getSystemDetails(sessionKey, systemId);
+    HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
+    String systemVersion = (String) systemDetailsMap.get("release");
+    SystemInstallStatus installationStatus = new SystemInstallStatus();
+    boolean validSystem = false;
+    boolean enabled = false;
+
+    //get the status of redhat access installation for each system
+    AbstractSystem system = null;
+    if (systemVersion.equals(Constants.VERSION_RHEL6_SERVER)) {
+      system = new Server6System(sessionKey, systemId);
+    } else if (systemVersion.equals(Constants.VERSION_RHEL7_SERVER)) {
+      system = new Server7System(sessionKey, systemId);
+    }
+    if (system != null) {
+      validSystem = true;
+      if(system.channelExists()) {
+        if (system.rpmInstalled()) {
+          installationStatus.setRpmInstalled(true);
+          enabled = true;
+        }
+        if (system.softwareChannelAssociated()) {
+          installationStatus.setSoftwareChannelAssociated(true);
+          enabled = true;
+        }
+        if (system.configChannelAssociated()) {
+          installationStatus.setConfigChannelAssociated(true);
+          enabled = true;
+        }
+        if (system.configDeployed()) {
+          installationStatus.setConfigDeployed(true);
+          enabled = true;
+        }
+      }
+    }
+
+    Status status = new Status(
+        systemId,
+        systemVersion,
+        installationStatus,
+        enabled,
+        validSystem);
+    return status;
   }
 
   /**

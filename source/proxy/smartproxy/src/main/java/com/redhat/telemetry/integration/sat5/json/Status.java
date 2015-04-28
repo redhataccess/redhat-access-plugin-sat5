@@ -2,28 +2,25 @@ package com.redhat.telemetry.integration.sat5.json;
 
 import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
 
-public class SatSystem {
+public class Status {
 
   int id;
-  String name;
   String version;
   SystemInstallStatus installationStatus;
   boolean enabled; // 0 -> unchecked, 1 -> partial, 2 -> checked
   boolean validType;
 
-  public SatSystem() {
+  public Status() {
   }
 
-  public SatSystem(
+  public Status(
       int id, 
-      String name, 
       String version, 
       SystemInstallStatus installationStatus, 
       boolean enabled,
       boolean validType) {
 
     this.id = id;
-    this.name = name;
     this.version = version;
     this.installationStatus = installationStatus;
     this.enabled = enabled;
@@ -36,14 +33,6 @@ public class SatSystem {
 
   public int getId() {
     return this.id;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getName() {
-    return this.name;
   }
 
   public void setVersion(String version) {
