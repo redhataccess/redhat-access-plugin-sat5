@@ -3,8 +3,8 @@ form
     div.spacewalk-list-top-addons
       div.spacewalk-list-alphabar
         ul.spacewalk-alphabar.pagination.pagination-sm
-          li(ng-repeat='alpha in alphas', ng-class='{disabled: disableAlphabarElement(alpha)}')
-            a(ng-click='alphabarFilter(alpha)') {{alpha}}
+          li(ng-repeat='a in alphas', ng-class='{active: a === alpha, disabled: disableAlphabarElement(a)}')
+            a(ng-click='alphabarFilter(a)', ng-disabled='disableAlphabarElement(a)') {{a}}
       div(rha-insights-sat5-pagination)
     div.spacewalk-list-top-extra
     div.panel.panel-default
@@ -61,7 +61,7 @@ form
                   ng-if='!invalidType(system)')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
-              td.text-center(width='50px')
+              td.text-center(width='75px')
                 i.fa.fa-minus-circle.fa-1-5-x(
                   ng-if='noInstallation(system)')
                 i.fa.fa-exclamation-circle.fa-1-5x.fail(
