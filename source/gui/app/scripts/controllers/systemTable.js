@@ -21,13 +21,28 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.validSystems = [];
   $scope.orderBy = 'name';
   $scope.pageSize = 10;
-  $scope.pageSizes = [5, 10, 20, 50]
+  $scope.pageSizes = [5, 10, 20, 50];
+  $scope.alphas = 
+    ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 
+     'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+     'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+  $scope.alpha = '';
 
   $scope.filteredSystems = [];
   $scope.getSystems = Admin.getSystems;
   $scope.getPageSize = Admin.getPageSize;
   $scope.getPage = Admin.getPage;
   $scope.getPageStart = Admin.getPageStart;
+
+  $scope.disableAlphabarElement = function(alpha) {
+    return !_.some(Admin.getSystems(), function(sys) {
+      return _.startsWith(sys.name, alpha);
+    });
+  };
+
+  $scope.alphabarFilter = function(alpha) {
+    $scope.alpha = alpha;
+  };
 
   $scope.doFilter = function() {
     Admin.setPage(0);

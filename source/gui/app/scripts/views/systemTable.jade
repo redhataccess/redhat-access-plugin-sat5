@@ -3,78 +3,8 @@ form
     div.spacewalk-list-top-addons
       div.spacewalk-list-alphabar
         ul.spacewalk-alphabar.pagination.pagination-sm
-          li
-            a 0
-          li
-            a 1
-          li
-            a 2
-          li
-            a 3
-          li
-            a 4
-          li
-            a 5
-          li
-            a 6
-          li
-            a 7
-          li
-            a 8
-          li
-            a 9
-          li
-            a a
-          li
-            a b
-          li
-            a c
-          li
-            a d
-          li
-            a e
-          li
-            a f
-          li
-            a g
-          li
-            a h
-          li
-            a i
-          li
-            a j
-          li
-            a k
-          li
-            a l
-          li
-            a m
-          li
-            a n
-          li
-            a o
-          li
-            a p
-          li
-            a q
-          li
-            a r
-          li
-            a s
-          li
-            a t
-          li
-            a u
-          li
-            a v
-          li
-            a w
-          li
-            a x
-          li
-            a y
-          li
-            a z
+          li(ng-repeat='alpha in alphas', ng-class='{disabled: disableAlphabarElement(alpha)}')
+            a(ng-click='alphabarFilter(alpha)') {{alpha}}
       div(rha-insights-sat5-pagination)
     div.spacewalk-list-top-extra
     div.panel.panel-default
@@ -121,7 +51,7 @@ form
             | Loading systems...
           tbody(ng-hide='loading')
             tr(
-              ng-repeat='system in getSystems() | systemsFilter:filter:orderBy:getPageStart():getPageSize()',
+              ng-repeat='system in getSystems() | systemsFilter:filter:orderBy:getPageStart():getPageSize():alpha',
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
                 input(
