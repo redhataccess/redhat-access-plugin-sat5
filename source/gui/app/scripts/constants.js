@@ -64,6 +64,7 @@ angular.module('sat5TelemetryApp')
 .constant('CONFIG_URLS', {
   'GENERAL': '/redhat_access/config/general',
   'SYSTEMS': '/redhat_access/config/systems',
+  'STATUS': '/redhat_access/config/status',
   'SOFTWARE_CHANNELS': '/redhat_access/config/channels/software'
 })
 .constant('TELEMETRY_URLS', {

@@ -2,7 +2,80 @@ form
   div.spacewalk-list.list
     div.spacewalk-list-top-addons
       div.spacewalk-list-alphabar
-      div.spacewalk-list-pagination
+        ul.spacewalk-alphabar.pagination.pagination-sm
+          li
+            a 0
+          li
+            a 1
+          li
+            a 2
+          li
+            a 3
+          li
+            a 4
+          li
+            a 5
+          li
+            a 6
+          li
+            a 7
+          li
+            a 8
+          li
+            a 9
+          li
+            a a
+          li
+            a b
+          li
+            a c
+          li
+            a d
+          li
+            a e
+          li
+            a f
+          li
+            a g
+          li
+            a h
+          li
+            a i
+          li
+            a j
+          li
+            a k
+          li
+            a l
+          li
+            a m
+          li
+            a n
+          li
+            a o
+          li
+            a p
+          li
+            a q
+          li
+            a r
+          li
+            a s
+          li
+            a t
+          li
+            a u
+          li
+            a v
+          li
+            a w
+          li
+            a x
+          li
+            a y
+          li
+            a z
+      div(rha-insights-sat5-pagination)
     div.spacewalk-list-top-extra
     div.panel.panel-default
       div.panel-heading
@@ -21,15 +94,12 @@ form
                   i.fa.fa-eye
           div.spacewalk-list-head-addons-extra
             div.list-sizeselector
-              select.display-number(ng-disabled='loading')
+              select.display-number(
+                  ng-options='size for size in pageSizes',
+                  ng-disabled='loading', 
+                  ng-change='setPageSize()', 
+                  ng-model='pageSize')
                 | items per page
-                option 5
-                option 10
-                option.selected 25
-                option 50
-                option 100
-                option 250
-                option 500
       div.table-responsive
         table.table.table-striped
           thead
@@ -50,7 +120,7 @@ form
             | Loading systems...
           tbody(ng-hide='loading')
             tr(
-              ng-repeat='system in systems | filter: filter | orderBy: orderBy', 
+              ng-repeat='system in getSystems() | pageStart: getPageStart() | limitTo:getPageSize() | filter: filter | orderBy: orderBy', 
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
                 input(
@@ -79,10 +149,7 @@ form
                 ng-disabled='loading', 
                 ng-click='selectAll()') Select All
     div.spacewalk-list-bottom-addons
-      div.spacewalk-list-pagination
-        | 1 - 1 of 1&nbsp;
-        strong
-          span ({{getNumSelected()}} selected)
+      div(rha-insights-sat5-pagination)
     div.text-right
       hr
       div.row

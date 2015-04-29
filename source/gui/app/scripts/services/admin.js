@@ -20,6 +20,9 @@ ADMIN_TABS) {
   var _tab = ADMIN_TABS.GENERAL;
   var _enabled = false;
   var _username = "";
+  var _systems = [];
+  var _pageSize = 10;
+  var _page = 0;
 
   var setTab = function(tab) {
     _tab = tab;
@@ -53,6 +56,37 @@ ADMIN_TABS) {
     _username = username;
   };
 
+  var setSystems = function(systems) {
+    _systems = systems;
+  };
+
+  var getSystems = function() {
+    return _systems;
+  };
+
+  var setPageSize = function(pageSize) {
+    _pageSize = pageSize;
+  };
+
+  var getPageSize = function() {
+    return _pageSize;
+  };
+
+  var setPage = function(page) {
+    _page = page;
+  };
+
+  var getPage = function() {
+    return _page;
+  };
+
+  var getNumSystems = function() {
+    return getSystems().length;
+  };
+
+  var getPageStart = function() {
+    return getPage() * getPageSize();
+  };
   /**
    * Scrape the username off the page. 
    * Need this for calls to Sat5 API in the proxy.
@@ -140,6 +174,14 @@ ADMIN_TABS) {
     getEnabled: getEnabled,
     setEnabled: setEnabled,
     setUsername: setUsername,
-    getUsername: getUsername
+    getUsername: getUsername,
+    getSystems: getSystems,
+    setSystems: setSystems,
+    getPageSize: getPageSize,
+    setPageSize: setPageSize,
+    getPage: getPage,
+    setPage: setPage,
+    getNumSystems: getNumSystems,
+    getPageStart: getPageStart
   };
 });

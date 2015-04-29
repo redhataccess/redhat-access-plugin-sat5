@@ -20,6 +20,18 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.systems = [];
   $scope.validSystems = [];
   $scope.orderBy = 'name';
+  $scope.pageSize = 10;
+  $scope.pageSizes = [5, 10, 20, 50]
+
+  $scope.getSystems = Admin.getSystems;
+  $scope.getPageSize = Admin.getPageSize;
+  $scope.getPage = Admin.getPage;
+  $scope.getPageStart = Admin.getPageStart;
+
+  $scope.setPageSize = function() {
+    Admin.setPage(0);
+    Admin.setPageSize($scope.pageSize);
+  };
 
   $scope.toggleStatusSort = function() {
     if ($scope.orderBy === 'status') {
@@ -248,12 +260,12 @@ SYSTEM_DETAILS_PAGE_URLS) {
   Admin.getSystemsPromise()
     .success(function(response) {
       $scope.loading = false;
-      $scope.systems = response;
-      $scope.validSystems = 
-        _.filter(
-          response, 
-          {'validType': true});
-      $scope.setSelectionState();
+      Admin.setSystems(response);
+      //$scope.validSystems = 
+        //_.filter(
+          //response, 
+          //{'validType': true});
+      //$scope.setSelectionState();
     })
     .error(function(error) {
       $scope.loading = false;

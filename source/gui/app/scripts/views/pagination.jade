@@ -1,0 +1,6 @@
+div.spacewalk-list-pagination
+  | {{getPageStart() + 1}} - {{getPageEnd()}} of {{getNumSystems()}}&nbsp;
+  button.btn.btn-default.btn-xs.fa.fa-angle-double-left(ng-disabled='disablePageBack()', ng-click='pageStart()')
+  button.btn.btn-default.btn-xs.fa.fa-angle-left(ng-disabled='disablePageBack()', ng-click='pageBack()')
+  button.btn.btn-default.btn-xs.fa.fa-angle-right(ng-disabled='disablePageForward()', ng-click='pageForward()')
+  button.btn.btn-default.btn-xs.fa.fa-angle-double-right(ng-disabled='disablePageForward()', ng-click='pageEnd()')
