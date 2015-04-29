@@ -10,7 +10,6 @@
 angular.module('sat5TelemetryApp')
 .factory('Admin', function (
 $http, 
-$rootScope, 
 EVENTS, 
 CONFIG_URLS, 
 HTTP_CONST,
@@ -23,6 +22,8 @@ ADMIN_TABS) {
   var _systems = [];
   var _pageSize = 10;
   var _page = 0;
+  var _filteredSystemLength = 0;
+
 
   var setTab = function(tab) {
     _tab = tab;
@@ -80,8 +81,26 @@ ADMIN_TABS) {
     return _page;
   };
 
+  var setFilteredSystems = function(filteredSystems) {
+    _filteredSystems = filteredSystems;
+  };
+
+  var getFilteredSystems = function() {
+    return _filteredSystems;
+  };
+
   var getNumSystems = function() {
-    return getSystems().length;
+    //var numSystems = getSystems().length;
+    //if (_filteredSystemLength !== 0 && numSystems > _filteredSystemLength) {
+      //numSystems = _filteredSystemLength;
+    //}
+    //return numSystems;
+    //return getFilteredSystems().length;
+    return _filteredSystemLength;
+  };
+
+  var updateSystemLength = function(newLength) {
+    _filteredSystemLength = newLength;
   };
 
   var getPageStart = function() {
@@ -182,6 +201,7 @@ ADMIN_TABS) {
     getPage: getPage,
     setPage: setPage,
     getNumSystems: getNumSystems,
-    getPageStart: getPageStart
+    getPageStart: getPageStart,
+    updateSystemLength: updateSystemLength
   };
 });

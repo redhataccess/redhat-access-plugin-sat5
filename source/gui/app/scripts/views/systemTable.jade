@@ -84,6 +84,7 @@ form
             div.input-group.input-group-sm
               input.form-control(
                 ng-model='filter',
+                ng-change='doFilter()',
                 ng-disabled='loading',
                 type='text',
                 placeholder='Filter by System Name')
@@ -120,7 +121,7 @@ form
             | Loading systems...
           tbody(ng-hide='loading')
             tr(
-              ng-repeat='system in getSystems() | pageStart: getPageStart() | limitTo:getPageSize() | filter: filter | orderBy: orderBy', 
+              ng-repeat='system in getSystems() | systemsFilter:filter:orderBy:getPageStart():getPageSize()',
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
                 input(

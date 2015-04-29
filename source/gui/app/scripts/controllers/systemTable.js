@@ -23,10 +23,15 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.pageSize = 10;
   $scope.pageSizes = [5, 10, 20, 50]
 
+  $scope.filteredSystems = [];
   $scope.getSystems = Admin.getSystems;
   $scope.getPageSize = Admin.getPageSize;
   $scope.getPage = Admin.getPage;
   $scope.getPageStart = Admin.getPageStart;
+
+  $scope.doFilter = function() {
+    Admin.setPage(0);
+  };
 
   $scope.setPageSize = function() {
     Admin.setPage(0);

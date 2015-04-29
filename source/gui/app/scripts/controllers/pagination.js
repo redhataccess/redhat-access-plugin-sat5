@@ -32,7 +32,14 @@ angular.module('sat5TelemetryApp')
   };
 
   $scope.pageEnd = function() {
-    Admin.setPage(Math.floor(Admin.getNumSystems() / Admin.getPageSize()) - 1);
+    var numPages = Admin.getNumSystems() / Admin.getPageSize();
+    if (numPages % 1 === 0) {
+      numPages = numPages - 1;
+    } else {
+      numPages = Math.floor(numPages);
+    }
+
+    Admin.setPage(numPages);
   };
 
   $scope.pageStart = function() {
