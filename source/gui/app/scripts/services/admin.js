@@ -20,9 +20,12 @@ ADMIN_TABS) {
   var _enabled = false;
   var _username = "";
   var _systems = [];
+  var _systemStatuses = [];
   var _pageSize = 10;
   var _page = 0;
   var _filteredSystemLength = 0;
+  var _filteredSystems = [];
+  var _validSystems = [];
 
 
   var setTab = function(tab) {
@@ -81,21 +84,11 @@ ADMIN_TABS) {
     return _page;
   };
 
-  var setFilteredSystems = function(filteredSystems) {
-    _filteredSystems = filteredSystems;
-  };
-
-  var getFilteredSystems = function() {
-    return _filteredSystems;
+  var getValidSystems = function() {
+    return _.filter(getSystemStatuses(), {'validType': true});
   };
 
   var getNumSystems = function() {
-    //var numSystems = getSystems().length;
-    //if (_filteredSystemLength !== 0 && numSystems > _filteredSystemLength) {
-      //numSystems = _filteredSystemLength;
-    //}
-    //return numSystems;
-    //return getFilteredSystems().length;
     return _filteredSystemLength;
   };
 
@@ -106,12 +99,55 @@ ADMIN_TABS) {
   var getPageStart = function() {
     return getPage() * getPageSize();
   };
+
+  var setSystemStatuses = function(systemStatuses) {
+    _systemStatuses = systemStatuses;
+  };
+
+  var addSystemStatuses = function(systemStatuses) {
+    _systemStatuses = _.union(_systemStatuses, systemStatuses);
+  }
+
+  var getSystemStatus = function(system) {
+    var status = _.where(_systemStatuses, {'id': system.id});
+    return status[0];
+  };
+
+  var getSystemStatuses = function() {
+    return _systemStatuses;
+  };
+
+  var setFilteredSystems = function(systems) {
+    if (!_.isEqual(_.pluck(systems, 'id'), _.pluck(_filteredSystems, 'id'))) {
+      _filteredSystems = systems;
+      getStatuses();
+    }
+    _filteredSystems = systems;
+  };
+
+  var getFilteredSystems = function() {
+    return _filteredSystems;
+  };
   /**
    * Scrape the username off the page. 
    * Need this for calls to Sat5 API in the proxy.
    */
   var getSatelliteUser = function() {
     return $('nav.navbar-pf > div.navbar-collapse > ul.navbar-nav > li > a[href="/rhn/account/UserDetails.do"]').text().trim();
+  };
+
+  /**
+   * args:
+   *  - systems -> array of satellite system ids
+   *
+   * response:
+   *  - array of satellite system ids missing installation status
+   */
+  var getSystemsMissingStatus = function(systems) {
+    var missingSystems = _.difference(
+      _.pluck(systems, 'id'),
+      _.pluck(getSystemStatuses(), 'id')); 
+    return missingSystems;
   };
 
   var postConfig = function(enabled, username, password) {
@@ -181,6 +217,32 @@ ADMIN_TABS) {
     return promise;
   };
 
+  var getStatuses = function(systems) {
+    var unknownSystems = getSystemsMissingStatus(getFilteredSystems());
+    if (!_.isEmpty(unknownSystems)) {
+      getStatusPromise(unknownSystems).then(
+        function(statuses) {
+          addSystemStatuses(statuses.data);
+        });
+    }
+  };
+
+  var getStatusPromise = function(systems) {
+    var headers = {};
+    headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
+    headers[HTTP_CONST.CONTENT_TYPE] = HTTP_CONST.APPLICATION_JSON;
+    var params = {};
+    params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
+    params[CONFIG_KEYS.SYSTEMS] = systems.join();
+    var promise = $http({
+      method: HTTP_CONST.GET,
+      url: CONFIG_URLS.STATUS,
+      headers: headers,
+      params: params
+    });
+    return promise;
+  };
+
   return {
     postConfig: postConfig,
     getConfig: getConfig,
@@ -202,6 +264,12 @@ ADMIN_TABS) {
     setPage: setPage,
     getNumSystems: getNumSystems,
     getPageStart: getPageStart,
-    updateSystemLength: updateSystemLength
+    updateSystemLength: updateSystemLength,
+    getStatusPromise: getStatusPromise,
+    getSystemStatus: getSystemStatus,
+    getStatuses: getStatuses,
+    setFilteredSystems: setFilteredSystems,
+    getFilteredSystems: getFilteredSystems,
+    getValidSystems: getValidSystems
   };
 });

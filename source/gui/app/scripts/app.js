@@ -105,6 +105,7 @@ TELEMETRY_URLS) {
       
       $('#spacewalk-content').
         append('<rule-summary machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/>');
+      $('#spacewalk-content').addClass('main-content insights-main-content');
     }
   } else if (Util.isOnPage(SAT5_ROOT_URLS.ADMIN)) {
     appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>', false);

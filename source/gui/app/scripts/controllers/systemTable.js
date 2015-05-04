@@ -18,7 +18,6 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.loading = true;
   $scope.filter = '';
   $scope.systems = [];
-  $scope.validSystems = [];
   $scope.orderBy = 'name';
   $scope.pageSize = 10;
   $scope.pageSizes = [5, 10, 20, 50];
@@ -33,6 +32,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.getPageSize = Admin.getPageSize;
   $scope.getPage = Admin.getPage;
   $scope.getPageStart = Admin.getPageStart;
+  $scope.getSystemStatus = Admin.getSystemStatus;
 
   $scope.disableAlphabarElement = function(alpha) {
     return !_.some(Admin.getSystems(), function(sys) {
@@ -76,7 +76,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.toggleAll = function() {
     var allSelected = $scope.allSelected();
-    _.forEach($scope.validSystems, function(system) {
+    _.forEach(Admin.getValidSystems(), function(system) {
       system.enabled = !allSelected;
     });
   };
@@ -88,12 +88,12 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.allSelected = function() {
-    return !_.some($scope.validSystems, {'enabled': false});
+    return !_.some(Admin.getValidSystems(), {'enabled': false});
   };
 
   $scope.allPartiallySelected = function() {
     var response = false;
-    var someSelected = _.some($scope.validSystems, {'enabled': true});
+    var someSelected = _.some(Admin.getValidSystems(), {'enabled': true});
     if ($scope.allSelected()) {
       response = false;
     } else if (someSelected) {
@@ -112,7 +112,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.getNumSelected = function() {
-    return _.where($scope.validSystems, {'enabled': true}).length;
+    return _.where(Admin.getValidSystems(), {'enabled': true}).length;
   };
 
   $scope.getSystemUrl = function(system) {
@@ -121,7 +121,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.doApply = function() {
-    Admin.postSystems($scope.validSystems)
+    Admin.postSystems(Admin.getValidSystems())
       .success(function(response) {
         console.log(response);
       })
@@ -191,42 +191,44 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   /**
-   * -1 - what?
+   * -1 - loading
    *  0 - failed install
    *  1 - in progress install
    *  2 - no install
    *  3 - successful install
    *  4 - invalid system type
    */
+  var LOADING_STATUS = -1;
   var FAILED_INSTALL_STATUS = 0;
   var IN_PROGRESS_INSTALL_STATUS = 1;
   var NO_INSTALL_STATUS = 2;
   var SUCCESSFUL_INSTALL_STATUS = 3;
   var INVALID_TYPE_STATUS = 4;
-  $scope.getInstallationStatus = function(system) {
+  $scope.getInstallationStatus = function(systemStatus) {
     var response = -1;
-    var installationStatus = system.installationStatus;
-    if (!system.validType) {
-      response = INVALID_TYPE_STATUS;
-    } else if (!installationStatus.rpmInstalled &&
-        !installationStatus.configDeployed &&
-        !installationStatus.configChannelAssociated &&
-        !installationStatus.softwareChannelAssociated) {
-      response = NO_INSTALL_STATUS;
-    } else if (!installationStatus.rpmInstalled || 
-        !installationStatus.configDeployed || 
-        !installationStatus.configChannelAssociated || 
-        !installationStatus.softwareChannelAssociated) {
-      response = FAILED_INSTALL_STATUS;
-    } else {
-      response = SUCCESSFUL_INSTALL_STATUS;
+    if (!_.isEmpty(systemStatus)) {
+      var installationStatus = systemStatus.installationStatus;
+      if (!systemStatus.validType) {
+        response = INVALID_TYPE_STATUS;
+      } else if (!installationStatus.rpmInstalled &&
+          !installationStatus.configDeployed &&
+          !installationStatus.configChannelAssociated &&
+          !installationStatus.softwareChannelAssociated) {
+        response = NO_INSTALL_STATUS;
+      } else if (!installationStatus.rpmInstalled || 
+          !installationStatus.configDeployed || 
+          !installationStatus.configChannelAssociated || 
+          !installationStatus.softwareChannelAssociated) {
+        response = FAILED_INSTALL_STATUS;
+      } else {
+        response = SUCCESSFUL_INSTALL_STATUS;
+      }
     }
-
     return response;
   };
 
-  $scope.noInstallation = function(system) {
-    var status = $scope.getInstallationStatus(system);
+  $scope.noInstallation = function(systemStatus) {
+    var status = $scope.getInstallationStatus(systemStatus);
     if (status === NO_INSTALL_STATUS) {
       return true;
     } else {
@@ -234,8 +236,8 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
-  $scope.installationPending = function(system) {
-    var status = $scope.getInstallationStatus(system);
+  $scope.installationPending = function(systemStatus) {
+    var status = $scope.getInstallationStatus(systemStatus);
     if (status === IN_PROGRESS_INSTALL_STATUS) {
       return true;
     } else {
@@ -243,8 +245,8 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
-  $scope.installationSuccess = function(system) {
-    var status = $scope.getInstallationStatus(system);
+  $scope.installationSuccess = function(systemStatus) {
+    var status = $scope.getInstallationStatus(systemStatus);
     if (status === SUCCESSFUL_INSTALL_STATUS) {
       return true;
     } else {
@@ -252,8 +254,8 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
-  $scope.installationFail = function(system) {
-    var status = $scope.getInstallationStatus(system);
+  $scope.installationFail = function(systemStatus) {
+    var status = $scope.getInstallationStatus(systemStatus);
     if (status === FAILED_INSTALL_STATUS) {
       return true;
     } else {
@@ -261,8 +263,8 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
-  $scope.invalidType = function(system) {
-    var status = $scope.getInstallationStatus(system);
+  $scope.invalidType = function(systemStatus) {
+    var status = $scope.getInstallationStatus(systemStatus);
     if (status == INVALID_TYPE_STATUS) {
       return true;
     } else {
@@ -270,8 +272,17 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
+  $scope.loadingStatus = function(systemStatus) {
+    var status = $scope.getInstallationStatus(systemStatus);
+    if (status == LOADING_STATUS) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   $scope.setSelectionState = function() {
-    _.forEach($scope.validSystems, function(system) {
+    _.forEach(Admin.getValidSystems(), function(system) {
       if ($scope.installationSuccess(system)) {
         system.enabled = true;
       } else if ($scope.noInstallation(system)) {

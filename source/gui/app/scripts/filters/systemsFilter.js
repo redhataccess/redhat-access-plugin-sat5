@@ -10,6 +10,7 @@ angular.module('sat5TelemetryApp').filter('systemsFilter', function (_, $filter,
     pageStart = parseInt(pageStart);
     input = input.slice(pageStart);
     input = $filter('limitTo')(input, pageSize);
+    Admin.setFilteredSystems(input);
     return input;
   };
 })

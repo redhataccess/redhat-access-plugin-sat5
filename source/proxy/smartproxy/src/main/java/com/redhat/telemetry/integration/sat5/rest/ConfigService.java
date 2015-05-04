@@ -3,7 +3,9 @@ package com.redhat.telemetry.integration.sat5.rest;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -183,10 +185,11 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public ArrayList<Status> getMultipleSystemStatus(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("systems") ArrayList<String> systemIds) {
+      @QueryParam("systems") String systemIds) {
 
     ArrayList<Status> statusList = new ArrayList<Status>();
-    for (String id : systemIds) {
+    List<String> systemIdsList = Arrays.asList(systemIds.split("\\s*,\\s*"));
+    for (String id : systemIdsList) {
       int systemId = Integer.parseInt(id);
       Status status = findSystemStatus(sessionKey, systemId);
       statusList.add(status);
