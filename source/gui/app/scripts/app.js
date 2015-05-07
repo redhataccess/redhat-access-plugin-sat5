@@ -86,12 +86,14 @@ TELEMETRY_URLS) {
       $('.table > thead > tr > th:eq(' + HEALTH_TABLE_POS + ')'));
 
     var count = $('.table > tbody > tr').length;
-    for(var i = 0; i < count; i++) {
-      var systemUrl = $('.table > tbody > tr:eq(' + i + ') > td:eq(1) > a')[0].href;
-      var sid = Util.getSidFromUrl(systemUrl);
+    if (Util.thereAreSystemsOnOverviewPage()) {
+      for(var i = 0; i < count; i++) {
+        var systemUrl = $('.table > tbody > tr:eq(' + i + ') > td:eq(1) > a')[0].href;
+        var sid = Util.getSidFromUrl(systemUrl);
 
-      $('<th class="rha-insights-system-health-col ng-hide"><health-icon sid="' + sid + '"/></th>').insertAfter(
-        $('.table > tbody > tr:eq(' + i + ') > td:eq(' + HEALTH_TABLE_POS + ')'));
+        $('<th class="rha-insights-system-health-col ng-hide"><health-icon sid="' + sid + '"/></th>').insertAfter(
+          $('.table > tbody > tr:eq(' + i + ') > td:eq(' + HEALTH_TABLE_POS + ')'));
+      }
     }
   } else if (Util.isOnSystemDetailsPage()) {
     $('<li id="rha-insights-system-details" class="ng-hide"><a href="/rhn/systems/details/Insights.do?' + 
@@ -121,7 +123,7 @@ TELEMETRY_URLS) {
       $('#rha-insights-system-details').removeClass('ng-hide');
       $('.rha-insights-system-health-col').removeClass('ng-hide');
       $('#rha-insights-system-health-col-head').removeClass('ng-hide');
-      if (Util.isOnSystemListPage()) {
+      if (Util.isOnSystemListPage() && Util.thereAreSystemsOnOverviewPage()) {
         Sat5TelemetrySystems.populate();
       }
     }

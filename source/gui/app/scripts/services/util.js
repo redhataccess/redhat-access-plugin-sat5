@@ -63,4 +63,12 @@ angular.module('sat5TelemetryApp')
     return query.sid;
   };
 
+  this.thereAreSystemsOnOverviewPage = function() {
+    var response = true;
+    if ($('.table > tbody > tr > td > div').text() === 'No systems.') {
+      response = false;
+    }
+    return response;
+  };
+
 });
