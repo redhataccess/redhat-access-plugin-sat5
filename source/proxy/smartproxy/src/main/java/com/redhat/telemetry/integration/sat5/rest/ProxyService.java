@@ -61,6 +61,7 @@ import com.redhat.telemetry.integration.sat5.util.Constants;
 @Path("/rs/telemetry")
 public class ProxyService {
   @Context ServletContext context;
+  private String portalUrl = "https://access.redhat.com/rs/telemetry";
 
 
   @GET
@@ -149,6 +150,7 @@ public class ProxyService {
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
     boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
+    this.portalUrl = properties.getString(Constants.PORTALURL_PROPERTY);
     if (!enabled) {
       throw new ForbiddenException("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service.");
     }
@@ -249,13 +251,13 @@ public class ProxyService {
     HttpRequestBase request;
     switch (method) {
       case Constants.METHOD_GET: 
-        request = new HttpGet(Constants.PORTAL_URL + path);
+        request = new HttpGet(this.portalUrl + path);
         break;
       case Constants.METHOD_DELETE: 
-        request = new HttpDelete(Constants.PORTAL_URL + path);
+        request = new HttpDelete(this.portalUrl + path);
         break;
       case Constants.METHOD_POST: 
-        request = new HttpPost(Constants.PORTAL_URL + path);
+        request = new HttpPost(this.portalUrl + path);
         request.addHeader(HttpHeaders.CONTENT_TYPE, requestType);
         if (entity != null) {
           ((HttpPost) request).setEntity(entity);
@@ -264,7 +266,7 @@ public class ProxyService {
         }
         break;
       case Constants.METHOD_PUT: 
-        request = new HttpPut(Constants.PORTAL_URL + path);
+        request = new HttpPut(this.portalUrl + path);
         request.addHeader(HttpHeaders.CONTENT_TYPE, requestType);
         if (entity != null) {
           ((HttpPut) request).setEntity(entity);

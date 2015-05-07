@@ -17,8 +17,11 @@ public abstract class AbstractSystem {
   public abstract String getRepoLabel();
   public abstract String getRepoUrl();
 
+  private Object[] userRepos = null;
+  private Object[] userChannels = null;
+
   public void createRepo() {
-    if (!repoExists()) {
+    if (parentChannelExists() && !insightsRepoExists()) {
       SatApi.createRepo(
           this.sessionKey, 
           this.getRepoLabel(), 
@@ -28,14 +31,14 @@ public abstract class AbstractSystem {
   }
 
   @SuppressWarnings("unchecked")
-  public boolean repoExists() {
-    Object[] repos = SatApi.listUserRepos(this.sessionKey);
+  private boolean repoExists(String repoLabel) {
+    populateUserRepos();
     boolean exists = false;
-    if (repos != null) {
-      for (Object repo : repos) {
+    if (this.userRepos != null) {
+      for (Object repo : this.userRepos) {
         HashMap<Object, Object> repoMap = (HashMap<Object, Object>) repo;
         String label = (String) repoMap.get("label"); 
-        if (label.equals(getRepoLabel())) {
+        if (label.equals(repoLabel)) {
           exists = true;
         }
       }
@@ -43,10 +46,26 @@ public abstract class AbstractSystem {
     return exists;
   }
 
+  private void populateUserRepos() {
+    if (userRepos == null) {
+      this.userRepos = SatApi.listUserRepos(this.sessionKey);
+    }
+  }
+
+  private void populateUserChannels() {
+    if (userChannels == null) {
+      this.userChannels = SatApi.listSoftwareChannels(this.sessionKey);
+    }
+  }
+
+  public boolean insightsRepoExists() {
+    return repoExists(getRepoLabel());
+  }
+
   public boolean createChannel() {
     boolean response = false;
 
-    if (!channelExists()) {
+    if (parentChannelExists() && !insightsChannelExists()) {
       int created = SatApi.createChannel(
           this.sessionKey, 
           getChannelLabel(),
@@ -71,19 +90,27 @@ public abstract class AbstractSystem {
   }
 
   @SuppressWarnings("unchecked")
-  public boolean channelExists() {
+  public boolean channelExists(String channelLabel) {
     Object[] channels = SatApi.listSoftwareChannels(this.sessionKey);
     boolean response = false;
     if (channels != null) {
       for (Object channel : channels) {
         HashMap<Object, Object> channelMap = (HashMap<Object, Object>) channel;
         String label = (String) channelMap.get("label");
-        if (label.equals(getChannelLabel())) {
+        if (label.equals(channelLabel)) {
           response = true;
         }
       }
     }
     return response;
+  }
+
+  public boolean insightsChannelExists() {
+    return channelExists(getChannelLabel());
+  }
+
+  public boolean parentChannelExists() {
+    return channelExists(getChannelParent());
   }
 
   /**

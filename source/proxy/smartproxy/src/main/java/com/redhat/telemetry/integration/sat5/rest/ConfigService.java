@@ -54,7 +54,8 @@ public class ConfigService {
       properties.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
       String username = properties.getString(Constants.USERNAME_PROPERTY);
       boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-      Config config = new Config(enabled, username, "");
+      boolean configenabled = properties.getBoolean(Constants.CONFIGENABLED_PROPERTY);
+      Config config = new Config(enabled, username, "", configenabled);
       return config;
     } else {
       throw new ForbiddenException("Must be satellite admin.");
@@ -83,13 +84,16 @@ public class ConfigService {
       Server7System server7System = new Server7System(sessionKey);
       server7System.createRepo();
       server7System.createChannel();
-      createConfigChannel(sessionKey);
+      if (config.getConfigenabled()) {
+        createConfigChannel(sessionKey);
+      }
     } 
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.setFile(new File(context.getRealPath(Constants.PROPERTIES_URL)));
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
     properties.setProperty(Constants.USERNAME_PROPERTY, config.getUsername());
     properties.setProperty(Constants.PASSWORD_PROPERTY, config.getPassword());
+    properties.setProperty(Constants.CONFIGENABLED_PROPERTY, config.getConfigenabled());
     properties.save();
     return Response.status(200).build();
   }
@@ -227,7 +231,7 @@ public class ConfigService {
     }
     if (system != null) {
       validSystem = true;
-      if(system.channelExists()) {
+      if(system.insightsChannelExists()) {
         if (system.rpmInstalled()) {
           installationStatus.setRpmInstalled(true);
           enabled = true;

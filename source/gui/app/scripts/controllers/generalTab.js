@@ -18,6 +18,7 @@ EVENTS) {
 
   $scope.softwareChannels = [];
   $scope.enabled = false;
+  $scope.configenabled = false;
   $scope.username = '';
   $scope.password = '';
   $scope.loading = true;
@@ -48,7 +49,7 @@ EVENTS) {
 
   $scope.doUpdate = function() {
     $scope.loading = true;
-    Admin.postConfig($scope.enabled, $scope.username, $scope.password)
+    Admin.postConfig($scope.enabled, $scope.username, $scope.password, $scope.configenabled)
       .success(function(response) {
         $scope.loading = false;
         $scope.password = '';
@@ -64,6 +65,7 @@ EVENTS) {
   $scope.$on(EVENTS.GENERAL_CONFIG_LOADED, function() {
     $scope.username = Admin.getUsername();
     $scope.enabled = Admin.getEnabled();
+    $scope.configenabled = Admin.getConfigEnabled();
     $scope.loading = false;
   });
 });

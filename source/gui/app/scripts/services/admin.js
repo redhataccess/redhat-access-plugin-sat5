@@ -18,6 +18,7 @@ ADMIN_TABS) {
 
   var _tab = ADMIN_TABS.GENERAL;
   var _enabled = false;
+  var _configenabled = false;
   var _username = "";
   var _systems = [];
   var _systemStatuses = [];
@@ -50,6 +51,14 @@ ADMIN_TABS) {
 
   var setEnabled = function(enabled) {
     _enabled = enabled;
+  };
+
+  var getConfigEnabled = function() {
+    return _configenabled;
+  };
+
+  var setConfigenabled = function(configenabled) {
+    _configenabled = configenabled;
   };
 
   var getUsername = function() {
@@ -150,7 +159,7 @@ ADMIN_TABS) {
     return missingSystems;
   };
 
-  var postConfig = function(enabled, username, password) {
+  var postConfig = function(enabled, username, password, configenabled) {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
     headers[HTTP_CONST.CONTENT_TYPE] = HTTP_CONST.APPLICATION_JSON;
@@ -158,6 +167,7 @@ ADMIN_TABS) {
     params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
     var data = {};
     data[CONFIG_KEYS.ENABLED] = enabled;
+    data[CONFIG_KEYS.CONFIGENABLED] = configenabled;
     data[CONFIG_KEYS.USERNAME] = username;
     if (password !== null) {
       data[CONFIG_KEYS.PASSWORD] = password;
@@ -254,6 +264,8 @@ ADMIN_TABS) {
     postSystems: postSystems,
     getEnabled: getEnabled,
     setEnabled: setEnabled,
+    getConfigEnabled: getConfigEnabled,
+    setConfigenabled: setConfigenabled,
     setUsername: setUsername,
     getUsername: getUsername,
     getSystems: getSystems,
