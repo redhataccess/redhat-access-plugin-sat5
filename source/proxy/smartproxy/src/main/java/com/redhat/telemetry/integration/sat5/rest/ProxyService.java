@@ -61,7 +61,7 @@ import com.redhat.telemetry.integration.sat5.util.Constants;
 @Path("/rs/telemetry")
 public class ProxyService {
   @Context ServletContext context;
-  private String portalUrl = "https://access.redhat.com/rs/telemetry";
+  private String portalUrl = "https://access.redhat.com/rs/telemetry/";
 
 
   @GET
@@ -150,7 +150,10 @@ public class ProxyService {
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
     boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-    this.portalUrl = properties.getString(Constants.PORTALURL_PROPERTY);
+    String configPortalUrl = properties.getString(Constants.PORTALURL_PROPERTY);
+    if (configPortalUrl != null) {
+      this.portalUrl = configPortalUrl;
+    }
     if (!enabled) {
       throw new ForbiddenException("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service.");
     }
@@ -167,11 +170,11 @@ public class ProxyService {
     }
     path = addQueryToPath(path, uriInfo.getRequestUri().toString());
 
-    HashMap<String, Integer> pathType = parsePathType(path);
-    int pathTypeInt = pathType.get("type");
+    HashMap<String, String> pathType = parsePathType(path);
+    String pathTypeInt = pathType.get("type");
 
-    if (pathTypeInt == Constants.SYSTEM_REPORTS_PATH) {
-      String leafId = Integer.toString(pathType.get("id"));
+    if (pathTypeInt.equals(Constants.SYSTEM_REPORTS_PATH) && pathType.get("id") != null) {
+      String leafId = pathType.get("id");
       PortalResponse getIdResponse = proxyRequest(
         client,
         user,
@@ -325,7 +328,7 @@ public class ProxyService {
    *  4 - /rules
    * -1 - undefined
    */
-  private HashMap<String, Integer> parsePathType(String path) {
+  private HashMap<String, String> parsePathType(String path) {
     Pattern systemPattern = Pattern.compile("api/v1/systems/?(\\?.*)?$");
     Matcher systemMatcher = systemPattern.matcher(path);
 
@@ -341,26 +344,29 @@ public class ProxyService {
     Pattern rulesPattern = Pattern.compile("api/v1/rules/?(\\?.*)$");
     Matcher rulesMatcher = rulesPattern.matcher(path);
 
-    HashMap<String, Integer> response = new HashMap<String, Integer>();
+    HashMap<String, String> response = new HashMap<String, String>();
     if (systemMatcher.matches()) {
       response.put("type", Constants.SYSTEMS_PATH);
-      response.put("index", path.indexOf("systems"));
+      response.put("index", Integer.toString(path.indexOf("systems")));
     } else if (systemReportsMatcher.matches()) {
       response.put("type", Constants.SYSTEM_REPORTS_PATH);
-      response.put("index", path.indexOf("reports"));
-      response.put("id", Integer.parseInt(systemReportsMatcher.group(1)));
+      response.put("index", Integer.toString(path.indexOf("reports")));
+      String id = (String) systemReportsMatcher.group(1);
+      if (id != null) {
+        response.put("id", id);
+      }
     } else if (reportsMatcher.matches()) {
       response.put("type", Constants.REPORTS_PATH);
-      response.put("index", path.indexOf("reports"));
+      response.put("index", Integer.toString(path.indexOf("reports")));
     } else if (acksMatcher.matches()) {
       response.put("type", Constants.ACKS_PATH);
-      response.put("index", path.indexOf("acks"));
+      response.put("index", Integer.toString(path.indexOf("acks")));
     } else if (rulesMatcher.matches()) {
       response.put("type", Constants.RULES_PATH);
-      response.put("index", path.indexOf("rules"));
+      response.put("index", Integer.toString(path.indexOf("rules")));
     } else {
-      response.put("type", -1);
-      response.put("index", -1);
+      response.put("type", "-1");
+      response.put("index", "-1");
     }
     return response;
   }
@@ -369,13 +375,13 @@ public class ProxyService {
    * Manipulate the original request path by inserting subset/<id> after api/v1
    */
   private String addSubsetToPath(String path, String hash) {
-    int index = -1;
-    HashMap<String, Integer> pathType = parsePathType(path);
+    String index = "-1";
+    HashMap<String, String> pathType = parsePathType(path);
     index = pathType.get("index");
 
-    if (index != -1) {
+    if (index != "-1") {
       path = new StringBuilder(path).insert(
-          index, Constants.SUBSETS_URL + hash + "/").toString();
+          Integer.parseInt(index), Constants.SUBSETS_URL + hash + "/").toString();
     }
     return path;
   }
