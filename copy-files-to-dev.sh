@@ -1,13 +1,17 @@
 #!/bin/bash
 WAR_NAME=redhat_access.war
-JS_NAME=scripts.js
-SAT_HOSTNAME=sat57-demo.usersys.redhat.com
+JS_NAME=insights.js
+CSS_NAME=insights.css
+SAT_HOSTNAME=$1
 
 cd /home/chris/dev/projects/active/sat5-telemetry
 
 echo "Copying javascript..."
-scp source/gui/dist/scripts/$JS_NAME root@$SAT_HOSTNAME:/var/www/html/javascript/scripts.js
-scp source/gui/dist/scripts/$JS_NAME.map root@$SAT_HOSTNAME:/var/www/html/javascript/scripts.js.map
+scp source/gui/dist/scripts/$JS_NAME root@$SAT_HOSTNAME:/var/www/html/javascript/$JS_NAME
+echo -e "Done.\n"
+
+echo "Copying css..."
+scp source/gui/dist/styles/$CSS_NAME root@$SAT_HOSTNAME:/var/www/html/css/$CSS_NAME
 echo -e "Done.\n"
 
 echo "Copying war..."
