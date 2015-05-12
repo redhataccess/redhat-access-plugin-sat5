@@ -6,7 +6,7 @@ div.panel.panel-default
   div.panel-body
     form.form-horizontal
       div.form-group
-        label.col-lg-3.control-label(for='rha-insights-sat5-enabled') Enable Insights Service
+        label.col-lg-3.control-label(for='rha-insights-sat5-enabled') Enable Access Insights Service
         div.col-lg-6
           div.checkbox
             input(
@@ -14,7 +14,8 @@ div.panel.panel-default
               type='checkbox', 
               ng-model='enabled',
               ng-disabled='loading')
-      label.col-lg-3.control-label(for='rha-insights-sat5-configenabled') Setup Insights Config Channel
+      div.form-group
+        label.col-lg-3.control-label(for='rha-insights-sat5-configenabled') Setup Access Insights Config Channel
         div.col-lg-6
           div.checkbox
             input(

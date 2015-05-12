@@ -129,7 +129,7 @@ TELEMETRY_URLS) {
     }
   })
   .error(function(response) {
-    console.log('Unable to load Red Hat Insights config');
+    console.log('Unable to load Red Hat Access Insights config');
   });
 });
 
