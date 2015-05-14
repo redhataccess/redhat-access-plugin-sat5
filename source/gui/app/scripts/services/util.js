@@ -10,12 +10,28 @@
 angular.module('sat5TelemetryApp')
 .service('Util', function (SYSTEM_DETAILS_PAGE_URLS, SYSTEM_PAGE_URLS, SAT5_ROOT_URLS) {
 
+  this.isOnInsightsEnabledPage = function() {
+    var response = false;
+    if (this.isOnSystemListPage() || 
+        this.isOnSystemDetailsPage() || 
+        this.isOnSystemOverviewPage() ||
+        this.isOnAdminPage() ||
+        this.isOnInsightsOverviewPage()) {
+      response = true;
+    }
+    return response;
+  };
+
   this.isOnPage = function(page) {
     var response = false;
     if (window.location.pathname.indexOf('/' + SAT5_ROOT_URLS.RHN + '/' + page) === 0) {
       response = true;
     }
     return response;
+  };
+
+  this.isOnAdminPage = function() {
+    return this.isOnPage(SAT5_ROOT_URLS.ADMIN);
   };
 
   this.isOnSystemDetailsPage = function() {
@@ -26,6 +42,14 @@ angular.module('sat5TelemetryApp')
         this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.MIGRATE) ||
         this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.NOTES) ||
         this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
+      response = true;
+    }
+    return response;
+  };
+
+  this.isOnInsightsOverviewPage = function() {
+    var response = false;
+    if (this.isOnPage(SYSTEM_PAGE_URLS.INSIGHTS)) {
       response = true;
     }
     return response;

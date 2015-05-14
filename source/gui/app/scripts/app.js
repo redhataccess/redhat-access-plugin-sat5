@@ -109,28 +109,30 @@ TELEMETRY_URLS) {
         append('<rule-summary machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/>');
       $('#spacewalk-content').addClass('main-content insights-main-content');
     }
-  } else if (Util.isOnPage(SAT5_ROOT_URLS.ADMIN)) {
+  } else if (Util.isOnAdminPage()) {
     appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>', false);
   }
 
-  Admin.getConfig()
-  .success(function(config) {
-    Admin.setEnabled(config.enabled);
-    Admin.setUsername(config.username);
-    $rootScope.$broadcast(EVENTS.GENERAL_CONFIG_LOADED);
-    if (config.enabled) {
-      $('#rha-insights-sidenav').removeClass('ng-hide');
-      $('#rha-insights-system-details').removeClass('ng-hide');
-      $('.rha-insights-system-health-col').removeClass('ng-hide');
-      $('#rha-insights-system-health-col-head').removeClass('ng-hide');
-      if (Util.isOnSystemListPage() && Util.thereAreSystemsOnOverviewPage()) {
-        Sat5TelemetrySystems.populate();
+  if (Util.isOnInsightsEnabledPage()) {
+    Admin.getConfig()
+    .success(function(config) {
+      Admin.setEnabled(config.enabled);
+      Admin.setUsername(config.username);
+      $rootScope.$broadcast(EVENTS.GENERAL_CONFIG_LOADED);
+      if (config.enabled) {
+        $('#rha-insights-sidenav').removeClass('ng-hide');
+        $('#rha-insights-system-details').removeClass('ng-hide');
+        $('.rha-insights-system-health-col').removeClass('ng-hide');
+        $('#rha-insights-system-health-col-head').removeClass('ng-hide');
+        if (Util.isOnSystemListPage() && Util.thereAreSystemsOnOverviewPage()) {
+          Sat5TelemetrySystems.populate();
+        }
       }
-    }
-  })
-  .error(function(response) {
-    console.log('Unable to load Red Hat Access Insights config');
-  });
+    })
+    .error(function(response) {
+      console.log('Unable to load Red Hat Access Insights config');
+    });
+  }
 });
 
 angular.element(document).ready(function() {
