@@ -1,4 +1,4 @@
-%define version 0.2.0
+%define version 0.2.2
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -60,6 +60,12 @@ touch $RPM_BUILD_ROOT/var/log/rhai.log
 
 
 %changelog
+* Thu May 14 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Testing tomcat cache
+
+* Thu May 14 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Remove config stuff
+
 * Wed May 13 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Tech preview mostly ready
 

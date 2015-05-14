@@ -167,7 +167,6 @@ ADMIN_TABS) {
     params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
     var data = {};
     data[CONFIG_KEYS.ENABLED] = enabled;
-    data[CONFIG_KEYS.CONFIGENABLED] = configenabled;
     data[CONFIG_KEYS.USERNAME] = username;
     if (password !== null) {
       data[CONFIG_KEYS.PASSWORD] = password;

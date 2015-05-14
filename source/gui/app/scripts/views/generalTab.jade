@@ -14,15 +14,6 @@ div.panel.panel-default
               type='checkbox', 
               ng-model='enabled',
               ng-disabled='loading')
-      div.form-group
-        label.col-lg-3.control-label(for='rha-insights-sat5-configenabled') Setup Access Insights Config Channel
-        div.col-lg-6
-          div.checkbox
-            input(
-              id='rha-insights-sat5-configenabled',
-              type='checkbox', 
-              ng-model='configenabled',
-              ng-disabled='loading')
       div.form-group(ng-class='{"has-error":usernameDirty()}')
         label(for='rha-insights-password').col-lg-3.control-label Customer Portal Username
         div.col-lg-6

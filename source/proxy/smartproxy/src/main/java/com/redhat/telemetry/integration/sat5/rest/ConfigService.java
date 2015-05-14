@@ -53,8 +53,7 @@ public class ConfigService {
       properties.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
       String username = properties.getString(Constants.USERNAME_PROPERTY);
       boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-      boolean configenabled = properties.getBoolean(Constants.CONFIGENABLED_PROPERTY);
-      Config config = new Config(enabled, username, "", configenabled);
+      Config config = new Config(enabled, username, "");
       return config;
     } else {
       throw new Exception("Must be satellite admin.");
@@ -83,9 +82,6 @@ public class ConfigService {
       Server7System server7System = new Server7System(sessionKey);
       server7System.createRepo();
       server7System.createChannel();
-      if (config.getConfigenabled()) {
-        createConfigChannel(sessionKey);
-      }
     } 
     PropertiesConfiguration propertiesReader = new PropertiesConfiguration();
     propertiesReader.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
@@ -96,7 +92,6 @@ public class ConfigService {
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
     properties.setProperty(Constants.USERNAME_PROPERTY, config.getUsername());
     properties.setProperty(Constants.PASSWORD_PROPERTY, config.getPassword());
-    properties.setProperty(Constants.CONFIGENABLED_PROPERTY, config.getConfigenabled());
     if (portalUrl != null && portalUrl != "") {
       properties.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
     }
@@ -158,15 +153,6 @@ public class ConfigService {
             packageIds.add(packageId);
             SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
           }
-
-          //subscribe system to Red Hat Insights config channel
-          if (!system.configChannelAssociated()) {
-            ArrayList<Integer> systemIds = new ArrayList<Integer>();
-            systemIds.add(sys.getId());
-            ArrayList<String> channelLabels = new ArrayList<String>();
-            channelLabels.add(Constants.CONFIG_CHANNEL_LABEL);
-            SatApi.addConfigChannelsToSystem(sessionKey, systemIds, channelLabels, true);
-          }
         } else { //remove installed pieces
           if (system.softwareChannelAssociated()) {
             system.updateSoftwareChannels(false);
@@ -175,13 +161,6 @@ public class ConfigService {
             ArrayList<Integer> packageIds = new ArrayList<Integer>();
             packageIds.add(packageId);
             SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
-          }
-          if (system.configChannelAssociated()) {
-            ArrayList<Integer> systemIds = new ArrayList<Integer>();
-            systemIds.add(sys.getId());
-            ArrayList<String> channelLabels = new ArrayList<String>();
-            channelLabels.add(Constants.CONFIG_CHANNEL_LABEL);
-            SatApi.removeConfigChannelsFromSystem(sessionKey, systemIds, channelLabels);
           }
         }
       }
@@ -246,14 +225,6 @@ public class ConfigService {
           installationStatus.setSoftwareChannelAssociated(true);
           enabled = true;
         }
-        if (system.configChannelAssociated()) {
-          installationStatus.setConfigChannelAssociated(true);
-          enabled = true;
-        }
-        if (system.configDeployed()) {
-          installationStatus.setConfigDeployed(true);
-          enabled = true;
-        }
       }
     }
 
@@ -268,7 +239,11 @@ public class ConfigService {
 
   /**
    * Create the insights config channel and add a default file
+   *
+   * XXX: This is no longer exposed. 
+   * Leaving the code here in case we decide to include it later.
    */
+  @SuppressWarnings("unused")
   private void createConfigChannel(String sessionKey) {
     if (SatApi.configChannelExists(sessionKey, Constants.CONFIG_CHANNEL_LABEL) != 1) {
       SatApi.createConfigChannel(

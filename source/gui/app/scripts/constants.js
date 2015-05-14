@@ -57,7 +57,6 @@ angular.module('sat5TelemetryApp')
   'PASSWORD': 'password',
   'SATELLITE_USER': 'satellite_user',
   'ENABLED': 'enabled',
-  'CONFIGENABLED': 'configenabled',
   'SYSTEMS': 'systems'
 })
 .constant('TELEMETRY_API_KEYS', {

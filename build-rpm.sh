@@ -1,16 +1,11 @@
 #!/bin/bash
-VERSION=$1
 PROJECT_ROOT=`pwd`
 PROJECT_NAME=redhat-access-plugin-sat5
 SPEC_FILE_NAME=redhat-access-plugin-sat5.spec
 
-if [ -z "$VERSION" ]; then
-  echo "Usage: build.sh <version>";
-  echo "Example: build.sh 0.1.0";
-  exit 1
-else
-  echo "Version: ${VERSION}"
-fi
+#pull out the version form the specfile
+VERSION=`./get_rpm_version.sh`
+echo "Version: ${VERSION}"
 
 if [ -e !"./$SPEC_FILE_NAME" ]; then
   echo "Script must be executed from sat5-telemetry project root."

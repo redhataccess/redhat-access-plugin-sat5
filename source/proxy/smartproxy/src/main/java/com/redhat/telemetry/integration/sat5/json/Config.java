@@ -2,7 +2,6 @@ package com.redhat.telemetry.integration.sat5.json;
 
 public class Config {
 
-  private boolean configenabled;
   private boolean enabled;
   private String username;
   private String password;
@@ -10,11 +9,10 @@ public class Config {
   public Config() {
   }
 
-  public Config(boolean enabled, String username, String password, boolean configenabled) {
+  public Config(boolean enabled, String username, String password) {
     this.enabled = enabled;
     this.username = username;
     this.password = password;
-    this.configenabled = configenabled;
   }
 
   public void setEnabled(boolean enabled) {
@@ -39,14 +37,6 @@ public class Config {
 
   public String getUsername() {
     return this.username;
-  }
-
-  public void setConfigenabled(boolean configenabled) {
-    this.configenabled = configenabled;
-  }
-
-  public boolean getConfigenabled() {
-    return this.configenabled;
   }
 
 }
