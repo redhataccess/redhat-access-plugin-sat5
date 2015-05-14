@@ -182,7 +182,7 @@ public abstract class AbstractSystem {
         HashMap<Object, Object> channelPackageMap = (HashMap<Object, Object>) channelPackage;
         String packageName = (String) channelPackageMap.get("name");
         if (packageName.equals(Constants.PACKAGE_NAME)) {
-          packageId = (int) channelPackageMap.get("id");
+          packageId = (Integer) channelPackageMap.get("id");
         }
       }
     }
@@ -241,7 +241,7 @@ public abstract class AbstractSystem {
           HashMap<Object, Object> fileInfoMap = (HashMap<Object, Object>) fileInfo;
           String channel = (String) fileInfoMap.get("channel");
           if (channel.equals(Constants.CONFIG_CHANNEL_NAME)) {
-            int revision = (int) fileInfoMap.get("revision");
+            int revision = (Integer) fileInfoMap.get("revision");
             if (revision == latestRevision) {
               response = true;
             }
@@ -265,7 +265,7 @@ public abstract class AbstractSystem {
     if (revisions != null) {
       for (Object revision : revisions) {
         HashMap<Object, Object> revisionMap = (HashMap<Object, Object>) revision;
-        int currentVersion = (int) revisionMap.get("revision");
+        int currentVersion = (Integer) revisionMap.get("revision");
         if (currentVersion > version) {
           version = currentVersion;
         }

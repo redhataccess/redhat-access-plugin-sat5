@@ -10,7 +10,6 @@ import java.util.List;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -47,7 +46,7 @@ public class ConfigService {
   public Config getConfig(
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) 
-          throws ConfigurationException, MalformedURLException {
+          throws ConfigurationException, MalformedURLException, Exception {
 
     if (userIsAdmin(sessionKey, satelliteUser)) {
       PropertiesConfiguration properties = new PropertiesConfiguration();
@@ -58,7 +57,7 @@ public class ConfigService {
       Config config = new Config(enabled, username, "", configenabled);
       return config;
     } else {
-      throw new ForbiddenException("Must be satellite admin.");
+      throw new Exception("Must be satellite admin.");
     }   
   }
 
@@ -72,10 +71,10 @@ public class ConfigService {
       Config config,
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) 
-          throws ConfigurationException, MalformedURLException {
+          throws ConfigurationException, MalformedURLException, Exception {
 
     if (!userIsAdmin(sessionKey, satelliteUser)) {
-      throw new ForbiddenException("Must be satellite admin.");
+      throw new Exception("Must be satellite admin.");
     }
     if (config.getEnabled()) {
       Server6System server6System = new Server6System(sessionKey);
@@ -88,12 +87,19 @@ public class ConfigService {
         createConfigChannel(sessionKey);
       }
     } 
+    PropertiesConfiguration propertiesReader = new PropertiesConfiguration();
+    propertiesReader.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
+    String portalUrl = propertiesReader.getString(Constants.PORTALURL_PROPERTY);
+
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.setFile(new File(context.getRealPath(Constants.PROPERTIES_URL)));
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
     properties.setProperty(Constants.USERNAME_PROPERTY, config.getUsername());
     properties.setProperty(Constants.PASSWORD_PROPERTY, config.getPassword());
     properties.setProperty(Constants.CONFIGENABLED_PROPERTY, config.getConfigenabled());
+    if (portalUrl != null && portalUrl != "") {
+      properties.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
+    }
     properties.save();
     return Response.status(200).build();
   }
@@ -114,7 +120,7 @@ public class ConfigService {
     for (Object apiSys : apiSystems) {
       HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) apiSys;
       ApiSystem sys = new ApiSystem(
-          (int) apiSysMap.get("id"),
+          (Integer) apiSysMap.get("id"),
           (String) apiSysMap.get("name"));
       systems.add(sys);
     }

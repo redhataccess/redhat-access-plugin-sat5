@@ -14,7 +14,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -41,7 +40,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
@@ -155,7 +153,8 @@ public class ProxyService {
       this.portalUrl = configPortalUrl;
     }
     if (!enabled) {
-      throw new ForbiddenException("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service.");
+      //TODO: throw forbiddenexception
+      throw new IOException("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service.");
     }
 
     CloseableHttpClient client = HttpClientBuilder.create().build();
@@ -252,14 +251,9 @@ public class ProxyService {
       byte[] body) throws ConfigurationException, IOException {
 
     HttpRequestBase request;
-    switch (method) {
-      case Constants.METHOD_GET: 
-        request = new HttpGet(this.portalUrl + path);
-        break;
-      case Constants.METHOD_DELETE: 
-        request = new HttpDelete(this.portalUrl + path);
-        break;
-      case Constants.METHOD_POST: 
+    if (method == Constants.METHOD_GET) {
+      request = new HttpGet(this.portalUrl + path);
+    } else if (method == Constants.METHOD_POST) {
         request = new HttpPost(this.portalUrl + path);
         request.addHeader(HttpHeaders.CONTENT_TYPE, requestType);
         if (entity != null) {
@@ -267,18 +261,10 @@ public class ProxyService {
         } else if (body != null) {
           ((HttpPost) request).setEntity(new ByteArrayEntity(body));
         }
-        break;
-      case Constants.METHOD_PUT: 
-        request = new HttpPut(this.portalUrl + path);
-        request.addHeader(HttpHeaders.CONTENT_TYPE, requestType);
-        if (entity != null) {
-          ((HttpPut) request).setEntity(entity);
-        } else if (body != null) {
-          ((HttpPut) request).setEntity(new ByteArrayEntity(body));
-        }
-        break;
-      default:
-        throw new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    } else if (method == Constants.METHOD_DELETE) {
+      request = new HttpDelete(this.portalUrl + path);
+    } else {
+      throw new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     request.addHeader(getBasicAuthHeader());

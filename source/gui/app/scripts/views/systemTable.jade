@@ -1,4 +1,6 @@
-form
+div(ng-if='getSystems().length < 1')
+  strong No systems are registered.
+form(ng-if='getSystems().length > 0')
   div.spacewalk-list.list
     div.spacewalk-list-top-addons
       div.spacewalk-list-alphabar

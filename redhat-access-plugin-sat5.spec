@@ -1,4 +1,4 @@
-%define version 0.1.0
+%define version 0.2.0
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -60,6 +60,9 @@ touch $RPM_BUILD_ROOT/var/log/rhai.log
 
 
 %changelog
+* Wed May 13 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Tech preview mostly ready
+
 * Thu Feb 12 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Version 1
 

@@ -46,7 +46,7 @@ public class SatApi {
   schedulePackageInstall(String sessionKey, int serverId, ArrayList<Integer> packageIds, int delay) {
     Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis() + delay)};
     int response = 
-      (int) makeRequest("system.schedulePackageInstall", params);
+      (Integer) makeRequest("system.schedulePackageInstall", params);
     return response;
   }
 
@@ -54,7 +54,7 @@ public class SatApi {
   schedulePackageRemove(String sessionKey, int serverId, ArrayList<Integer> packageIds) {
     Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis())};
     int response = 
-      (int) makeRequest("system.schedulePackageRemove", params);
+      (Integer) makeRequest("system.schedulePackageRemove", params);
     return response;
   }
 
@@ -134,7 +134,7 @@ public class SatApi {
   syncRepo(String sessionKey, String channelLabel) {
     Object[] params = new Object[] {sessionKey, channelLabel};
     int response = 
-      (int) makeRequest("channel.software.syncRepo", params);
+      (Integer) makeRequest("channel.software.syncRepo", params);
     return response;
   }
 
@@ -142,7 +142,7 @@ public class SatApi {
   setChildChannels(String sessionKey, int serverId, ArrayList<String> channelLabels) {
     Object[] params = new Object[] {sessionKey, serverId, channelLabels};
     int response = 
-      (int) makeRequest("system.setChildChannels", params);
+      (Integer) makeRequest("system.setChildChannels", params);
     return response;
   }
 
@@ -150,7 +150,7 @@ public class SatApi {
   configChannelExists(String sessionKey, String configChannelLabel) {
     Object[] params = new Object[] {sessionKey, configChannelLabel};
     int response = 
-      (int) makeRequest("configchannel.channelExists", params);
+      (Integer) makeRequest("configchannel.channelExists", params);
     return response;
   }
 
@@ -162,7 +162,7 @@ public class SatApi {
       boolean addToTop) {
     Object[] params = new Object[] {sessionKey, systemIds, channelLabels, addToTop};
     int response = 
-      (int) makeRequest("system.config.addChannels", params);
+      (Integer) makeRequest("system.config.addChannels", params);
     return response;
   }
 
@@ -173,7 +173,7 @@ public class SatApi {
       ArrayList<String> channelLabels) {
     Object[] params = new Object[] {sessionKey, systemIds, channelLabels};
     int response = 
-      (int) makeRequest("system.config.removeChannels", params);
+      (Integer) makeRequest("system.config.removeChannels", params);
     return response;
   }
 
@@ -183,7 +183,7 @@ public class SatApi {
       String channelLabel) {
     Object[] params = new Object[] {sessionKey, channelLabel};
     int response = 
-      (int) makeRequest("configchannel.deployAllSystems", params);
+      (Integer) makeRequest("configchannel.deployAllSystems", params);
     return response;
   }
 
@@ -267,7 +267,7 @@ public class SatApi {
     if (response != null) {
       HashMap<Object, Object> responseMap = (HashMap<Object, Object>) response;
       if (responseMap.get("id") != null) {
-        return (int)responseMap.get("id");
+        return (Integer)responseMap.get("id");
       } else {
         return -1;
       }
@@ -301,7 +301,7 @@ public class SatApi {
     Object response =
       (Object) makeRequest("channel.software.create", params);
     if (response != null) {
-      return (int)response;
+      return (Integer)response;
     } else {
       return -1;
     }
