@@ -44,8 +44,8 @@ cp jsp/admin/insights.jsp $RPM_BUILD_ROOT/usr/share/tomcat6/webapps/rhn/WEB-INF/
 cp jsp/systems/insights.jsp $RPM_BUILD_ROOT/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems
 cp jsp/systems/sdc/insights.jsp $RPM_BUILD_ROOT/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc
 #log
-mkdir -p $RPM_BUILD_ROOT/var/log
-touch $RPM_BUILD_ROOT/var/log/rhai.log
+mkdir -p $RPM_BUILD_ROOT/var/log/rhai
+touch $RPM_BUILD_ROOT/var/log/rhai/rhai.log
 
 
 %files
@@ -56,7 +56,8 @@ touch $RPM_BUILD_ROOT/var/log/rhai.log
 %config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/insights.jsp
 %config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc/insights.jsp
 %config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin/insights.jsp
-%config %attr(0660,tomcat,root) /var/log/rhai.log
+%config %attr(0755,tomcat,root) /var/log/rhai/
+%config %attr(0644,tomcat,tomcat) /var/log/rhai/rhai.log
 
 
 %changelog
