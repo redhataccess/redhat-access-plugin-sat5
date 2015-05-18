@@ -171,7 +171,6 @@ public class ConfigService {
         }
       }
     }
-    SatApi.deployAllSystems(sessionKey, Constants.CONFIG_CHANNEL_LABEL);
     return systems;
   }
 

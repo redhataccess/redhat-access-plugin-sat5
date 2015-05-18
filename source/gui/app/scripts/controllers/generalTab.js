@@ -18,7 +18,6 @@ EVENTS) {
 
   $scope.softwareChannels = [];
   $scope.enabled = false;
-  $scope.configenabled = false;
   $scope.username = '';
   $scope.password = '';
   $scope.loading = true;
@@ -65,7 +64,6 @@ EVENTS) {
   $scope.$on(EVENTS.GENERAL_CONFIG_LOADED, function() {
     $scope.username = Admin.getUsername();
     $scope.enabled = Admin.getEnabled();
-    $scope.configenabled = Admin.getConfigEnabled();
     $scope.loading = false;
   });
 });
