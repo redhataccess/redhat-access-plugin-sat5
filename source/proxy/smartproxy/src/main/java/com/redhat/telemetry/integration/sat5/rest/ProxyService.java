@@ -51,12 +51,14 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.jcabi.aspects.Loggable;
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 
 @Path("/rs/telemetry")
+@Loggable
 public class ProxyService {
   @Context ServletContext context;
   private String portalUrl = "https://access.redhat.com/rs/telemetry/";
@@ -135,6 +137,7 @@ public class ProxyService {
     return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
   }
 
+  @Loggable
   private Response proxy(
       String path, 
       String user, 
@@ -144,17 +147,20 @@ public class ProxyService {
       String responseType,
       byte[] body) 
           throws JSONException, IOException, ConfigurationException {
+
     //load config to check if service is enabled
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
     boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
     String configPortalUrl = properties.getString(Constants.PORTALURL_PROPERTY);
     if (configPortalUrl != null) {
+      if (configPortalUrl.charAt(configPortalUrl.length() - 1) != '/') {
+        configPortalUrl = configPortalUrl + "/";
+      }
       this.portalUrl = configPortalUrl;
     }
     if (!enabled) {
-      //TODO: throw forbiddenexception
-      throw new IOException("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service.");
+      throw new WebApplicationException(new Throwable("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service."), Response.Status.FORBIDDEN);
     }
 
     CloseableHttpClient client = HttpClientBuilder.create().build();
