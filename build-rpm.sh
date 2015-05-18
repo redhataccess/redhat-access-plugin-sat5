@@ -60,4 +60,6 @@ cp -r ../RPMS ${PROJECT_ROOT}/.tmp/RPMS
 cp -r ../SRPMS ${PROJECT_ROOT}/.tmp/SRPMS
 echo "Done."
 
-#sign the rpm
+echo "Signing RPM..."
+rpm --resign ${PROJECT_ROOT}/.tmp/RPMS/RPMS/noarch/redhat-access-plugin-sat5-$VERSION-1.el6.noarch.rpm
+echo "Done."
