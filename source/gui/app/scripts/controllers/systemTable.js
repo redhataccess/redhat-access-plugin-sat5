@@ -131,64 +131,82 @@ SYSTEM_DETAILS_PAGE_URLS) {
       });
   };
 
-  //if status===true return systems with installationStatus===true
-  $scope.makeStatusMessage = function(system, status) {
-    var messages = [];
-    var groupedStatus = 
-      _.groupBy(Object.keys(system.installationStatus), function(value, key, statuses) {
-        if (system.installationStatus[value]) {
-          return true;
-        } else {
-          return false;
-        }
-      });
-
-    if (!status) {
-      if (!_.isEmpty(groupedStatus['false']) && 
-          !_.isEmpty(groupedStatus['false']['rpmInstalled'])) {
-        messages.push('RPM is not installed');
-      } 
-      if (!_.isEmpty(groupedStatus['false']) && 
-          !_.isEmpty(groupedStatus['false']['softwareChannelAssociated'])) {
-        messages.push('Software channel not associated');
-      }
-      if (!_.isEmpty(groupedStatus['false']) && 
-          !_.isEmpty(groupedStatus['false']['configChannelAssociated'])) {
-        messages.push('Config channel not associated');
-      }
-      if (!_.isEmpty(groupedStatus['false']) && 
-          !_.isEmpty(groupedStatus['false']['configDeployed'])) {
-        messages.push('Config out of sync with latest revision');
-      }
-    } else {
-      if (!_.isEmpty(groupedStatus['true']) && 
-          !_.isEmpty(groupedStatus['true']['rpmInstalled'])) {
-        messages.push('RPM installed');
-      } 
-      if (!_.isEmpty(groupedStatus['true']) && 
-          !_.isEmpty(groupedStatus['true']['softwareChannelAssociated'])) {
-        messages.push('Software channel associated');
-      }
-      if (!_.isEmpty(groupedStatus['true']) && 
-          !_.isEmpty(groupedStatus['true']['configChannelAssociated'])) {
-        messages.push('Config channel associated');
-      }
-      if (!_.isEmpty(groupedStatus['true']) && 
-          !_.isEmpty(groupedStatus['true']['configDeployed'])) {
-        messages.push('Config in sync with latest revision');
-      }
+  $scope.installStatusTooltip = function(system) {
+    var message = '';
+    var systemStatus = Admin.getSystemStatus(system);
+    var installationStatus = $scope.getInstallationStatus(systemStatus);
+    if (installationStatus === FAILED_INSTALL_STATUS) {
+      message = 'RPM installation failed. Select the system to try again.';
+    } else if (installationStatus === IN_PROGRESS_INSTALL_STATUS) {
+      message = 'RPM is scheduled to be installed';
+    } else if (installationStatus === NO_INSTALL_STATUS) {
+      message = 'RPM is not installed';
+    } else if (installationStatus === SUCCESSFUL_INSTALL_STATUS) {
+      message = 'RPM is installed';
+    } else if (installationStatus === INVALID_TYPE_STATUS) {
+      message = 'Unsupported system version';
     }
 
-    var response = '';
-    _.forEach(messages, function(message, index) {
-      if (index === messages.length - 1) {
-        response = response + message;
-      } else {
-        response = response + message + ', ';
-      }
-    });
+    return message;
+  };
+
+  $scope.makeStatusMessage = function(system, status) {
+    //var messages = [];
+    //var groupedStatus = 
+      //_.groupBy(Object.keys(system.installationStatus), function(value, key, statuses) {
+        //if (system.installationStatus[value]) {
+          //return true;
+        //} else {
+          //return false;
+        //}
+      //});
+
+    //if (!status) {
+      //if (!_.isEmpty(groupedStatus['false']) && 
+          //!_.isEmpty(groupedStatus['false']['rpmInstalled'])) {
+        //messages.push('RPM is not installed');
+      //} 
+      //if (!_.isEmpty(groupedStatus['false']) && 
+          //!_.isEmpty(groupedStatus['false']['softwareChannelAssociated'])) {
+        //messages.push('Software channel not associated');
+      //}
+      //if (!_.isEmpty(groupedStatus['false']) && 
+          //!_.isEmpty(groupedStatus['false']['configChannelAssociated'])) {
+        //messages.push('Config channel not associated');
+      //}
+      //if (!_.isEmpty(groupedStatus['false']) && 
+          //!_.isEmpty(groupedStatus['false']['configDeployed'])) {
+        //messages.push('Config out of sync with latest revision');
+      //}
+    //} else {
+      //if (!_.isEmpty(groupedStatus['true']) && 
+          //!_.isEmpty(groupedStatus['true']['rpmInstalled'])) {
+        //messages.push('RPM installed');
+      //} 
+      //if (!_.isEmpty(groupedStatus['true']) && 
+          //!_.isEmpty(groupedStatus['true']['softwareChannelAssociated'])) {
+        //messages.push('Software channel associated');
+      //}
+      //if (!_.isEmpty(groupedStatus['true']) && 
+          //!_.isEmpty(groupedStatus['true']['configChannelAssociated'])) {
+        //messages.push('Config channel associated');
+      //}
+      //if (!_.isEmpty(groupedStatus['true']) && 
+          //!_.isEmpty(groupedStatus['true']['configDeployed'])) {
+        //messages.push('Config in sync with latest revision');
+      //}
+    //}
+
+    //var response = '';
+    //_.forEach(messages, function(message, index) {
+      //if (index === messages.length - 1) {
+        //response = response + message;
+      //} else {
+        //response = response + message + ', ';
+      //}
+    //});
     
-    return response;
+    //return response;
   };
 
   /**

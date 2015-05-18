@@ -65,14 +65,19 @@ form(ng-if='getSystems().length > 0')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
               td.text-center(width='75px')
-                i.fa.fa-minus-circle.fa-1-5x(
-                  ng-if='noInstallation(getSystemStatus(system))')
-                i.fa.fa-exclamation-circle.fa-1-5x.fail(
-                  ng-if='installationFail(getSystemStatus(system))') 
-                i.fa.fa-check-circle.fa-1-5x.success(
-                  ng-if='installationSuccess(getSystemStatus(system))') 
-                i.fa.fa-ban.fa-1-5x(
-                  ng-if='invalidType(getSystemStatus(system))') 
+                div(
+                  tooltip='{{installStatusTooltip(system)}}', 
+                  tooltip-trigger='mouseenter', 
+                  tooltip-append-to-body='true', 
+                  tooltip-placement='top')
+                  i.fa.fa-minus-circle.fa-1-5x(
+                    ng-if='noInstallation(getSystemStatus(system))')
+                  i.fa.fa-exclamation-circle.fa-1-5x.fail(
+                    ng-if='installationFail(getSystemStatus(system))') 
+                  i.fa.fa-check-circle.fa-1-5x.success(
+                    ng-if='installationSuccess(getSystemStatus(system))') 
+                  i.fa.fa-ban.fa-1-5x(
+                    ng-if='invalidType(getSystemStatus(system))') 
       div.panel-footer
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra
@@ -86,9 +91,6 @@ form(ng-if='getSystems().length > 0')
       div(rha-insights-sat5-pagination)
     div.text-right
       hr
-      div.row
-        div.col-md-12
-          a View Changes
       div.row
         div.col-md-12
           input.btn.btn-default(type='submit', value='Apply', ng-disabled='loading', ng-click='doApply()')
