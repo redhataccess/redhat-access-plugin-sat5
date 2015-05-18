@@ -84,10 +84,6 @@ ADMIN_TABS) {
     return _page;
   };
 
-  var getValidSystems = function() {
-    return _.filter(getSystemStatuses(), {'validType': true});
-  };
-
   var getNumSystems = function() {
     return _filteredSystemLength;
   };
@@ -243,6 +239,11 @@ ADMIN_TABS) {
     return promise;
   };
 
+  var updateSystemStatus = function(system) {
+    var index = _.findIndex(_systemStatuses, {'id': system.id});
+    _systemStatuses[index].enabled = system.enabled;
+  };
+
   return {
     postConfig: postConfig,
     getConfig: getConfig,
@@ -270,6 +271,7 @@ ADMIN_TABS) {
     getStatuses: getStatuses,
     setFilteredSystems: setFilteredSystems,
     getFilteredSystems: getFilteredSystems,
-    getValidSystems: getValidSystems
+    getSystemStatuses: getSystemStatuses,
+    updateSystemStatus: updateSystemStatus
   };
 });

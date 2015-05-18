@@ -60,11 +60,12 @@ form(ng-if='getSystems().length > 0')
                   ui-indeterminate='systemPartiallySelected(system)',
                   type='checkbox',
                   ng-model='system.enabled',
+                  ng-change='updateSystemStatus(system)',
                   ng-if='!invalidType(getSystemStatus(system)) && !loadingStatus(getSystemStatus(system))')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
               td.text-center(width='75px')
-                i.fa.fa-minus-circle.fa-1-5-x(
+                i.fa.fa-minus-circle.fa-1-5x(
                   ng-if='noInstallation(getSystemStatus(system))')
                 i.fa.fa-exclamation-circle.fa-1-5x.fail(
                   ng-if='installationFail(getSystemStatus(system))') 

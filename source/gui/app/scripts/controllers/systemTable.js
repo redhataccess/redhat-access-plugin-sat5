@@ -33,6 +33,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.getPage = Admin.getPage;
   $scope.getPageStart = Admin.getPageStart;
   $scope.getSystemStatus = Admin.getSystemStatus;
+  $scope.updateSystemStatus = Admin.updateSystemStatus;
 
   $scope.disableAlphabarElement = function(alpha) {
     return !_.some(Admin.getSystems(), function(sys) {
@@ -76,7 +77,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.toggleAll = function() {
     var allSelected = $scope.allSelected();
-    _.forEach(Admin.getValidSystems(), function(system) {
+    _.forEach(Admin.getSystems(), function(system) {
       system.enabled = !allSelected;
     });
   };
@@ -88,12 +89,12 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.allSelected = function() {
-    return !_.some(Admin.getValidSystems(), {'enabled': false});
+    return !_.some(Admin.getSystems(), {'enabled': false});
   };
 
   $scope.allPartiallySelected = function() {
     var response = false;
-    var someSelected = _.some(Admin.getValidSystems(), {'enabled': true});
+    var someSelected = _.some(Admin.getSystems(), {'enabled': true});
     if ($scope.allSelected()) {
       response = false;
     } else if (someSelected) {
@@ -104,15 +105,15 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.systemPartiallySelected = function(system) {
     var response = false;
-    if ($scope.getInstallationStatus(system) === 0 ||
-        $scope.getInstallationStatus(system) === 1) {
+    if ($scope.getInstallationStatus(Admin.getSystemStatus(system)) === FAILED_INSTALL_STATUS ||
+        $scope.getInstallationStatus(Admin.getSystemStatus(system)) === IN_PROGRESS_INSTALL_STATUS) {
       response = true;
     }
     return response;
   };
 
   $scope.getNumSelected = function() {
-    return _.where(Admin.getValidSystems(), {'enabled': true}).length;
+    return _.where(Admin.getSystems(), {'enabled': true}).length;
   };
 
   $scope.getSystemUrl = function(system) {
@@ -121,7 +122,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.doApply = function() {
-    Admin.postSystems(Admin.getValidSystems())
+    Admin.postSystems(Admin.getSystemStatuses())
       .success(function(response) {
         console.log(response);
       })
@@ -211,13 +212,9 @@ SYSTEM_DETAILS_PAGE_URLS) {
       if (!systemStatus.validType) {
         response = INVALID_TYPE_STATUS;
       } else if (!installationStatus.rpmInstalled &&
-          !installationStatus.configDeployed &&
-          !installationStatus.configChannelAssociated &&
           !installationStatus.softwareChannelAssociated) {
         response = NO_INSTALL_STATUS;
       } else if (!installationStatus.rpmInstalled || 
-          !installationStatus.configDeployed || 
-          !installationStatus.configChannelAssociated || 
           !installationStatus.softwareChannelAssociated) {
         response = FAILED_INSTALL_STATUS;
       } else {
@@ -282,7 +279,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.setSelectionState = function() {
-    _.forEach(Admin.getValidSystems(), function(system) {
+    _.forEach(Admin.getSystems(), function(system) {
       if ($scope.installationSuccess(system)) {
         system.enabled = true;
       } else if ($scope.noInstallation(system)) {
