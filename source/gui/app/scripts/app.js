@@ -106,7 +106,7 @@ TELEMETRY_URLS) {
         addClass('active');
       
       $('#spacewalk-content').
-        append('<rule-summary machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/>');
+        append('<dif class="rule-summaries" loading="{isLoading: true}" machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/>');
       $('#spacewalk-content').addClass('main-content insights-main-content');
     }
   } else if (Util.isOnAdminPage()) {

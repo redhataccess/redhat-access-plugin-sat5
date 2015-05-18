@@ -150,65 +150,6 @@ SYSTEM_DETAILS_PAGE_URLS) {
     return message;
   };
 
-  $scope.makeStatusMessage = function(system, status) {
-    //var messages = [];
-    //var groupedStatus = 
-      //_.groupBy(Object.keys(system.installationStatus), function(value, key, statuses) {
-        //if (system.installationStatus[value]) {
-          //return true;
-        //} else {
-          //return false;
-        //}
-      //});
-
-    //if (!status) {
-      //if (!_.isEmpty(groupedStatus['false']) && 
-          //!_.isEmpty(groupedStatus['false']['rpmInstalled'])) {
-        //messages.push('RPM is not installed');
-      //} 
-      //if (!_.isEmpty(groupedStatus['false']) && 
-          //!_.isEmpty(groupedStatus['false']['softwareChannelAssociated'])) {
-        //messages.push('Software channel not associated');
-      //}
-      //if (!_.isEmpty(groupedStatus['false']) && 
-          //!_.isEmpty(groupedStatus['false']['configChannelAssociated'])) {
-        //messages.push('Config channel not associated');
-      //}
-      //if (!_.isEmpty(groupedStatus['false']) && 
-          //!_.isEmpty(groupedStatus['false']['configDeployed'])) {
-        //messages.push('Config out of sync with latest revision');
-      //}
-    //} else {
-      //if (!_.isEmpty(groupedStatus['true']) && 
-          //!_.isEmpty(groupedStatus['true']['rpmInstalled'])) {
-        //messages.push('RPM installed');
-      //} 
-      //if (!_.isEmpty(groupedStatus['true']) && 
-          //!_.isEmpty(groupedStatus['true']['softwareChannelAssociated'])) {
-        //messages.push('Software channel associated');
-      //}
-      //if (!_.isEmpty(groupedStatus['true']) && 
-          //!_.isEmpty(groupedStatus['true']['configChannelAssociated'])) {
-        //messages.push('Config channel associated');
-      //}
-      //if (!_.isEmpty(groupedStatus['true']) && 
-          //!_.isEmpty(groupedStatus['true']['configDeployed'])) {
-        //messages.push('Config in sync with latest revision');
-      //}
-    //}
-
-    //var response = '';
-    //_.forEach(messages, function(message, index) {
-      //if (index === messages.length - 1) {
-        //response = response + message;
-      //} else {
-        //response = response + message + ', ';
-      //}
-    //});
-    
-    //return response;
-  };
-
   /**
    * -1 - loading
    *  0 - failed install
