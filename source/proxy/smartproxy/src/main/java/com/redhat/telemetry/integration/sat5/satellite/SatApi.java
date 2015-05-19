@@ -42,6 +42,14 @@ public class SatApi {
     return response;
   }
 
+  public static Object 
+  getSystemName(String sessionKey, int serverId) {
+    Object[] params = new Object[] {sessionKey, serverId};
+    Object response = 
+      (Object) makeRequest("system.getName", params);
+    return response;
+  }
+
   public static int
   schedulePackageInstall(String sessionKey, int serverId, ArrayList<Integer> packageIds, int delay) {
     Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis() + delay)};

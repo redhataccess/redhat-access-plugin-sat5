@@ -31,6 +31,7 @@ angular.module('sat5TelemetryApp')
   'HARDWARE': 'systems/details/SystemHardware.do',
   'MIGRATE': 'systems/details/SystemMigrate.do',
   'NOTES': 'systems/details/Notes.do',
+  'CUSTOM_INFO': 'systems/details/ListCustomData.do',
   'INSIGHTS': 'systems/details/Insights.do'
 })
 .constant('SAT5_ROOT_URLS', {

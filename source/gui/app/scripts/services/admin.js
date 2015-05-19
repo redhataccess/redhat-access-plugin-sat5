@@ -199,6 +199,17 @@ ADMIN_TABS) {
     return promise;
   };
 
+  var getSystemDetails = function(sid) {
+    var headers = {};
+    headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
+    var promise = $http({
+      method: HTTP_CONST.GET,
+      url: CONFIG_URLS.SYSTEMS + '/' + sid,
+      headers: headers
+    });
+    return promise;
+  };
+
   var getSystemsPromise = function() {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
@@ -272,6 +283,7 @@ ADMIN_TABS) {
     setFilteredSystems: setFilteredSystems,
     getFilteredSystems: getFilteredSystems,
     getSystemStatuses: getSystemStatuses,
-    updateSystemStatus: updateSystemStatus
+    updateSystemStatus: updateSystemStatus,
+    getSystemDetails: getSystemDetails
   };
 });

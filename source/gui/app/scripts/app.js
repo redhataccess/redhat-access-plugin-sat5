@@ -106,8 +106,25 @@ TELEMETRY_URLS) {
         addClass('active');
       
       $('#spacewalk-content').
-        append('<dif class="rule-summaries" loading="{isLoading: true}" machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/>');
-      $('#spacewalk-content').addClass('main-content insights-main-content');
+        append('<div class="main-content insights-main-content"><div class="rule-summaries" loading="{isLoading: true}" machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/></div>');
+
+      Admin.getSystemDetails(Util.getSidFromUrl())
+        .then(function(response) {
+          //add the system name, proper icon, system ID to Delete System and Add to SSM link urls
+          var iconClass = 'spacewalk-icon-virtual-host';
+          if (response.data.type === 'guest') {
+            iconClass = 'spacewalk-icon-virtual-guest';
+          }
+          $('#spacewalk-content > .spacewalk-toolbar-h1 > h1').html('<i class="fa ' + iconClass + '" />');
+          $('#spacewalk-content > .spacewalk-toolbar-h1 > h1').append(response.data.name);
+          var firstLink = $("#spacewalk-content > .spacewalk-toolbar-h1 > .spacewalk-toolbar > a:eq(0)");
+          firstLink.attr('href', firstLink.attr('href') + response.data.id);
+          var secondLink = $("#spacewalk-content > .spacewalk-toolbar-h1 > .spacewalk-toolbar > a:eq(1)");
+          secondLink.attr('href', secondLink.attr('href') + response.data.id);
+
+          $('#spacewalk-content > .spacewalk-toolbar > a:eq(0)').text(response.data.name);
+        });
+
     }
   } else if (Util.isOnAdminPage()) {
     appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>', false);

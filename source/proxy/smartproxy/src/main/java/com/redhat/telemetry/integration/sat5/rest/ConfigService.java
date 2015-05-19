@@ -122,11 +122,37 @@ public class ConfigService {
       HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) apiSys;
       ApiSystem sys = new ApiSystem(
           (Integer) apiSysMap.get("id"),
-          (String) apiSysMap.get("name"));
+          (String) apiSysMap.get("name"),
+          "");
       systems.add(sys);
     }
 
     return systems;
+  }
+
+  @SuppressWarnings("unchecked")
+  @GET
+  @Path("/systems/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public ApiSystem getSystem(
+      @PathParam("id") String id,
+      @CookieParam("pxt-session-cookie") String sessionKey) {
+
+    Object systemName = SatApi.getSystemName(sessionKey, Integer.parseInt(id));
+    HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) systemName;
+
+    Object systemDetails = SatApi.getSystemDetails(sessionKey, Integer.parseInt(id));
+    HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
+
+    String type = "";   
+    if (systemDetailsMap.get("virtualization") != null) {
+      type = Constants.SYSTEM_TYPE_GUEST; //TODO: find out which values mean guest vs host
+    } else {
+      type = Constants.SYSTEM_TYPE_PHYSICAL;
+    }
+
+    ApiSystem sys = new ApiSystem((Integer) apiSysMap.get("id"), (String) apiSysMap.get("name"), type);
+    return sys;
   }
 
   /**

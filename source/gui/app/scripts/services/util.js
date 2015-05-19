@@ -41,6 +41,7 @@ angular.module('sat5TelemetryApp')
         this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.HARDWARE) ||
         this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.MIGRATE) ||
         this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.NOTES) ||
+        this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.CUSTOM_INFO) ||
         this.isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
       response = true;
     }
