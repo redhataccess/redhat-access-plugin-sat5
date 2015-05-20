@@ -29,6 +29,7 @@ import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
 import com.redhat.telemetry.integration.sat5.satellite.AbstractSystem;
 import com.redhat.telemetry.integration.sat5.satellite.json.ApiSystem;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
+import com.redhat.telemetry.integration.sat5.satellite.ScheduleCache;
 import com.redhat.telemetry.integration.sat5.satellite.Server6System;
 import com.redhat.telemetry.integration.sat5.satellite.Server7System;
 import com.redhat.telemetry.integration.sat5.util.Constants;
@@ -183,7 +184,9 @@ public class ConfigService {
           if (!system.rpmInstalled()) {;
             ArrayList<Integer> packageIds = new ArrayList<Integer>();
             packageIds.add(packageId);
-            SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
+            int actionId = 
+              SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
+            ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
           }
         } else { //remove installed pieces
           if (system.softwareChannelAssociated()) {
@@ -192,7 +195,9 @@ public class ConfigService {
           if (system.rpmInstalled()) {
             ArrayList<Integer> packageIds = new ArrayList<Integer>();
             packageIds.add(packageId);
-            SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
+            int actionId = 
+              SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
+            ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
           }
         }
       }
@@ -251,7 +256,10 @@ public class ConfigService {
         if (system.rpmInstalled()) {
           installationStatus.setRpmInstalled(true);
           enabled = true;
+        } else if (system.rpmScheduled()) {
+          installationStatus.setRpmScheduled(true);
         }
+
         if (system.softwareChannelAssociated()) {
           installationStatus.setSoftwareChannelAssociated(true);
           enabled = true;

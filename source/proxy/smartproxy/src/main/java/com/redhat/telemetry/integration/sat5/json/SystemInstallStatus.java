@@ -5,20 +5,22 @@ public class SystemInstallStatus {
 
   boolean rpmInstalled;
   boolean softwareChannelAssociated;
+  boolean rpmScheduled;
 
   public SystemInstallStatus() {
+    rpmScheduled = false;
     rpmInstalled = false;
     softwareChannelAssociated = false;
   }
 
   public SystemInstallStatus(
       boolean softwareChannelAssociated,
-      boolean configChannelAssociated,
       boolean rpmInstalled,
-      boolean configDeployed) {
+      boolean rpmScheduled) {
 
     this.rpmInstalled = rpmInstalled;
     this.softwareChannelAssociated = softwareChannelAssociated;
+    this.rpmScheduled = rpmScheduled;
   }
 
   public boolean getRpmInstalled() {
@@ -35,5 +37,13 @@ public class SystemInstallStatus {
 
   public void setSoftwareChannelAssociated(boolean softwareChannelAssociated) {
     this.softwareChannelAssociated = softwareChannelAssociated;
+  }
+
+  public void setRpmScheduled(boolean rpmScheduled) {
+    this.rpmScheduled = rpmScheduled;
+  }
+
+  public boolean getRpmScheduled () {
+    return this.rpmScheduled;
   }
 }

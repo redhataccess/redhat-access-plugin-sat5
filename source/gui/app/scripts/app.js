@@ -75,7 +75,7 @@ TELEMETRY_URLS) {
       Util.isOnPage(SAT5_ROOT_URLS.KICKSTART) ||
       Util.isOnPage(SAT5_ROOT_URLS.KEYS)) {
     //Add Insights to side nav
-    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'overview', true);
+    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'app.overview', true);
   }
 
   if (Util.isOnSystemListPage()) {

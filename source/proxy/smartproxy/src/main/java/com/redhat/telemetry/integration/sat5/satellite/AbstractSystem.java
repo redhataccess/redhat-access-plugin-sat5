@@ -18,7 +18,6 @@ public abstract class AbstractSystem {
   public abstract String getRepoUrl();
 
   private Object[] userRepos = null;
-  private Object[] userChannels = null;
 
   public void createRepo() {
     if (parentChannelExists() && !insightsRepoExists()) {
@@ -49,12 +48,6 @@ public abstract class AbstractSystem {
   private void populateUserRepos() {
     if (userRepos == null) {
       this.userRepos = SatApi.listUserRepos(this.sessionKey);
-    }
-  }
-
-  private void populateUserChannels() {
-    if (userChannels == null) {
-      this.userChannels = SatApi.listSoftwareChannels(this.sessionKey);
     }
   }
 
@@ -127,10 +120,36 @@ public abstract class AbstractSystem {
     if (installedPackages != null) {
       for (Object installedPackage : installedPackages) {
         HashMap<Object, Object> packageMap = (HashMap<Object, Object>) installedPackage;
-        found = true;
+        String packageName = (String) packageMap.get("name");
+        if (packageName.equals(Constants.PACKAGE_NAME)) {
+          found = true;
+        }
       }
     }
     return found;
+  }
+
+  @SuppressWarnings("unchecked")
+  public boolean rpmScheduled() {
+    boolean scheduled = false;
+    Integer actionId = ScheduleCache.getInstance().getSystemSchedule(this.systemId);
+    if (actionId != null) {
+      Object[] actions = SatApi.listInProgressSystems(this.sessionKey, actionId);
+      if (actions != null) {
+        for (Object action : actions) {
+          HashMap<Object, Object> actionMap = (HashMap<Object, Object>) action;
+          Integer serverId = (Integer) actionMap.get("server_id");
+          if (serverId == this.systemId) {
+            scheduled = true;
+          }
+        }
+      }
+      //assume a stale cache entry, clear it out
+      if (!scheduled) {
+        ScheduleCache.getInstance().remove(this.systemId);
+      }
+    }
+    return scheduled;
   }
 
   /**

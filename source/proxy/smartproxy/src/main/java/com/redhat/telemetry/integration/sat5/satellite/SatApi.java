@@ -75,6 +75,14 @@ public class SatApi {
   }
 
   public static Object[]
+  listInProgressSystems(String sessionKey, int actionId) {
+    Object[] params = new Object[] {sessionKey, actionId};
+    Object[] response = 
+      (Object[]) makeRequest("schedule.listInProgressSystems", params);
+    return response;
+  }
+
+  public static Object[]
   listInstalledPackagesFromChannel(String sessionKey, int serverId, String channelLabel) {
     Object[] params = new Object[] {sessionKey, serverId, channelLabel};
     Object[] response = 
@@ -255,6 +263,14 @@ public class SatApi {
     Object[] params = new Object[] {sessionKey, serverId};
     Object[] response = 
       (Object[]) makeRequest("system.config.listChannels", params);
+    return response;
+  }
+
+  public static Object[]
+  listInProgressActions(String sessionKey) {
+    Object[] params = new Object[] {sessionKey};
+    Object[] response = 
+      (Object[]) makeRequest("system.schedule.listInProgressActions", params);
     return response;
   }
 

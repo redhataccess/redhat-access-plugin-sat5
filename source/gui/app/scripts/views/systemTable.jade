@@ -78,6 +78,8 @@ form(ng-if='getSystems().length > 0')
                     ng-if='installationSuccess(getSystemStatus(system))') 
                   i.fa.fa-ban.fa-1-5x(
                     ng-if='invalidType(getSystemStatus(system))') 
+                  i.fa.fa-clock-o.fa-1-5x(
+                    ng-if='installationPending(getSystemStatus(system))')
       div.panel-footer
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra

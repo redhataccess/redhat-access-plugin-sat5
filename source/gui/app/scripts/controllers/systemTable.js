@@ -122,12 +122,20 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.doApply = function() {
+    $scope.loading = true;
+    Alert.info('Applying changes to systems...');
     Admin.postSystems(Admin.getSystemStatuses())
       .success(function(response) {
-        console.log(response);
+        Admin.updateStatuses().then(function() {
+          $scope.loading = false;
+          Alert.success('Successfully applied changes to systems.', true);
+        });
       })
       .error(function(error) {
-        Alert.danger('Problem updating systems. Please try again.');
+        Admin.updateStatuses().then(function() {
+          $scope.loading = false;
+          Alert.danger('Problem updating systems. Please try again.', true);
+        });
       });
   };
 
@@ -171,11 +179,15 @@ SYSTEM_DETAILS_PAGE_URLS) {
       if (!systemStatus.validType) {
         response = INVALID_TYPE_STATUS;
       } else if (!installationStatus.rpmInstalled &&
+          !installationStatus.rpmScheduled &&
           !installationStatus.softwareChannelAssociated) {
         response = NO_INSTALL_STATUS;
-      } else if (!installationStatus.rpmInstalled || 
-          !installationStatus.softwareChannelAssociated) {
+      } else if ((!installationStatus.rpmInstalled && 
+          !installationStatus.rpmScheduled) &&
+          installationStatus.softwareChannelAssociated) {
         response = FAILED_INSTALL_STATUS;
+      } else if (installationStatus.rpmScheduled) {
+        response = IN_PROGRESS_INSTALL_STATUS;
       } else {
         response = SUCCESSFUL_INSTALL_STATUS;
       }
@@ -219,6 +231,15 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
+  $scope.installationPending = function(systemStatus) {
+    var status = $scope.getInstallationStatus(systemStatus);
+    if (status === IN_PROGRESS_INSTALL_STATUS) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   $scope.invalidType = function(systemStatus) {
     var status = $scope.getInstallationStatus(systemStatus);
     if (status == INVALID_TYPE_STATUS) {
@@ -249,18 +270,18 @@ SYSTEM_DETAILS_PAGE_URLS) {
     });
   };
 
-  Admin.getSystemsPromise()
-    .success(function(response) {
-      $scope.loading = false;
-      Admin.setSystems(response);
-      //$scope.validSystems = 
-        //_.filter(
-          //response, 
-          //{'validType': true});
-      //$scope.setSelectionState();
-    })
-    .error(function(error) {
-      $scope.loading = false;
-      Alert.danger('Problem loading systems. Please try again.');
-    });
+  $scope.populateSystems = function() {
+    var promise = Admin.getSystemsPromise()
+      .success(function(response) {
+        $scope.loading = false;
+        Admin.setSystems(response);
+      })
+      .error(function(error) {
+        $scope.loading = false;
+        Alert.danger('Problem loading systems. Please try again.');
+      });
+    return promise;
+  };
+
+  $scope.populateSystems();
 });

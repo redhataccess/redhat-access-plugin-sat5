@@ -224,14 +224,31 @@ ADMIN_TABS) {
     return promise;
   };
 
-  var getStatuses = function(systems) {
-    var unknownSystems = getSystemsMissingStatus(getFilteredSystems());
+  var getStatuses = function() {
+    var filteredSystems = getFilteredSystems();
+    var unknownSystems = getSystemsMissingStatus(filteredSystems);
+    var promise = null;
     if (!_.isEmpty(unknownSystems)) {
-      getStatusPromise(unknownSystems).then(
+      promise = getStatusPromise(unknownSystems).then(
         function(statuses) {
           addSystemStatuses(statuses.data);
+          setEnabledProperty(unknownSystems);
         });
     }
+    return promise;
+  };
+
+  var setEnabledProperty = function(systems) {
+    _.forEach(systems, function(sys) {
+      var index = _.findIndex(_systems, {'id': sys});
+      _systems[index].enabled = _.find(_systemStatuses, {'id': sys}).enabled;
+    });
+  };
+
+  var updateStatuses = function() {
+    _systemStatuses = [];
+    var promise = getStatuses();
+    return promise;
   };
 
   var getStatusPromise = function(systems) {
@@ -284,6 +301,7 @@ ADMIN_TABS) {
     getFilteredSystems: getFilteredSystems,
     getSystemStatuses: getSystemStatuses,
     updateSystemStatus: updateSystemStatus,
-    getSystemDetails: getSystemDetails
+    getSystemDetails: getSystemDetails,
+    updateStatuses: updateStatuses
   };
 });
