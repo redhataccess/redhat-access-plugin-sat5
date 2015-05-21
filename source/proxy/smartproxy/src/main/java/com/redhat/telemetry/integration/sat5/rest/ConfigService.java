@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.jasypt.util.text.StrongTextEncryptor;
 
 import com.redhat.telemetry.integration.sat5.json.Config;
 import com.redhat.telemetry.integration.sat5.json.Status;
@@ -60,7 +61,6 @@ public class ConfigService {
       properties.load(Constants.PROPERTIES_URL);
       String username = properties.getString(Constants.USERNAME_PROPERTY);
       String password = properties.getString(Constants.PASSWORD_PROPERTY);
-      String passwordExists = "false";
       if (password != null && !password.equals("")) {
         password = "true";
       }
@@ -103,7 +103,7 @@ public class ConfigService {
     properties.setFile(new File(Constants.PROPERTIES_URL));
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
     properties.setProperty(Constants.USERNAME_PROPERTY, config.getUsername());
-    properties.setProperty(Constants.PASSWORD_PROPERTY, config.getPassword());
+    properties.setProperty(Constants.PASSWORD_PROPERTY, encryptPassword(config.getPassword()));
     if (portalUrl != null && portalUrl != "") {
       properties.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
     }
@@ -312,6 +312,12 @@ public class ConfigService {
           false,
           pathInfo);
     }
+  }
+
+  private String encryptPassword(String plainTextPassword) {
+    StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
+    textEncryptor.setPassword(Constants.ENCRYPTION_PASSWORD);
+    return textEncryptor.encrypt(plainTextPassword);
   }
 
   /**

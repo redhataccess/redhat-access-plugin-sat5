@@ -48,6 +48,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.jasypt.util.text.StrongTextEncryptor;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,17 +58,22 @@ import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/rs/telemetry")
 @Loggable
 public class ProxyService {
   @Context ServletContext context;
   private String portalUrl = "https://access.redhat.com/rs/telemetry/";
-
+  private Logger LOG = LoggerFactory.getLogger(ProxyService.class);
 
   @GET
   @Path("/api/v1/branch_info")
   @Produces("application/json")
   public BranchInfo getBranchId() throws UnknownHostException, JSONException {
+    LOG.debug("InetAddress.getLocalHost() = " + InetAddress.getLocalHost());
+    LOG.debug("InetAddress.getLocalHost().getHostName() = " + InetAddress.getLocalHost().getHostName());
     BranchInfo branchInfo = new BranchInfo(InetAddress.getLocalHost().getHostName(), -1);
     return branchInfo;
   }
@@ -418,12 +424,22 @@ public class ProxyService {
   private BasicHeader getBasicAuthHeader() 
       throws ConfigurationException, UnsupportedEncodingException {
     PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(context.getResourceAsStream("WEB-INF/insights.properties"));
+    properties.load(Constants.PROPERTIES_URL);
+    String password = decryptPassword(properties.getString("password"));
     BasicHeader authHeader = new BasicHeader(HttpHeaders.AUTHORIZATION,
       "Basic " + DatatypeConverter.printBase64Binary(
                 (properties.getString("username") + ":" + 
-                 properties.getString("password")).getBytes("UTF-8")));
+                 password).getBytes("UTF-8")));
     return authHeader;
+  }
+
+  /**
+   * Decrypt the stored password
+   */
+  private String decryptPassword(String encryptedPassword) {
+    StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
+    textEncryptor.setPassword(Constants.ENCRYPTION_PASSWORD);
+    return textEncryptor.decrypt(encryptedPassword);
   }
 
   /**

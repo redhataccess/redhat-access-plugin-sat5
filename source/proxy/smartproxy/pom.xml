@@ -15,11 +15,16 @@
        <repository>
           <id>jboss</id>
           <url>http://download.lab.bos.redhat.com/brewroot/repos/jb-eap-6.4-rhel-6-build/latest/maven</url>
-          <!--<url>http://repository.jboss.org/nexus/content/groups/public/</url>-->
        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>1.9.2</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-aspects</artifactId>
