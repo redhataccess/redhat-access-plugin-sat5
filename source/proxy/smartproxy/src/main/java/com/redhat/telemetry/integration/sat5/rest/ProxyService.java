@@ -150,7 +150,7 @@ public class ProxyService {
 
     //load config to check if service is enabled
     PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
+    properties.load(Constants.PROPERTIES_URL);
     boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
     String configPortalUrl = properties.getString(Constants.PORTALURL_PROPERTY);
     if (configPortalUrl != null) {

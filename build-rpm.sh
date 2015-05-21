@@ -40,6 +40,7 @@ cp gui/dist/scripts/insights.js ../$RPM_WORK_DIR
 cp gui/dist/styles/insights.css ../$RPM_WORK_DIR
 cp proxy/smartproxy/target/redhat_access.war ../$RPM_WORK_DIR
 cp -r jsp ../$RPM_WORK_DIR
+cp -r resources ../$RPM_WORK_DIR
 cd $PROJECT_ROOT/.rpm-work
 tar -cf ~/rpmbuild/SOURCES/$PROJECT_NAME.tar.gz $PROJECT_NAME-$VERSION
 echo "Done."

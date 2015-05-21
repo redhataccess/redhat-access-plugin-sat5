@@ -57,7 +57,7 @@ public class ConfigService {
 
     if (userIsAdmin(sessionKey, satelliteUser)) {
       PropertiesConfiguration properties = new PropertiesConfiguration();
-      properties.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
+      properties.load(Constants.PROPERTIES_URL);
       String username = properties.getString(Constants.USERNAME_PROPERTY);
       boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
       Config config = new Config(enabled, username, "");
@@ -91,11 +91,11 @@ public class ConfigService {
       server7System.createChannel();
     } 
     PropertiesConfiguration propertiesReader = new PropertiesConfiguration();
-    propertiesReader.load(context.getResourceAsStream(Constants.PROPERTIES_URL));
+    propertiesReader.load(Constants.PROPERTIES_URL);
     String portalUrl = propertiesReader.getString(Constants.PORTALURL_PROPERTY);
 
     PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.setFile(new File(context.getRealPath(Constants.PROPERTIES_URL)));
+    properties.setFile(new File(Constants.PROPERTIES_URL));
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
     properties.setProperty(Constants.USERNAME_PROPERTY, config.getUsername());
     properties.setProperty(Constants.PASSWORD_PROPERTY, config.getPassword());

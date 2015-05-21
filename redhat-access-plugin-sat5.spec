@@ -1,4 +1,4 @@
-%define version 0.2.5
+%define version 0.2.6
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -46,10 +46,14 @@ cp jsp/systems/sdc/insights.jsp $RPM_BUILD_ROOT/usr/share/tomcat6/webapps/rhn/WE
 #log
 mkdir -p $RPM_BUILD_ROOT/var/log/rhai
 touch $RPM_BUILD_ROOT/var/log/rhai/rhai.log
+#properties file
+mkdir -p $RPM_BUILD_ROOT/etc/redhat-access/
+cp resources/redhat-access-insights.properties $RPM_BUILD_ROOT/etc/redhat-access/redhat-access-insights.properties
 
 
 %files
 %config %attr(0644,root,root) /etc/httpd/conf.d/rh-insights-sat5.conf
+%config(noreplace) %attr(0644,tomcat,tomcat) /etc/redhat-access/redhat-access-insights.properties
 %config %attr(0644,root,root) /var/www/html/javascript/insights.js
 %config %attr(0644,root,root) /var/www/html/css/insights.css
 %config %attr(0644,root,root) /usr/share/tomcat6/webapps/redhat_access.war
@@ -61,6 +65,9 @@ touch $RPM_BUILD_ROOT/var/log/rhai/rhai.log
 
 
 %changelog
+* Wed May 20 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- More bug fixes
+
 * Mon May 18 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Various bug fixes
 
