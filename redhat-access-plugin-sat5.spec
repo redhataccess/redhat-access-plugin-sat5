@@ -1,4 +1,4 @@
-%define version 0.2.6
+%define version 0.2.7
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -65,6 +65,9 @@ cp resources/redhat-access-insights.properties $RPM_BUILD_ROOT/etc/redhat-access
 
 
 %changelog
+* Thu May 21 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Encrypt stored password
+
 * Wed May 20 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - More bug fixes
 
