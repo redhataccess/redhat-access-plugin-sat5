@@ -19,6 +19,7 @@ ADMIN_TABS) {
   var _tab = ADMIN_TABS.GENERAL;
   var _enabled = false;
   var _username = "";
+  var _passwordSet = false;
   var _systems = [];
   var _systemStatuses = [];
   var _pageSize = 10;
@@ -50,6 +51,14 @@ ADMIN_TABS) {
 
   var setEnabled = function(enabled) {
     _enabled = enabled;
+  };
+
+  var getPasswordSet = function() {
+    return _passwordSet;
+  };
+
+  var setPasswordSet = function(passwordSet) {
+    _passwordSet = passwordSet;
   };
 
   var getUsername = function() {
@@ -302,6 +311,8 @@ ADMIN_TABS) {
     getSystemStatuses: getSystemStatuses,
     updateSystemStatus: updateSystemStatus,
     getSystemDetails: getSystemDetails,
-    updateStatuses: updateStatuses
+    updateStatuses: updateStatuses,
+    getPasswordSet: getPasswordSet,
+    setPasswordSet: setPasswordSet
   };
 });

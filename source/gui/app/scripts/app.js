@@ -135,6 +135,7 @@ TELEMETRY_URLS) {
     .success(function(config) {
       Admin.setEnabled(config.enabled);
       Admin.setUsername(config.username);
+      Admin.setPasswordSet(Boolean(config.password)); //this is just a boolean
       $rootScope.$broadcast(EVENTS.GENERAL_CONFIG_LOADED);
       if (config.enabled) {
         $('#rha-insights-sidenav').removeClass('ng-hide');

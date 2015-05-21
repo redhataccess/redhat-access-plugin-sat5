@@ -21,6 +21,7 @@ EVENTS) {
   $scope.username = '';
   $scope.password = '';
   $scope.loading = true;
+  $scope.getPasswordSet = Admin.getPasswordSet;
 
   function fieldIsDirty(field) {
     var response = false;
@@ -48,10 +49,14 @@ EVENTS) {
 
   $scope.doUpdate = function() {
     $scope.loading = true;
-    Admin.postConfig($scope.enabled, $scope.username, $scope.password, $scope.configenabled)
+    var password = $scope.password;
+    if (Admin.getPasswordSet() === true) {
+      password = null;
+    }
+    Admin.postConfig($scope.enabled, $scope.username, password, $scope.configenabled)
       .success(function(response) {
         $scope.loading = false;
-        $scope.password = '';
+        Admin.setPasswordSet(true);
         Alert.success(
           'Insights configuration was successfully updated.', true);
       })
@@ -61,7 +66,15 @@ EVENTS) {
       });
   };
 
+  $scope.editPassword = function() {
+    Admin.setPasswordSet(false);
+    $scope.password = '';
+  };
+
   $scope.$on(EVENTS.GENERAL_CONFIG_LOADED, function() {
+    if (Admin.getPasswordSet() === true) {
+      $scope.password = 'password';
+    }
     $scope.username = Admin.getUsername();
     $scope.enabled = Admin.getEnabled();
     $scope.loading = false;

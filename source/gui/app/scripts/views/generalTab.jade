@@ -25,9 +25,11 @@ div.panel.panel-default
       div.form-group(ng-class='{"has-error":passwordDirty()}')
         label(for='rha-insights-password').col-lg-3.control-label Customer Portal Password
         div.col-lg-6
+          a(ng-click='editPassword()', ng-show='getPasswordSet() === true') Click to change password
           input#rha-insights-password.form-control(
             type='password', 
             size='32', 
+            ng-hide='getPasswordSet() === true',
             ng-model='password', 
             ng-disabled='loading')
       div.form-group

@@ -59,8 +59,13 @@ public class ConfigService {
       PropertiesConfiguration properties = new PropertiesConfiguration();
       properties.load(Constants.PROPERTIES_URL);
       String username = properties.getString(Constants.USERNAME_PROPERTY);
+      String password = properties.getString(Constants.PASSWORD_PROPERTY);
+      String passwordExists = "false";
+      if (password != null && !password.equals("")) {
+        password = "true";
+      }
       boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-      Config config = new Config(enabled, username, "");
+      Config config = new Config(enabled, username, password);
       return config;
     } else {
       throw new Exception("Must be satellite admin.");
