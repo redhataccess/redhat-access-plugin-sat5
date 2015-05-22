@@ -1,6 +1,8 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -71,10 +73,18 @@ public class ProxyService {
   @GET
   @Path("/api/v1/branch_info")
   @Produces("application/json")
-  public BranchInfo getBranchId() throws UnknownHostException, JSONException {
-    LOG.debug("InetAddress.getLocalHost() = " + InetAddress.getLocalHost());
-    LOG.debug("InetAddress.getLocalHost().getHostName() = " + InetAddress.getLocalHost().getHostName());
-    BranchInfo branchInfo = new BranchInfo(InetAddress.getLocalHost().getHostName(), -1);
+  public BranchInfo getBranchId() throws UnknownHostException, JSONException, IOException, InterruptedException {
+    String hostname = "";
+    try {
+      hostname = InetAddress.getLocalHost().getHostName();
+    } catch (Exception e) {
+      LOG.debug("Hostname lookup failed. Falling back to Runtime.getRuntime().exec('hostname')");
+      Process p = Runtime.getRuntime().exec("hostname");
+      p.waitFor();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      hostname = reader.readLine();
+    }
+    BranchInfo branchInfo = new BranchInfo(hostname, -1);
     return branchInfo;
   }
 
