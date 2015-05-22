@@ -20,7 +20,8 @@ angular.module('sat5TelemetryApp')
   'DUPLICATE': 'systems/DuplicateIPList.do',
   'CURRENCY': 'systems/SystemCurrency.do',
   'DETAILS_OVERVIEW': 'systems/details/Overview.do',
-  'INSIGHTS': 'systems/Insights.do'
+  'INSIGHTS': 'systems/Insights.do',
+  'SOFTWARE_CRASHES_OVERVIEW': 'systems/SoftwareCrashesOverview.do'
 })
 .constant('ADMIN_PAGE_URLS', {
   'INSIGHTS': 'admin/Insights.do'
