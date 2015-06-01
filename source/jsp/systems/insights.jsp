@@ -7,11 +7,6 @@
 
 <html>
   <body>
-    <div class="spacewalk-toolbar-h1">
-      <h1>
-        Red Hat Access Insights
-      </h1>
-    </div>
-    <div ui-view="" class="wrapper ng-cloak main-content insights-main-content"></div>
+    <div rha-insights-sat5-systems-overview="" />
   </body>
 </html>

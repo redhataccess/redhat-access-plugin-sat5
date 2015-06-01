@@ -19,6 +19,7 @@ _,
 $state,
 CONFIG,
 Sat5TelemetrySystems,
+SystemOverviewService,
 Util,
 Admin,
 SYSTEM_PAGE_URLS, 
@@ -128,6 +129,18 @@ TELEMETRY_URLS) {
     }
   } else if (Util.isOnAdminPage()) {
     appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>', false);
+  } else if (Util.isOnInsightsOverviewPage()) {
+    $('#rha-insights-sidenav').after(
+      '<li>' + 
+        '<ul class="nav nav-pills nav-stacked">' + 
+          '<li id="rha-insights-sat5-systems-overview-tab" class="active">' + 
+            '<a ng-click="SystemOverviewService.switchToOverviewTab()">Overview</a>' + 
+          '</li>' +
+          '<li id="rha-insights-sat5-systems-setup-tab">' + 
+            '<a ng-click="SystemOverviewService.switchToSetupTab()">Setup</a>' + 
+          '</li>' + 
+        '</ul>' + 
+      '</li>');
   }
 
   if (Util.isOnInsightsEnabledPage()) {

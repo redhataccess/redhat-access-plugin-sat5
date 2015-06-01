@@ -1,4 +1,4 @@
-%define version 0.2.17
+%define version 0.3.0
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -65,6 +65,11 @@ cp resources/redhat-access-insights.properties $RPM_BUILD_ROOT/etc/redhat-access
 
 
 %changelog
+* Mon June 1 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Proxy to r/insights
+- Add Systems-Insights-Setup tab
+- Bug fixes
+
 * Fri May 22 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Fall back to executing hostname to retrieve branchid when InetAddress fails
 
