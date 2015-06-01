@@ -1,4 +1,4 @@
-%define version 0.2.13
+%define version 0.2.17
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}

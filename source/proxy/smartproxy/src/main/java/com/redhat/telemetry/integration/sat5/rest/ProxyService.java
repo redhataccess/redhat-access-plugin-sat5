@@ -100,17 +100,18 @@ public class ProxyService {
   }
 
   @POST
-  @Path("/")
+  @Path("/{path: .*}")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.APPLICATION_JSON)
   public Response proxyRootPostMultiPart(
       @Context Request request,
       @Context UriInfo uriInfo,
+      @PathParam("path") String path,
       @HeaderParam("Content-Type") String contentType,
       @CookieParam("pxt-session-cookie") String user,
       byte[] body) 
       throws JSONException, IOException, ConfigurationException {
-    return proxy("", user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
+    return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
   }
 
   @GET
@@ -209,7 +210,7 @@ public class ProxyService {
       JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
       String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
-    } else if (user != null) {
+    } else if (user != null && !pathTypeInt.equals(Constants.SYSTEMS_STATUS_PATH)) {
       path = addSubsetToPath(path, subsetHash);
     }
 
@@ -345,6 +346,9 @@ public class ProxyService {
     Pattern systemPattern = Pattern.compile("v1/systems/?(\\?.*)?$");
     Matcher systemMatcher = systemPattern.matcher(path);
 
+    Pattern systemStatusPattern = Pattern.compile("v1/systems/status/?(\\?.*)?$");
+    Matcher systemStatusMatcher = systemStatusPattern.matcher(path);
+
     Pattern systemReportsPattern = Pattern.compile("v1/systems/(.*)/reports/?(\\?.*)?$");
     Matcher systemReportsMatcher = systemReportsPattern.matcher(path);
 
@@ -383,6 +387,9 @@ public class ProxyService {
     } else if (uploadsMatcher.matches()) {
       response.put("type", Constants.UPLOADS_PATH);
       response.put("index", Integer.toString(path.indexOf("uploads")));
+    } else if (systemStatusPattern.matches()) {
+      response.put("type", Constants.SYSTEMS_STATUS_PATH);
+      response.put("index", Integer.toString(path.indexOf("systems")));
     } else {
       response.put("type", "-1");
       response.put("index", "-1");
