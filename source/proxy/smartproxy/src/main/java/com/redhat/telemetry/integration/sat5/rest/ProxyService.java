@@ -63,15 +63,15 @@ import com.redhat.telemetry.integration.sat5.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path("/rs/telemetry")
+@Path("/r/insights")
 @Loggable
 public class ProxyService {
   @Context ServletContext context;
-  private String portalUrl = "https://access.redhat.com/rs/telemetry/";
+  private String portalUrl = "https://access.redhat.com/r/insights/";
   private Logger LOG = LoggerFactory.getLogger(ProxyService.class);
 
   @GET
-  @Path("/api/v1/branch_info")
+  @Path("/v1/branch_info")
   @Produces("application/json")
   public BranchInfo getBranchId() throws UnknownHostException, JSONException, IOException, InterruptedException {
     String hostname = "";
@@ -193,6 +193,7 @@ public class ProxyService {
 
     HashMap<String, String> pathType = parsePathType(path);
     String pathTypeInt = pathType.get("type");
+    LOG.debug("Pathtype: " + pathTypeInt);
 
     if (pathTypeInt.equals(Constants.SYSTEM_REPORTS_PATH) && pathType.get("id") != null) {
       String leafId = pathType.get("id");
@@ -212,11 +213,13 @@ public class ProxyService {
       path = addSubsetToPath(path, subsetHash);
     }
 
-    String prepend = "?";
-    if (path.contains("?")) {
-      prepend = "&";
+    if (!pathTypeInt.equals(Constants.UPLOADS_PATH)) {
+      String prepend = "?";
+      if (path.contains("?")) {
+        prepend = "&";
+      }
+      path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
     }
-    path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
 
     PortalResponse portalResponse = 
       proxyRequest(
@@ -228,8 +231,8 @@ public class ProxyService {
           requestType,
           responseType,
           body);
-    if (portalResponse.getStatusCode() == 
-        HttpServletResponse.SC_PRECONDITION_FAILED) { 
+    if (portalResponse.getStatusCode() == HttpServletResponse.SC_PRECONDITION_FAILED &&
+        ! pathTypeInt.equals(Constants.UPLOADS_PATH)) {
       portalResponse =
         proxyRequest(
             client, 
@@ -334,23 +337,28 @@ public class ProxyService {
    *  2 - /reports
    *  3 - /acks
    *  4 - /rules
+   *  5 - /uploads
    * -1 - undefined
    */
   private HashMap<String, String> parsePathType(String path) {
-    Pattern systemPattern = Pattern.compile("api/v1/systems/?(\\?.*)?$");
+    LOG.debug("Path: " + path);
+    Pattern systemPattern = Pattern.compile("v1/systems/?(\\?.*)?$");
     Matcher systemMatcher = systemPattern.matcher(path);
 
-    Pattern systemReportsPattern = Pattern.compile("api/v1/systems/(.*)/reports/?(\\?.*)?$");
+    Pattern systemReportsPattern = Pattern.compile("v1/systems/(.*)/reports/?(\\?.*)?$");
     Matcher systemReportsMatcher = systemReportsPattern.matcher(path);
 
-    Pattern reportsPattern = Pattern.compile("api/v1/reports/?(\\?.*)?$");
+    Pattern reportsPattern = Pattern.compile("v1/reports/?(\\?.*)?$");
     Matcher reportsMatcher = reportsPattern.matcher(path);
 
-    Pattern acksPattern = Pattern.compile("api/v1/acks/?(\\?.*)$");
+    Pattern acksPattern = Pattern.compile("v1/acks/?(\\?.*)$");
     Matcher acksMatcher = acksPattern.matcher(path);
 
-    Pattern rulesPattern = Pattern.compile("api/v1/rules/?(\\?.*)$");
+    Pattern rulesPattern = Pattern.compile("v1/rules/?(\\?.*)$");
     Matcher rulesMatcher = rulesPattern.matcher(path);
+
+    Pattern uploadsPattern = Pattern.compile("uploads(/.*)?(/\\?.*)?$");
+    Matcher uploadsMatcher = uploadsPattern.matcher(path);
 
     HashMap<String, String> response = new HashMap<String, String>();
     if (systemMatcher.matches()) {
@@ -372,6 +380,9 @@ public class ProxyService {
     } else if (rulesMatcher.matches()) {
       response.put("type", Constants.RULES_PATH);
       response.put("index", Integer.toString(path.indexOf("rules")));
+    } else if (uploadsMatcher.matches()) {
+      response.put("type", Constants.UPLOADS_PATH);
+      response.put("index", Integer.toString(path.indexOf("uploads")));
     } else {
       response.put("type", "-1");
       response.put("index", "-1");

@@ -71,8 +71,8 @@ angular.module('sat5TelemetryApp')
   'SOFTWARE_CHANNELS': '/redhat_access/config/channels/software'
 })
 .constant('TELEMETRY_URLS', {
-  'SYSTEMS_SUMMARY': '/redhat_access/rs/telemetry/api/v1/systems?summary=true',
-  'API_ROOT': '/rs/telemetry/api/v1'
+  'SYSTEMS_SUMMARY': '/redhat_access/r/insights/v1/systems?summary=true',
+  'API_ROOT': '/r/insights/v1'
 })
 .constant('ADMIN_TABS', {
   'GENERAL': 'general',
