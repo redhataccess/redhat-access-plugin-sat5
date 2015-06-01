@@ -35,9 +35,6 @@ import com.redhat.telemetry.integration.sat5.satellite.Server6System;
 import com.redhat.telemetry.integration.sat5.satellite.Server7System;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Path("/config")
 public class ConfigService {
   @Context ServletContext context;
@@ -52,9 +49,6 @@ public class ConfigService {
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) 
           throws ConfigurationException, MalformedURLException, Exception {
-
-    Logger logger = LoggerFactory.getLogger(ConfigService.class);
-    logger.error("test");
 
     if (userIsAdmin(sessionKey, satelliteUser)) {
       PropertiesConfiguration properties = new PropertiesConfiguration();

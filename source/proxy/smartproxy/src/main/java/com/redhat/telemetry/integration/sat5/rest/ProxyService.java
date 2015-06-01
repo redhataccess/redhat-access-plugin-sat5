@@ -1,17 +1,23 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -43,12 +49,15 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.jasypt.util.text.StrongTextEncryptor;
 import org.json.JSONException;
@@ -94,9 +103,13 @@ public class ProxyService {
   public Response proxyRootGetMultiPart(
       @Context Request request,
       @Context UriInfo uriInfo,
-      @CookieParam("pxt-session-cookie") String user)
-      throws JSONException, IOException, ConfigurationException {
-    return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null);
+      @CookieParam("pxt-session-cookie") String user) {
+    try {
+      return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null);
+    } catch (Exception e) {
+      LOG.error(e.toString());
+      throw new WebApplicationException(new Throwable("Internal server error occurred. View server logs for details."), Response.Status.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @POST
@@ -109,9 +122,13 @@ public class ProxyService {
       @PathParam("path") String path,
       @HeaderParam("Content-Type") String contentType,
       @CookieParam("pxt-session-cookie") String user,
-      byte[] body) 
-      throws JSONException, IOException, ConfigurationException {
-    return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
+      byte[] body) {
+    try {
+      return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
+    } catch (Exception e) {
+      LOG.error(e.toString());
+      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @GET
@@ -122,9 +139,13 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
-      @CookieParam("pxt-session-cookie") String user)
-      throws JSONException, IOException, ConfigurationException {
-    return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null);
+      @CookieParam("pxt-session-cookie") String user) {
+    try {
+      return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null);
+    } catch (Exception e) {
+      LOG.error(e.toString());
+      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @POST
@@ -136,9 +157,13 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
       @CookieParam("pxt-session-cookie") String user,
-      byte[] body) 
-      throws JSONException, IOException, ConfigurationException {
-    return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body);
+      byte[] body) {
+    try {
+      return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body);
+    } catch (Exception e) {
+      LOG.error(e.toString());
+      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @GET
@@ -149,9 +174,13 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
-      @CookieParam("pxt-session-cookie") String user)
-      throws JSONException, IOException, ConfigurationException {
-    return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
+      @CookieParam("pxt-session-cookie") String user) {
+    try {
+      return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
+    } catch (Exception e) {
+      LOG.error(e.toString());
+      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Loggable
@@ -163,7 +192,7 @@ public class ProxyService {
       String requestType,
       String responseType,
       byte[] body) 
-          throws JSONException, IOException, ConfigurationException {
+          throws JSONException, IOException, ConfigurationException, NoSuchAlgorithmException, KeyStoreException, CertificateException, KeyManagementException {
 
     //load config to check if service is enabled
     PropertiesConfiguration properties = new PropertiesConfiguration();
@@ -180,7 +209,21 @@ public class ProxyService {
       throw new WebApplicationException(new Throwable("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service."), Response.Status.FORBIDDEN);
     }
 
-    CloseableHttpClient client = HttpClientBuilder.create().build();
+    //load custom keystore
+    SSLContext sslcontext = SSLContexts.custom()
+            .loadTrustMaterial(new File("/etc/redhat-access/rhai.keystore"), "changeit".toCharArray(),
+                    new TrustSelfSignedStrategy())
+            .build();
+    SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+            sslcontext,
+            new String[] { "TLSv1" },
+            null,
+            SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+    CloseableHttpClient client = HttpClients.custom()
+            .setSSLSocketFactory(sslsf)
+            .build();
+
+    //CloseableHttpClient client = HttpClientBuilder.create().build();
     String branchId = InetAddress.getLocalHost().getHostName();
     ArrayList<Integer> leafIds = new ArrayList<Integer>();
     String subsetHash = null;
@@ -387,7 +430,7 @@ public class ProxyService {
     } else if (uploadsMatcher.matches()) {
       response.put("type", Constants.UPLOADS_PATH);
       response.put("index", Integer.toString(path.indexOf("uploads")));
-    } else if (systemStatusPattern.matches()) {
+    } else if (systemStatusMatcher.matches()) {
       response.put("type", Constants.SYSTEMS_STATUS_PATH);
       response.put("index", Integer.toString(path.indexOf("systems")));
     } else {

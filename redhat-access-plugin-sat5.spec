@@ -1,4 +1,4 @@
-%define version 0.3.0
+%define version 0.3.8
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -49,11 +49,13 @@ touch $RPM_BUILD_ROOT/var/log/rhai/rhai.log
 #properties file
 mkdir -p $RPM_BUILD_ROOT/etc/redhat-access/
 cp resources/redhat-access-insights.properties $RPM_BUILD_ROOT/etc/redhat-access/redhat-access-insights.properties
+cp resources/rhai.keystore $RPM_BUILD_ROOT/etc/redhat-access/rhai.keystore
 
 
 %files
 %config %attr(0644,root,root) /etc/httpd/conf.d/rh-insights-sat5.conf
 %config(noreplace) %attr(0644,tomcat,tomcat) /etc/redhat-access/redhat-access-insights.properties
+%config %attr(0644,root,root) /etc/redhat-access/rhai.keystore
 %config %attr(0644,root,root) /var/www/html/javascript/insights.js
 %config %attr(0644,root,root) /var/www/html/css/insights.css
 %config %attr(0644,root,root) /usr/share/tomcat6/webapps/redhat_access.war
@@ -65,7 +67,7 @@ cp resources/redhat-access-insights.properties $RPM_BUILD_ROOT/etc/redhat-access
 
 
 %changelog
-* Mon June 1 2015 Chris Kyrouac <ckyrouac@redhat.com>
+* Mon Jun 1 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Proxy to r/insights
 - Add Systems-Insights-Setup tab
 - Bug fixes
