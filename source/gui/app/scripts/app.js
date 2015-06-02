@@ -72,12 +72,7 @@ TELEMETRY_URLS) {
   };
 
   //Check which page we're on then make appropriate changes to dom
-  if (Util.isOnPage(SAT5_ROOT_URLS.SYSTEMS) || 
-      Util.isOnPage(SAT5_ROOT_URLS.SSM) || 
-      Util.isOnPage(SAT5_ROOT_URLS.ACTIVATIONKEYS) ||
-      Util.isOnPage(SAT5_ROOT_URLS.PROFILES) ||
-      Util.isOnPage(SAT5_ROOT_URLS.KICKSTART) ||
-      Util.isOnPage(SAT5_ROOT_URLS.KEYS)) {
+  if (Util.isOnSystemTabPage()) {
     //Add Insights to side nav
     appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'app.overview', true);
   }

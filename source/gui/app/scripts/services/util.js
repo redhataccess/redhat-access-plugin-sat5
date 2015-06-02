@@ -16,7 +16,8 @@ angular.module('sat5TelemetryApp')
         this.isOnSystemDetailsPage() || 
         this.isOnSystemOverviewPage() ||
         this.isOnAdminPage() ||
-        this.isOnInsightsOverviewPage()) {
+        this.isOnInsightsOverviewPage() ||
+        this.isOnSystemTabPage()) {
       response = true;
     }
     return response;
@@ -32,6 +33,19 @@ angular.module('sat5TelemetryApp')
 
   this.isOnAdminPage = function() {
     return this.isOnPage(SAT5_ROOT_URLS.ADMIN);
+  };
+
+  this.isOnSystemTabPage = function() {
+    var response = false;
+    if (this.isOnPage(SAT5_ROOT_URLS.SYSTEMS) || 
+        this.isOnPage(SAT5_ROOT_URLS.SSM) || 
+        this.isOnPage(SAT5_ROOT_URLS.ACTIVATIONKEYS) ||
+        this.isOnPage(SAT5_ROOT_URLS.PROFILES) ||
+        this.isOnPage(SAT5_ROOT_URLS.KICKSTART) ||
+        this.isOnPage(SAT5_ROOT_URLS.KEYS)) {
+      response = true;
+    } 
+    return response;
   };
 
   this.isOnSystemDetailsPage = function() {
