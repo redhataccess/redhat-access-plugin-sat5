@@ -107,7 +107,7 @@ public class ProxyService {
     try {
       return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null);
     } catch (Exception e) {
-      LOG.error(e.toString());
+      LOG.error("Exception in ProxyService GET /", e);
       throw new WebApplicationException(new Throwable("Internal server error occurred. View server logs for details."), Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -126,7 +126,7 @@ public class ProxyService {
     try {
       return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
     } catch (Exception e) {
-      LOG.error(e.toString());
+      LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
       throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -143,7 +143,7 @@ public class ProxyService {
     try {
       return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null);
     } catch (Exception e) {
-      LOG.error(e.toString());
+      LOG.error("Exception in ProxyService GET /* (Accept: Text/plain)", e);
       throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -161,7 +161,7 @@ public class ProxyService {
     try {
       return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body);
     } catch (Exception e) {
-      LOG.error(e.toString());
+      LOG.error("Exception in ProxyService POST /*", e);
       throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -178,7 +178,7 @@ public class ProxyService {
     try {
       return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
     } catch (Exception e) {
-      LOG.error(e.toString());
+      LOG.error("Exception in ProxyService GET /* (Accept: application/json)", e);
       throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -195,6 +195,7 @@ public class ProxyService {
           throws JSONException, IOException, ConfigurationException, NoSuchAlgorithmException, KeyStoreException, CertificateException, KeyManagementException {
 
     //load config to check if service is enabled
+    LOG.debug("Loading properties file.");
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(Constants.PROPERTIES_URL);
     boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
@@ -206,10 +207,12 @@ public class ProxyService {
       this.portalUrl = configPortalUrl;
     }
     if (!enabled) {
+      LOG.warn("Service is disabled.");
       throw new WebApplicationException(new Throwable("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service."), Response.Status.FORBIDDEN);
     }
 
     //load custom keystore
+    LOG.debug("Loading rhai.keystore");
     SSLContext sslcontext = SSLContexts.custom()
             .loadTrustMaterial(new File("/etc/redhat-access/rhai.keystore"), "changeit".toCharArray(),
                     new TrustSelfSignedStrategy())
@@ -223,24 +226,30 @@ public class ProxyService {
             .setSSLSocketFactory(sslsf)
             .build();
 
-    //CloseableHttpClient client = HttpClientBuilder.create().build();
     String branchId = InetAddress.getLocalHost().getHostName();
     ArrayList<Integer> leafIds = new ArrayList<Integer>();
     String subsetHash = null;
 
-    //TODO: add a header to let the client decide when to follow subset path. Default no.
+    //If user is set, assume call originated from satellite, not uploader
     if (user != null) {
+      LOG.debug("Creating subset hash.");
       leafIds = SatApi.getUsersSystemIDs(user);
       subsetHash = createSubsetHash(leafIds, branchId);
+      LOG.debug("User: " + user);
+      LOG.debug("Subset Hash: " + subsetHash);
     }
     path = addQueryToPath(path, uriInfo.getRequestUri().toString());
+    LOG.debug("Path with query: " + path);
 
+    LOG.debug("Determining request type from path.");
     HashMap<String, String> pathType = parsePathType(path);
     String pathTypeInt = pathType.get("type");
     LOG.debug("Pathtype: " + pathTypeInt);
 
     if (pathTypeInt.equals(Constants.SYSTEM_REPORTS_PATH) && pathType.get("id") != null) {
+      LOG.debug("Request is for an individual system's reports. GET machine ID from portal.");
       String leafId = pathType.get("id");
+      LOG.debug("leafId: " + leafId);
       PortalResponse getIdResponse = proxyRequest(
         client,
         user,
@@ -253,18 +262,23 @@ public class ProxyService {
       JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
       String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
+      LOG.debug("MachineID Path: " + path);
     } else if (user != null && !pathTypeInt.equals(Constants.SYSTEMS_STATUS_PATH)) {
       path = addSubsetToPath(path, subsetHash);
+      LOG.debug("Path with subset: " + path);
     }
 
     if (!pathTypeInt.equals(Constants.UPLOADS_PATH)) {
+      LOG.debug("Adding branchID query param to URL.");
       String prepend = "?";
       if (path.contains("?")) {
         prepend = "&";
       }
       path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
+      LOG.debug("Path with branchId query param: " + path);
     }
 
+    LOG.debug("Forwarding request to portal.");
     PortalResponse portalResponse = 
       proxyRequest(
           client, 
@@ -277,6 +291,7 @@ public class ProxyService {
           body);
     if (portalResponse.getStatusCode() == HttpServletResponse.SC_PRECONDITION_FAILED &&
         ! pathTypeInt.equals(Constants.UPLOADS_PATH)) {
+      LOG.debug("Got a 412. Assuming this means the subset doesn't exist. Create the subset.");
       portalResponse =
         proxyRequest(
             client, 
@@ -289,6 +304,7 @@ public class ProxyService {
             body);
       if (portalResponse.getStatusCode() ==
           HttpServletResponse.SC_CREATED) {
+        LOG.debug("Subset created successfully. Forward the original request a second time.");
         portalResponse =
           proxyRequest(
               client, 
@@ -441,7 +457,7 @@ public class ProxyService {
   }
 
   /**
-   * Manipulate the original request path by inserting subset/<id> after api/v1
+   * Manipulate the original request path by inserting subset/<id>
    */
   private String addSubsetToPath(String path, String hash) {
     String index = "-1";
