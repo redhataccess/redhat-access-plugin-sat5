@@ -76,7 +76,8 @@ angular.module('sat5TelemetryApp')
 })
 .constant('ADMIN_TABS', {
   'GENERAL': 'general',
-  'SYSTEMS': 'systems'
+  'SYSTEMS': 'systems',
+  'RULES': 'rules'
 })
 .constant('ALERT_TYPES', {
   'DANGER': 'danger',

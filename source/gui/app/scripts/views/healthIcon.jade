@@ -1,4 +1,24 @@
-i.fa.fa-check-circle.fa-1-5x.text-success(ng-show='system_status === "good"')
-i.fa.fa-spinner.fa-spin.fa-1-5x(ng-show='system_status === "loading"')
-i.fa.fa-question-circle.fa-1-5x(ng-show='system_status === "unknown"')
-i.fa.fa-exclamation-circle.fa-1-5x.text-danger(ng-show='system_status === "bad"')
+i.fa.fa-check-circle.fa-1-5x.text-success(
+  tooltip='{{getTooltip()}}', 
+  tooltip-trigger='mouseenter', 
+  tooltip-append-to-body='true', 
+  tooltip-placement='top',
+  ng-if='system_status === "good"')
+i.fa.fa-spinner.fa-spin.fa-1-5x(
+  ng-if='system_status === "loading"',
+  tooltip='{{getTooltip()}}', 
+  tooltip-trigger='mouseenter', 
+  tooltip-append-to-body='true', 
+  tooltip-placement='top')
+i.fa.fa-question-circle.fa-1-5x(
+  ng-if='system_status === "unknown"',
+  tooltip='{{getTooltip()}}', 
+  tooltip-trigger='mouseenter', 
+  tooltip-append-to-body='true', 
+  tooltip-placement='top')
+a(ng-if='system_status === "bad"', ng-href='{{getSystemUrl()}}')
+  i.fa.fa-exclamation-circle.fa-1-5x.text-danger(
+    tooltip='{{getTooltip()}}', 
+    tooltip-trigger='mouseenter', 
+    tooltip-append-to-body='true', 
+    tooltip-placement='top')

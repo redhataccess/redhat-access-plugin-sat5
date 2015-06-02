@@ -45,6 +45,10 @@ ADMIN_TABS) {
     return _tab === ADMIN_TABS.SYSTEMS;
   };
 
+  var rulesTabSelected = function() {
+    return _tab === ADMIN_TABS.RULES;
+  };
+
   var getEnabled = function() {
     return _enabled;
   };

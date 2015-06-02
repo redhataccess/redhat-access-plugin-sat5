@@ -1,4 +1,4 @@
-%define version 0.3.8
+%define version 0.3.9
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -67,6 +67,9 @@ cp resources/rhai.keystore $RPM_BUILD_ROOT/etc/redhat-access/rhai.keystore
 
 
 %changelog
+* Mon Jun 2 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Add more logging statements to proxy
+
 * Mon Jun 1 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Proxy to r/insights
 - Add Systems-Insights-Setup tab

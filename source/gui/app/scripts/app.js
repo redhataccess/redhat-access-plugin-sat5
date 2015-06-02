@@ -92,7 +92,7 @@ TELEMETRY_URLS) {
         var systemUrl = $('.table > tbody > tr:eq(' + i + ') > td:eq(1) > a')[0].href;
         var sid = Util.getSidFromUrl(systemUrl);
 
-        $('<th class="rha-insights-system-health-col ng-hide"><health-icon sid="' + sid + '"/></th>').insertAfter(
+        $('<td class="rha-insights-system-health-col ng-hide"><health-icon sid="' + sid + '"/></td>').insertAfter(
           $('.table > tbody > tr:eq(' + i + ') > td:eq(' + HEALTH_TABLE_POS + ')'));
       }
     }
