@@ -1,5 +1,6 @@
 div.spacewalk-toolbar-h1
   h1(ng-if='!SystemOverviewService.hideSystemOverview') Red Hat Access Insights Overview
   h1(ng-if='!SystemOverviewService.hideSystemSetup') Red Hat Access Insights Setup
-div.wrapper.ng-cloak.main-content.insights-main-content(ui-view="", ng-hide='SystemOverviewService.hideSystemOverview')
+  h1(ng-if='!SystemOverviewService.hideSystemRules') Red Hat Access Insights Rules
+div.wrapper.ng-cloak.main-content.insights-main-content(ui-view="", ng-hide='SystemOverviewService.hideSystemOverview && SystemOverviewService.hideSystemRules')
 div(ng-hide='SystemOverviewService.hideSystemSetup', rha-insights-sat5-system-table="")

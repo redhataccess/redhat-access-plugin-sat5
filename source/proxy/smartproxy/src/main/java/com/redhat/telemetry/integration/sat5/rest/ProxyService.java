@@ -22,6 +22,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -168,6 +169,7 @@ public class ProxyService {
 
   @GET
   @POST
+  @DELETE
   @Path("/{path: .*}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response proxyGet(
@@ -263,7 +265,9 @@ public class ProxyService {
       String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
       LOG.debug("MachineID Path: " + path);
-    } else if (user != null && !pathTypeInt.equals(Constants.SYSTEMS_STATUS_PATH)) {
+    } else if (user != null && 
+        !pathTypeInt.equals(Constants.SYSTEMS_STATUS_PATH) && 
+        !pathTypeInt.equals(Constants.RULES_PATH)) {
       path = addSubsetToPath(path, subsetHash);
       LOG.debug("Path with subset: " + path);
     }
@@ -355,10 +359,15 @@ public class ProxyService {
     request.addHeader(getBasicAuthHeader());
     request.addHeader(HttpHeaders.ACCEPT, responseType);
     HttpResponse response = client.execute(request);
+    HttpEntity responseEntity = response.getEntity();
+    String stringEntity = "";
+    if (responseEntity != null) {
+      stringEntity = EntityUtils.toString(response.getEntity(), "UTF-8");
+    }
     PortalResponse portalResponse = 
       new PortalResponse(
           response.getStatusLine().getStatusCode(), 
-          EntityUtils.toString(response.getEntity(), "UTF-8"), 
+          stringEntity,
           response.getAllHeaders());
     request.releaseConnection();
     return portalResponse;

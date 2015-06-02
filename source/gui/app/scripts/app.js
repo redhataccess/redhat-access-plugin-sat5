@@ -10,7 +10,8 @@
  */
 angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate'])
 .config(function($urlRouterProvider, $locationProvider) {
-  //$urlRouterProvider.otherwise('/');
+  $urlRouterProvider.otherwise(function() {
+  });
   $locationProvider.html5Mode(false);
 })
 .run(function(
@@ -60,9 +61,7 @@ TELEMETRY_URLS) {
       $('#sidenav > ul > li').removeClass('active');
       $('#sidenav > ul > li:last').addClass('active');
 
-      if (isState) {
-        $state.go(content);
-      } else {
+      if (!isState) {
         $('#spacewalk-content').append(content);
       }
     }
@@ -138,6 +137,9 @@ TELEMETRY_URLS) {
           '</li>' +
           '<li id="rha-insights-sat5-systems-setup-tab">' + 
             '<a ng-click="SystemOverviewService.switchToSetupTab()">Setup</a>' + 
+          '</li>' + 
+          '<li id="rha-insights-sat5-systems-rules-tab">' + 
+            '<a ng-click="SystemOverviewService.switchToRulesTab()">Rules</a>' + 
           '</li>' + 
         '</ul>' + 
       '</li>');

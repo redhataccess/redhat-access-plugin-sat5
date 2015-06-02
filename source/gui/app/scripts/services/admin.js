@@ -317,6 +317,7 @@ ADMIN_TABS) {
     getSystemDetails: getSystemDetails,
     updateStatuses: updateStatuses,
     getPasswordSet: getPasswordSet,
-    setPasswordSet: setPasswordSet
+    setPasswordSet: setPasswordSet,
+    rulesTabSelected: rulesTabSelected
   };
 });

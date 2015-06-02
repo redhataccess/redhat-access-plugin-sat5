@@ -11,7 +11,7 @@ angular.module('sat5TelemetryApp')
     return {
       controller: 'SystemTab',
       templateUrl: 'scripts/views/systemTab.html',
-      restrict: 'E',
+      restrict: 'EA',
       link: function postLink(scope, element, attrs) {
       }
     };
