@@ -1,4 +1,4 @@
-%define version 0.3.11
+%define version 0.3.12
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -67,6 +67,9 @@ cp resources/rhai.keystore $RPM_BUILD_ROOT/etc/redhat-access/rhai.keystore
 
 
 %changelog
+* Mon Jun 2 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Add product info to branch_info endpoint
+
 * Mon Jun 2 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Add rules management to GUI
 

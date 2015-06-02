@@ -66,6 +66,7 @@ import org.json.JSONObject;
 
 import com.jcabi.aspects.Loggable;
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
+import com.redhat.telemetry.integration.sat5.json.Product;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.util.Constants;
@@ -94,7 +95,7 @@ public class ProxyService {
       BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
       hostname = reader.readLine();
     }
-    BranchInfo branchInfo = new BranchInfo(hostname, -1);
+    BranchInfo branchInfo = new BranchInfo(hostname, -1, new Product("SAT", "5", "7"), hostname);
     return branchInfo;
   }
 
