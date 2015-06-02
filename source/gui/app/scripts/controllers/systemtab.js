@@ -9,4 +9,5 @@
  */
 angular.module('sat5TelemetryApp')
 .controller('SystemTab', function ($scope, Admin) {
+  $scope.getEnabled = Admin.getEnabled;
 });

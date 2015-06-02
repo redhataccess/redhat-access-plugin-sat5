@@ -21,7 +21,9 @@ angular.module('sat5TelemetryApp')
     };
 
     $scope.selectRulesTab = function() {
-      $state.go('app.rules');
+      if (Admin.getEnabled()) {
+        $state.go('app.rules', {}, {'reload': true});
+      }
       Admin.setTab(ADMIN_TABS.RULES);
     };
   });

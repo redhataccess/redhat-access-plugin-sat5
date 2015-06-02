@@ -35,9 +35,13 @@ import com.redhat.telemetry.integration.sat5.satellite.Server6System;
 import com.redhat.telemetry.integration.sat5.satellite.Server7System;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/config")
 public class ConfigService {
   @Context ServletContext context;
+  private Logger LOG = LoggerFactory.getLogger(ProxyService.class);
 
   /**
    * Retrieve general config values
@@ -62,6 +66,7 @@ public class ConfigService {
       Config config = new Config(enabled, username, password);
       return config;
     } else {
+      LOG.error("Attempted to GET /config/general as non admin user");
       throw new Exception("Must be satellite admin.");
     }   
   }
@@ -97,7 +102,13 @@ public class ConfigService {
     properties.setFile(new File(Constants.PROPERTIES_URL));
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
     properties.setProperty(Constants.USERNAME_PROPERTY, config.getUsername());
-    properties.setProperty(Constants.PASSWORD_PROPERTY, encryptPassword(config.getPassword()));
+    if (config.getPassword() != null && config.getPassword() != "") {
+      properties.setProperty(Constants.PASSWORD_PROPERTY, encryptPassword(config.getPassword()));
+    } else {
+      properties.setProperty(
+          Constants.PASSWORD_PROPERTY, 
+          propertiesReader.getString(Constants.PASSWORD_PROPERTY));
+    }
     if (portalUrl != null && portalUrl != "") {
       properties.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
     }

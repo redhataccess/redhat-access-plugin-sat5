@@ -53,10 +53,11 @@ EVENTS) {
     if (Admin.getPasswordSet() === true) {
       password = null;
     }
-    Admin.postConfig($scope.enabled, $scope.username, password, $scope.configenabled)
+    Admin.postConfig($scope.enabled, $scope.username, password)
       .success(function(response) {
         $scope.loading = false;
         Admin.setPasswordSet(true);
+        Admin.setEnabled($scope.enabled);
         Alert.success(
           'Insights configuration was successfully updated.', true);
       })

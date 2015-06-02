@@ -33,6 +33,10 @@ TELEMETRY_URLS) {
   CONFIG.API_ROOT = '/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/';
   CONFIG.authenticate = false;
   CONFIG.preloadData = false;
+  CONFIG.overviewShowSystem = function(system) {
+    window.location = '/' + SAT5_ROOT_URLS.RHN + '/' + 
+      SYSTEM_DETAILS_PAGE_URLS.INSIGHTS + '?sid=' + system.remote_leaf;
+  };
 
   var appendToSideNav = function(url, isState, content, hide) {
     var classString = '';
@@ -75,7 +79,7 @@ TELEMETRY_URLS) {
       Util.isOnPage(SAT5_ROOT_URLS.KICKSTART) ||
       Util.isOnPage(SAT5_ROOT_URLS.KEYS)) {
     //Add Insights to side nav
-    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'app.overview', false);
+    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'app.overview', true);
   }
 
   if (Util.isOnSystemListPage()) {

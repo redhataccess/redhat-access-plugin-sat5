@@ -1,1 +1,2 @@
-div.wrapper.ng-cloak.main-content.insights-main-content(ui-view="")
+div.wrapper.ng-cloak.main-content.insights-main-content(ui-view="", ng-if="getEnabled()")
+div(ng-if="!getEnabled()") Insights is disabled.  
