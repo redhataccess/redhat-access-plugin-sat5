@@ -33,6 +33,7 @@ TELEMETRY_URLS) {
   CONFIG.API_ROOT = '/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/';
   CONFIG.authenticate = false;
   CONFIG.preloadData = false;
+  CONFIG.getSystemStatus = false;
   CONFIG.overviewShowSystem = function(system) {
     window.location = '/' + SAT5_ROOT_URLS.RHN + '/' + 
       SYSTEM_DETAILS_PAGE_URLS.INSIGHTS + '?sid=' + system.remote_leaf;
