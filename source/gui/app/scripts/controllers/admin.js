@@ -16,5 +16,4 @@ angular.module('sat5TelemetryApp')
   $scope.toggleServiceIsEnabled = function() {
     Admin.setServiceIsEnabled(!Admin.getServiceIsEnabled());
   };
-
 });

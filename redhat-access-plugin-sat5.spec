@@ -1,4 +1,4 @@
-%define version 0.3.15
+%define version 0.3.16
 
 Name:	redhat-access-plugin-sat5
 Version:	%{version}
@@ -67,6 +67,9 @@ cp resources/rhai.keystore $RPM_BUILD_ROOT/etc/redhat-access/rhai.keystore
 
 
 %changelog
+* Tue Jun 3 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Enable linking to specific insights tab
+
 * Mon Jun 2 2015 Chris Kyrouac <ckyrouac@redhat.com>
 - Fix Systems->Insights display logic
 - Add product info to branch_info endpoint

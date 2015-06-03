@@ -27,7 +27,15 @@ ADMIN_TABS) {
   var _filteredSystemLength = 0;
   var _filteredSystems = [];
   var _validSystems = [];
+  var _configLoaded = false;
 
+  var setConfigLoaded = function(configLoaded) {
+    _configLoaded = configLoaded;
+  };
+
+  var getConfigLoaded = function() {
+    return _configLoaded;
+  };
 
   var setTab = function(tab) {
     _tab = tab;
@@ -318,6 +326,8 @@ ADMIN_TABS) {
     updateStatuses: updateStatuses,
     getPasswordSet: getPasswordSet,
     setPasswordSet: setPasswordSet,
-    rulesTabSelected: rulesTabSelected
+    rulesTabSelected: rulesTabSelected,
+    getConfigLoaded: getConfigLoaded,
+    setConfigLoaded: setConfigLoaded
   };
 });

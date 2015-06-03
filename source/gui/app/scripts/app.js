@@ -9,10 +9,23 @@
  * Main module of the application.
  */
 angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate'])
-.config(function($urlRouterProvider, $locationProvider) {
+.config(function($urlRouterProvider, $locationProvider, $stateProvider) {
   $urlRouterProvider.otherwise(function() {
   });
   $locationProvider.html5Mode(false);
+
+  $stateProvider
+    .state('rhaInsightsSat5Setup', {
+      url: '/setup',
+      templateUrl: 'scripts/views/setupState.html'
+    });
+
+  $stateProvider
+    .state('rhaInsightsSat5General', {
+      url: '/general',
+      templateUrl: 'scripts/views/generalState.html'
+    });
+
 })
 .run(function(
 $rootScope,
@@ -151,6 +164,7 @@ TELEMETRY_URLS) {
       Admin.setEnabled(config.enabled);
       Admin.setUsername(config.username);
       Admin.setPasswordSet(Boolean(config.password)); //this is just a boolean
+      Admin.setConfigLoaded(true);
       $rootScope.$broadcast(EVENTS.GENERAL_CONFIG_LOADED);
       if (config.enabled) {
         $('#rha-insights-sidenav').removeClass('ng-hide');

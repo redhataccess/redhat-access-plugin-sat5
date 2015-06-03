@@ -72,12 +72,20 @@ EVENTS) {
     $scope.password = '';
   };
 
-  $scope.$on(EVENTS.GENERAL_CONFIG_LOADED, function() {
+  $scope.setValues = function() {
     if (Admin.getPasswordSet() === true) {
       $scope.password = 'password';
     }
     $scope.username = Admin.getUsername();
     $scope.enabled = Admin.getEnabled();
     $scope.loading = false;
-  });
+  };
+
+  if (Admin.getConfigLoaded()) {
+    $scope.setValues();
+  } else {
+    $scope.$on(EVENTS.GENERAL_CONFIG_LOADED, function() {
+      $scope.setValues();
+    });
+  }
 });
