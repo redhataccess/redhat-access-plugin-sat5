@@ -130,7 +130,15 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <finalName>redhat_access</finalName>
+        <sourceDirectory>source/proxy/smartproxy</sourceDirectory>
         <plugins>
+          <plugin>            
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <webXml>source/proxy/smartproxy/src/main/webapp/WEB-INF/web.xml</webXml>        
+            </configuration>
+          </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

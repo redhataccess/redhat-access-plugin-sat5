@@ -14,6 +14,7 @@ source/gui/app/scripts/views/*.html
 source/proxy/smartproxy/bin
 source/proxy/smartproxy/.classpath
 source/proxy/smartproxy/target
+target
 source/proxy/smartproxy/.metadata/
 source/proxy/smartproxy/RemoteSystemsTempFiles/
 source/proxy/smartproxy/eclimd.log
