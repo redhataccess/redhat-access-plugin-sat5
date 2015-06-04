@@ -54,21 +54,16 @@ public class ConfigService {
       @QueryParam("satellite_user") String satelliteUser) 
           throws ConfigurationException, MalformedURLException, Exception {
 
-    if (userIsAdmin(sessionKey, satelliteUser)) {
-      PropertiesConfiguration properties = new PropertiesConfiguration();
-      properties.load(Constants.PROPERTIES_URL);
-      String username = properties.getString(Constants.USERNAME_PROPERTY);
-      String password = properties.getString(Constants.PASSWORD_PROPERTY);
-      if (password != null && !password.equals("")) {
-        password = "true";
-      }
-      boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-      Config config = new Config(enabled, username, password);
-      return config;
-    } else {
-      LOG.error("Attempted to GET /config/general as non admin user");
-      throw new Exception("Must be satellite admin.");
-    }   
+    PropertiesConfiguration properties = new PropertiesConfiguration();
+    properties.load(Constants.PROPERTIES_URL);
+    String username = properties.getString(Constants.USERNAME_PROPERTY);
+    String password = properties.getString(Constants.PASSWORD_PROPERTY);
+    if (password != null && !password.equals("")) {
+      password = "true";
+    }
+    boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
+    Config config = new Config(enabled, username, password);
+    return config;
   }
 
   /**
