@@ -64,7 +64,7 @@ import org.jasypt.util.text.StrongTextEncryptor;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jcabi.aspects.Loggable;
+//import com.jcabi.aspects.Loggable;
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
 import com.redhat.telemetry.integration.sat5.json.Product;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
@@ -75,7 +75,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("/r/insights")
-@Loggable
+//@Loggable
 public class ProxyService {
   @Context ServletContext context;
   private String portalUrl = "https://access.redhat.com/r/insights/";
@@ -186,7 +186,7 @@ public class ProxyService {
     }
   }
 
-  @Loggable
+  //@Loggable
   private Response proxy(
       String path, 
       String user, 
