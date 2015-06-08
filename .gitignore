@@ -7,7 +7,6 @@ SRPMS
 source/gui/.tmp
 source/gui/.sass-cache
 source/gui/bower_components
-source/gui/dist
 source/gui/node_modules
 source/gui/scripts.js.map
 source/gui/app/scripts/views/*.html
