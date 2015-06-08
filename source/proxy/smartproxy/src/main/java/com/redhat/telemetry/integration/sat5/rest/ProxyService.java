@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 import javax.servlet.ServletContext;
@@ -42,6 +43,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -359,6 +361,7 @@ public class ProxyService {
 
     request.addHeader(getBasicAuthHeader());
     request.addHeader(HttpHeaders.ACCEPT, responseType);
+    request.addHeader(Constants.SYSTEMID_HEADER, getSatelliteSystemId());
     HttpResponse response = client.execute(request);
     HttpEntity responseEntity = response.getEntity();
     String stringEntity = "";
@@ -372,6 +375,13 @@ public class ProxyService {
           response.getAllHeaders());
     request.releaseConnection();
     return portalResponse;
+  }
+
+  private String getSatelliteSystemId() throws IOException {
+    String[] lines = 
+      StringUtils.split(FileUtils.readFileToString(new File("/etc/sysconfig/rhn/systemid"), "\n"));
+
+    return Arrays.toString(lines);
   }
 
   /**
