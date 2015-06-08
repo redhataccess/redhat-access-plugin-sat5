@@ -55,7 +55,7 @@ cp source/gui/dist/styles/insights.css %{buildroot}/var/www/html/css
 mkdir -p %{buildroot}/usr/share/tomcat6/webapps
 cp %{SOURCE$i} %{buildroot}/usr/share/tomcat6/webapps
 #end if
-#set $1 += 1
+#set $i += 1
 #end for
 #jsp files
 mkdir -p %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin
