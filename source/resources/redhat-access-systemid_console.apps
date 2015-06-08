@@ -1,0 +1,3 @@
+USER=root
+PROGRAM=/usr/sbin/redhat-access-systemid-wrapper
+SESSION=true

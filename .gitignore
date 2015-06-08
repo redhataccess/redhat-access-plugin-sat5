@@ -27,3 +27,4 @@ RemoteSystemsTempFiles
 .project
 .settings/
 eclimd.log
+.ropeproject

@@ -70,6 +70,14 @@ touch %{buildroot}/var/log/rhai/rhai.log
 mkdir -p %{buildroot}/etc/redhat-access/
 cp source/resources/redhat-access-insights.properties %{buildroot}/etc/redhat-access/redhat-access-insights.properties
 cp source/resources/rhai.keystore %{buildroot}/etc/redhat-access/rhai.keystore
+#console helper
+mkdir -p %{buildroot}/etc/pam.d
+cp source/resources/redhat-access-systemid.pam %{buildroot}/etc/pam.d/redhat-access-systemid
+mkdir -p %{buildroot}/usr/sbin
+cp source/resources/redhat-access-systemid_wrapper.sh %{buildroot}/usr/sbin/redhat-access-systemid-wrapper
+ln -s /usr/bin/consolehelper %{buildroot}/usr/sbin/redhat-access-systemid
+mkdir -p %{buildroot}/etc/security/console.apps
+cp source/resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/console.apps/redhat-access-systemid
 
 
 %files
@@ -85,6 +93,10 @@ cp source/resources/rhai.keystore %{buildroot}/etc/redhat-access/rhai.keystore
 /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin/insights.jsp
 %attr(0755,tomcat,root) /var/log/rhai/
 %attr(0644,tomcat,tomcat) /var/log/rhai/rhai.log
+/etc/pam.d/redhat-access-systemid
+/etc/security/console.apps/redhat-access-systemid
+%attr(0750,root,tomcat) /usr/sbin/redhat-access-systemid-wrapper
+%attr(0750,root,tomcat) /usr/bin/redhat-access-systemid
 
 
 %changelog
