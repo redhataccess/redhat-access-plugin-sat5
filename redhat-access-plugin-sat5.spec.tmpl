@@ -21,6 +21,7 @@ Red Hat Access Plugin for Satellite 5.7
 %prep
 #set $i = 0
 #for $artifact in $all_artifacts
+echo $artifact
 #if $artifact == 'redhat-access-plugin-sat5-%s-bin.zip' % $version
 %setup -q -T -b $i -n redhat-access-plugin-sat5-%version
 #end if
@@ -38,17 +39,17 @@ echo "INSTALL"
 
 
 %files
-%config %attr(0644,root,root) /etc/httpd/conf.d/rh-insights-sat5.conf
-%config(noreplace) %attr(0644,tomcat,tomcat) /etc/redhat-access/redhat-access-insights.properties
-%config %attr(0644,root,root) /etc/redhat-access/rhai.keystore
-%config %attr(0644,root,root) /var/www/html/javascript/insights.js
-%config %attr(0644,root,root) /var/www/html/css/insights.css
-%config %attr(0644,root,root) /usr/share/tomcat6/webapps/redhat_access.war
-%config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/insights.jsp
-%config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc/insights.jsp
-%config %attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin/insights.jsp
-%config %attr(0755,tomcat,root) /var/log/rhai/
-%config %attr(0644,tomcat,tomcat) /var/log/rhai/rhai.log
+#%config %attr(0644,root,root) /etc/httpd/conf.d/rh-insights-sat5.conf
+#%config(noreplace) %attr(0644,tomcat,tomcat) /etc/redhat-access/redhat-access-insights.properties
+#%attr(0644,root,root) /etc/redhat-access/rhai.keystore
+#%attr(0644,root,root) /var/www/html/javascript/insights.js
+#%attr(0644,root,root) /var/www/html/css/insights.css
+#%attr(0644,root,root) /usr/share/tomcat6/webapps/redhat_access.war
+#%attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/insights.jsp
+#%attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc/insights.jsp
+#%attr(0644,root,root) /usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin/insights.jsp
+#%attr(0755,tomcat,root) /var/log/rhai/
+#%attr(0644,tomcat,tomcat) /var/log/rhai/rhai.log
 
 
 %changelog
