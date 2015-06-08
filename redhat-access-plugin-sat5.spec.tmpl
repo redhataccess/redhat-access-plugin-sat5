@@ -22,9 +22,9 @@ Red Hat Access Plugin for Satellite 5.7
 #set $i = 0
 #for $artifact in $all_artifacts
 echo $artifact
-#if $artifact == 'apache-maven-%s-bin.zip' % $version
+#if $artifact == 'redhat-access-plugin-sat5-%s-scm-sources.zip' % $version
 echo "MATCH FOUND"
-%setup -q -T -b $i -n apache-maven-3.3.3
+%setup -q -T -b $i -n redhat-access-plugin-sat5-$version
 #end if
 #set $i += 1
 #end for

@@ -22,3 +22,9 @@ source/proxy/.metadata/
 source/proxy/RemoteSystemsTempFiles/
 source/proxy/eclimd.log
 Session.vim
+.classpath
+RemoteSystemsTempFiles
+.metadata/
+.project
+.settings/
+eclimd.log
