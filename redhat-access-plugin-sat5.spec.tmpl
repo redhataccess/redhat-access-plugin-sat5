@@ -19,14 +19,16 @@ Red Hat Access Plugin for Satellite 5.7
 
 
 %prep
+#import zipfile
 #set $i = 0
 #for $artifact in $all_artifacts
-echo $artifact
-#if $artifact == 'sat5-proxy-%s-scm-sources.zip' % $version
-echo "MATCH FOUND"
-%setup -q -T -b $i -n sat5-proxy-$version
-#end if
-#set $i += 1
+   #if $artifact.endswith('-sources.zip')
+     #set $sourcezip = zipfile.ZipFile($artifact)
+     #set $entry = $sourcezip.namelist()[0]
+     #set $source_rootdir = $entry.split('/')[0]
+%setup -q -T -b $i -n $source_rootdir
+   #end if
+   #set $i += 1
 #end for
 
 
