@@ -151,9 +151,6 @@ TELEMETRY_URLS) {
           '<li id="rha-insights-sat5-systems-setup-tab">' + 
             '<a ng-click="SystemOverviewService.switchToSetupTab()">Setup</a>' + 
           '</li>' + 
-          '<li id="rha-insights-sat5-systems-rules-tab">' + 
-            '<a ng-click="SystemOverviewService.switchToRulesTab()">Rules</a>' + 
-          '</li>' + 
         '</ul>' + 
       '</li>');
   }

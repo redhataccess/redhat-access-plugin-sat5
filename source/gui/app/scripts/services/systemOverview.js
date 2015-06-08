@@ -19,12 +19,4 @@ angular.module('sat5TelemetryApp')
     $('#rha-insights-sat5-systems-overview-tab').addClass('active');
     $('#rha-insights-sat5-systems-rules-tab').removeClass('active');
   };
-
-  this.switchToRulesTab = function() {
-    $state.go('app.rules');
-    this.tab = 'rules';
-    $('#rha-insights-sat5-systems-setup-tab').removeClass('active');
-    $('#rha-insights-sat5-systems-overview-tab').removeClass('active');
-    $('#rha-insights-sat5-systems-rules-tab').addClass('active');
-  };
 });

@@ -7,8 +7,6 @@ angular.module('sat5TelemetryApp')
   if (urlPieces[1] === 'overview') {
     var category = urlPieces[2];
     SystemOverviewService.switchToOverviewTab({'category': category});
-  } else if (urlPieces[1] === 'rules') {
-    SystemOverviewService.switchToRulesTab();
   } else if (urlPieces[1] === 'setup') {
     SystemOverviewService.switchToSetupTab();
   } else {
