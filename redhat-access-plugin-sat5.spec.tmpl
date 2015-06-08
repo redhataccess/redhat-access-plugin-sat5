@@ -26,10 +26,10 @@ Red Hat Access Plugin for Satellite 5.7
      #set $sourcezip = zipfile.ZipFile($artifact)
      #set $entry = $sourcezip.namelist()[0]
      #set $source_rootdir = $entry.split('/')[0]
+%setup -q -T -b $i -n $source_rootdir
+   #end if
    #if $artifact.endswith('.war')
      #set $war_name = $artifact
-   #end if
-%setup -q -T -b $i -n $source_rootdir
    #end if
    #set $i += 1
 #end for
