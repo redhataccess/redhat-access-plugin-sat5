@@ -379,7 +379,7 @@ public class ProxyService {
 
   private String getSatelliteSystemId() throws IOException {
     String[] lines = 
-      StringUtils.split(FileUtils.readFileToString(new File("/etc/sysconfig/rhn/systemid"), "\n"));
+      StringUtils.split(FileUtils.readFileToString(new File("/etc/sysconfig/rhn/systemid"), "UTF-8"));
 
     return Arrays.toString(lines);
   }
