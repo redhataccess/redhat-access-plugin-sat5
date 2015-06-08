@@ -22,9 +22,9 @@ Red Hat Access Plugin for Satellite 5.7
 #set $i = 0
 #for $artifact in $all_artifacts
 echo $artifact
-#if $artifact == 'redhat-access-plugin-sat5-%s-scm-sources.zip' % $version
+#if $artifact == 'sat5-proxy-%s-scm-sources.zip' % $version
 echo "MATCH FOUND"
-%setup -q -T -b $i -n redhat-access-plugin-sat5-$version
+%setup -q -T -b $i -n sat5-proxy-$version
 #end if
 #set $i += 1
 #end for
