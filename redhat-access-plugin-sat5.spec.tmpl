@@ -53,7 +53,7 @@ cp source/gui/dist/styles/insights.css %{buildroot}/var/www/html/css
 #for $artifact in $all_artifacts
 #if $artifact.endswith('.war')
 mkdir -p %{buildroot}/usr/share/tomcat6/webapps
-cp %{SOURCE$i} %{buildroot}/usr/share/tomcat6/webapps
+cp %{SOURCE$i} %{buildroot}/usr/share/tomcat6/webapps/redhat_access.war
 #end if
 #set $i += 1
 #end for
