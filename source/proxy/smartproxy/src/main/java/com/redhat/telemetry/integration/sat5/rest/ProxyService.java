@@ -3,8 +3,12 @@ package com.redhat.telemetry.integration.sat5.rest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.BufferedInputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
@@ -39,11 +43,16 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteStreamHandler;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -378,10 +387,19 @@ public class ProxyService {
   }
 
   private String getSatelliteSystemId() throws IOException {
-    String[] lines = 
-      StringUtils.split(FileUtils.readFileToString(new File("/etc/sysconfig/rhn/systemid"), "UTF-8"));
+    CommandLine cmdLine = CommandLine.parse("/usr/sbin/redhat-access-systemid");
+    DefaultExecutor executor = new DefaultExecutor();
+    ExecuteStreamHandler streamHandler = executor.getStreamHandler();
+    InputStream stream = new ByteArrayInputStream("".getBytes("UTF-8"));
+    streamHandler.setProcessOutputStream(stream);
+    streamHandler.start();
+    
+    int exitValue = executor.execute(cmdLine);
+    streamHandler.stop();
 
-    return Arrays.toString(lines);
+    StringWriter writer = new StringWriter();
+    IOUtils.copy(stream, writer, "UTF-8");
+    return writer.toString();
   }
 
   /**
