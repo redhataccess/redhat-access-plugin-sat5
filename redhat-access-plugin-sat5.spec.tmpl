@@ -1,0 +1,38 @@
+%define version 0.3.17
+
+Name: redhat-access-plugin-sat5
+Version:  %{version}
+Release: $release%{?dist}
+Summary:  Red Hat Access Plugin for Satellite 5.7
+Group:  Applications/System 
+License:  MIT
+#set $i = 0
+#for $artifact in $all_artifacts
+Source$i: $artifact
+#set $i += 1
+#end for
+BuildArch: noarch
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+%description
+Red Hat Access Plugin for Satellite 5.7
+
+
+%prep
+
+
+%build
+echo OK
+
+
+%install
+echo "INSTALL"
+
+
+%files
+
+
+%changelog
+
+* Mon Jun 8 2015 Chris Kyrouac <ckyrouac@redhat.com>
+- Version 1
