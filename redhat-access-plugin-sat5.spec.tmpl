@@ -49,6 +49,7 @@ cp source/gui/dist/scripts/insights.js %{buildroot}/var/www/html/javascript
 mkdir -p %{buildroot}/var/www/html/css
 cp source/gui/dist/styles/insights.css %{buildroot}/var/www/html/css
 #war
+#set $i = 0
 #for $artifact in $all_artifacts
 #if $artifact.endswith('.war')
 mkdir -p %{buildroot}/usr/share/tomcat6/webapps
