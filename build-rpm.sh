@@ -1,7 +1,7 @@
 #!/bin/bash
 PROJECT_ROOT=`pwd`
 PROJECT_NAME=redhat-access-plugin-sat5
-SPEC_FILE_NAME=redhat-access-plugin-sat5.spec
+SPEC_FILE_NAME=redhat-access-plugin-sat5.orig.spec
 
 #pull out the version form the specfile
 VERSION=`./get_rpm_version.sh`
@@ -29,7 +29,7 @@ grunt build
 echo "Done."
 
 echo "Building proxy server..."
-cd $PROJECT_ROOT/source/proxy/smartproxy
+cd $PROJECT_ROOT
 mvn install
 echo "Done."
 
