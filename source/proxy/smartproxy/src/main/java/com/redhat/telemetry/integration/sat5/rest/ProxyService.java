@@ -388,6 +388,8 @@ public class ProxyService {
     PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
     executor.setStreamHandler(streamHandler);
     executor.execute(cmdLine);
+    String systemIdXml = outputStream.toString();
+    systemIdXml = systemIdXml.replace(System.getProperty("line.separator"), "");
     return(outputStream.toString());
   }
 
