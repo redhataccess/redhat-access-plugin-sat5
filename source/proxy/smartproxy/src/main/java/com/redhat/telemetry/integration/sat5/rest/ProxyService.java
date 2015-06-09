@@ -390,7 +390,7 @@ public class ProxyService {
     executor.execute(cmdLine);
     String systemIdXml = outputStream.toString();
     systemIdXml = systemIdXml.replace(System.getProperty("line.separator"), "");
-    return(outputStream.toString());
+    return(systemIdXml);
   }
 
   /**
