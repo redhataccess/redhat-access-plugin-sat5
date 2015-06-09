@@ -1,14 +1,11 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.BufferedInputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
@@ -20,7 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 import javax.servlet.ServletContext;
@@ -45,14 +41,11 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteStreamHandler;
-
+import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -74,6 +67,8 @@ import org.apache.http.util.EntityUtils;
 import org.jasypt.util.text.StrongTextEncryptor;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+
 
 //import com.jcabi.aspects.Loggable;
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
@@ -388,18 +383,12 @@ public class ProxyService {
 
   private String getSatelliteSystemId() throws IOException {
     CommandLine cmdLine = CommandLine.parse("/usr/sbin/redhat-access-systemid");
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     DefaultExecutor executor = new DefaultExecutor();
-    ExecuteStreamHandler streamHandler = executor.getStreamHandler();
-    InputStream stream = new ByteArrayInputStream("".getBytes("UTF-8"));
-    streamHandler.setProcessOutputStream(stream);
-    streamHandler.start();
-    
-    int exitValue = executor.execute(cmdLine);
-    streamHandler.stop();
-
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(stream, writer, "UTF-8");
-    return writer.toString();
+    PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+    executor.setStreamHandler(streamHandler);
+    executor.execute(cmdLine);
+    return(outputStream.toString());
   }
 
   /**
