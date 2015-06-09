@@ -143,6 +143,7 @@
             <version>2.6</version>
             <configuration>
               <webXml>source/proxy/smartproxy/src/main/webapp/WEB-INF/web.xml</webXml>        
+              <warSourceDirectory>source/proxy/smartproxy/src/main/webapp</warSourceDirectory>
             </configuration>
           </plugin>
             <plugin>
