@@ -1,4 +1,4 @@
-%define version 1.0.1
+%define version 1.0.2
 
 Name: redhat-access-plugin-sat5
 Version:  %{version}
@@ -78,6 +78,9 @@ cp source/resources/redhat-access-systemid_wrapper.sh %{buildroot}/usr/sbin/redh
 ln -s /usr/bin/consolehelper %{buildroot}/usr/sbin/redhat-access-systemid
 mkdir -p %{buildroot}/etc/security/console.apps
 cp source/resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/console.apps/redhat-access-systemid
+#dan's people page gpg key
+mkdir -p %{buildroot}/var/www/html/pub
+cp source/resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
 
 
 %files
@@ -97,9 +100,13 @@ cp source/resources/redhat-access-systemid_console.apps %{buildroot}/etc/securit
 /etc/security/console.apps/redhat-access-systemid
 %attr(0750,root,tomcat) /usr/sbin/redhat-access-systemid-wrapper
 %attr(0750,root,tomcat) /usr/sbin/redhat-access-systemid
+/var/www/html/pub/rhinsights.gpg
 
 
 %changelog
+* Wed Jun 10 2015 Chris Kyrouac <ckyrouac@redhat.com> - 1.0.2-1
+- Add Dan's people page repo's gpg key
+
 * Mon Jun 8 2015 Chris Kyrouac <ckyrouac@redhat.com> - 1.0.1-1
 - Version 1.0-3
 
