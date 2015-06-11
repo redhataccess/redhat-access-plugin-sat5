@@ -1,5 +1,6 @@
 package com.redhat.telemetry.integration.sat5.satellite;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,6 +10,8 @@ import java.util.HashMap;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+
+import com.redhat.telemetry.integration.sat5.util.Util;
 
 public class SatApi {
 
@@ -307,9 +310,10 @@ public class SatApi {
       String name, 
       String summary, 
       String archLabel,
-      String parent) {
+      String parent) throws IOException, InterruptedException {
     HashMap<String, String> gpgKey = new HashMap<String, String>();
-    gpgKey.put("url", "http://127.0.0.1/pub/rhinsights.gpg");
+    String hostname = Util.getSatelliteHostname();
+    gpgKey.put("url", "http://" + hostname + "/pub/rhinsights.gpg");
     gpgKey.put("id", "A3753C6C");
     gpgKey.put("fingerprint", "C08B 170E 016E CDEB 10A5  AFCB 7649 4742 A375 3C6C");
 

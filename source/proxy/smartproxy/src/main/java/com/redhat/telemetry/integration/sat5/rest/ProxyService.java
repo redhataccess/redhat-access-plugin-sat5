@@ -1,10 +1,8 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -76,6 +74,7 @@ import com.redhat.telemetry.integration.sat5.json.Product;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.util.Constants;
+import com.redhat.telemetry.integration.sat5.util.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,16 +90,7 @@ public class ProxyService {
   @Path("/v1/branch_info")
   @Produces("application/json")
   public BranchInfo getBranchId() throws UnknownHostException, JSONException, IOException, InterruptedException {
-    String hostname = "";
-    try {
-      hostname = InetAddress.getLocalHost().getHostName();
-    } catch (Exception e) {
-      LOG.debug("Hostname lookup failed. Falling back to Runtime.getRuntime().exec('hostname')");
-      Process p = Runtime.getRuntime().exec("hostname");
-      p.waitFor();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      hostname = reader.readLine();
-    }
+    String hostname = Util.getSatelliteHostname();
     BranchInfo branchInfo = new BranchInfo(hostname, -1, new Product("SAT", "5", "7"), hostname);
     return branchInfo;
   }

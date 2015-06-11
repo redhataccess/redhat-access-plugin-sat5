@@ -1,5 +1,6 @@
 package com.redhat.telemetry.integration.sat5.satellite;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -55,7 +56,7 @@ public abstract class AbstractSystem {
     return repoExists(getRepoLabel());
   }
 
-  public boolean createChannel() {
+  public boolean createChannel() throws IOException, InterruptedException {
     boolean response = false;
 
     if (parentChannelExists() && !insightsChannelExists()) {

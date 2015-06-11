@@ -35,13 +35,10 @@ import com.redhat.telemetry.integration.sat5.satellite.Server6System;
 import com.redhat.telemetry.integration.sat5.satellite.Server7System;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("/config")
 public class ConfigService {
   @Context ServletContext context;
-  private Logger LOG = LoggerFactory.getLogger(ProxyService.class);
 
   /**
    * Retrieve general config values
