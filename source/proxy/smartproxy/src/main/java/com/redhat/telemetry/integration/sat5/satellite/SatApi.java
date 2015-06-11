@@ -309,7 +309,7 @@ public class SatApi {
       String archLabel,
       String parent) {
     HashMap<String, String> gpgKey = new HashMap<String, String>();
-    gpgKey.put("url", "http://sat57.usersys.redhat.com/pub/rhinsights.gpg");
+    gpgKey.put("url", "http://127.0.0.1/pub/rhinsights.gpg");
     gpgKey.put("id", "A3753C6C");
     gpgKey.put("fingerprint", "C08B 170E 016E CDEB 10A5  AFCB 7649 4742 A375 3C6C");
 
