@@ -5,4 +5,4 @@ div.spacewalk-toolbar-h1
     | Red Hat Access Insights Configuration
 p Configure the Red Hat Access Insights service below. Use the Setup tab to select which systems to enable. Use the Rules tab to hide and show rules.
 rha-insights-sat5-admin-nav
-div(ng-class='{"insights-main-content": rulesTabSelected}', ui-view='')
+div(ng-class='{"insights-main-content": rulesTabSelected()}', ui-view='')
