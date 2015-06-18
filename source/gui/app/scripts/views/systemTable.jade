@@ -90,7 +90,7 @@ form(ng-if='getSystems().length > 0')
                 type='submit', 
                 value='Select All', 
                 ng-disabled='loading', 
-                ng-click='selectAll()') Select All
+                ng-click='toggleAll()') Select All
     div.spacewalk-list-bottom-addons
       div(rha-insights-sat5-pagination)
     div.text-right

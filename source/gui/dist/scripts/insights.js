@@ -59562,7 +59562,11 @@ angular.module("ui.indeterminate", []).directive("uiIndeterminate", [ function()
  */
 angular.module("sat5TelemetryApp", [ "insights", "ui.indeterminate" ]).config([ "$urlRouterProvider", "$locationProvider", "$stateProvider", function($urlRouterProvider, $locationProvider, $stateProvider) {
     $urlRouterProvider.otherwise(function() {});
-    $locationProvider.html5Mode(false);
+    $locationProvider.html5Mode({
+        enabled: false,
+        requireBase: false,
+        rewriteLinks: false
+    });
     $stateProvider.state("rhaInsightsSat5Setup", {
         url: "/setup",
         templateUrl: "scripts/views/setupState.html"
@@ -60102,6 +60106,13 @@ angular.module("sat5TelemetryApp").factory("Admin", [ "$http", "EVENTS", "CONFIG
         });
         return promise;
     };
+    var updateSystem = function(system) {
+        var index = _.findIndex(_systems, {
+            id: system.id
+        });
+        _systems[index].enabled = system.enabled;
+        _systems[index].indeterminate = false;
+    };
     var updateSystemStatus = function(system) {
         var index = _.findIndex(_systemStatuses, {
             id: system.id
@@ -60143,7 +60154,8 @@ angular.module("sat5TelemetryApp").factory("Admin", [ "$http", "EVENTS", "CONFIG
         setPasswordSet: setPasswordSet,
         rulesTabSelected: rulesTabSelected,
         getConfigLoaded: getConfigLoaded,
-        setConfigLoaded: setConfigLoaded
+        setConfigLoaded: setConfigLoaded,
+        updateSystem: updateSystem
     };
 } ]);
 
@@ -60661,11 +60673,12 @@ angular.module("sat5TelemetryApp").controller("SystemTable", [ "_", "$scope", "A
     };
     $scope.toggleAll = function() {
         var allSelected = $scope.allSelected();
-        _.forEach(Admin.getSystems(), function(system) {
+        _.forEach(Admin.getFilteredSystems(), function(system) {
             system.enabled = !allSelected;
+            Admin.updateSystem(system);
+            Admin.updateSystemStatus(system);
         });
     };
-    $scope.selectAll = function() {};
     $scope.allSelected = function() {
         return !_.some(Admin.getSystems(), {
             enabled: false
@@ -60685,7 +60698,7 @@ angular.module("sat5TelemetryApp").controller("SystemTable", [ "_", "$scope", "A
     };
     $scope.systemPartiallySelected = function(system) {
         var response = false;
-        if ($scope.getInstallationStatus(Admin.getSystemStatus(system)) === FAILED_INSTALL_STATUS || $scope.getInstallationStatus(Admin.getSystemStatus(system)) === IN_PROGRESS_INSTALL_STATUS) {
+        if (system.indeterminate !== false && ($scope.getInstallationStatus(Admin.getSystemStatus(system)) === FAILED_INSTALL_STATUS || $scope.getInstallationStatus(Admin.getSystemStatus(system)) === IN_PROGRESS_INSTALL_STATUS)) {
             response = true;
         }
         return response;
@@ -61002,6 +61015,6 @@ angular.module("sat5TelemetryApp").run([ "$templateCache", function($templateCac
     $templateCache.put("scripts/views/setupState.html", '<div rha-insights-sat5-system-table=""></div>');
     $templateCache.put("scripts/views/systemDetails.html", '<error-info-summary machineid="" error-info=""></error-info-summary>');
     $templateCache.put("scripts/views/systemTab.html", '<div rha-insights-sat5-system-table="" ng-if=getEnabled()></div><div ng-if=!getEnabled()>Insights is disabled.</div>');
-    $templateCache.put("scripts/views/systemTable.html", '<div class=page-summary><p>Select the systems which will report data to Red Hat Access Insights. After clicking apply, newly selected systems will be associated with the Red Hat Insights channel and the RPM will be installed on the system. Deselected systems will be removed from the Red Hat Insights channel and the RPM will be uninstalled from the system.</p></div><div ng-if="getSystems().length &lt; 1"><strong>No systems are registered.</strong></div><form ng-if="getSystems().length &gt; 0"><div class="spacewalk-list list"><div class=spacewalk-list-top-addons><div class=spacewalk-list-alphabar><ul class="spacewalk-alphabar pagination pagination-sm"><li ng-repeat="a in alphas" ng-class="{active: a === alpha, disabled: disableAlphabarElement(a)}"><a ng-click=alphabarFilter(a) ng-disabled=disableAlphabarElement(a)>{{a}}</a></li></ul></div><div rha-insights-sat5-pagination=rha-insights-sat5-pagination></div></div><div class=spacewalk-list-top-extra></div><div class="panel panel-default"><div class=panel-heading><div class=spacewalk-list-head-addons><div class=spacewalk-list-filter><div class="input-group input-group-sm"><input ng-model=filter ng-change=doFilter() ng-disabled=loading placeholder="Filter by System Name" class="form-control"><span class=input-group-btn><button type=submit ng-disabled=loading class="btn btn-default spacewalk-button-filter"><i class="fa fa-eye"></i></button></span></div></div><div class=spacewalk-list-head-addons-extra><div class=list-sizeselector><select ng-options="size for size in pageSizes" ng-disabled=loading ng-change=setPageSize() ng-model=pageSize class=display-number>items per page</select></div></div></div></div><div class=table-responsive><table class="table table-striped"><thead><tr><th><input ui-indeterminate=allPartiallySelected() ng-checked=allSelected() type=checkbox ng-disabled=loading ng-click="toggleAll()"></th><th ng-class="{ascSort: orderBy === &quot;name&quot;, descSort: orderBy === &quot;-name&quot;}"><a ng-disabled=loading ng-click=toggleNameSort()>System</a></th><th ng-class="{ascSort: orderBy === &quot;status&quot;, descSort: orderBy === &quot;-status&quot;}"><a ng-disabled=loading ng-click=toggleStatusSort()>Status</a></th></tr></thead><div ng-show=loading><i class="fa fa-spinner fa-spin fa-1-5x"></i>Loading systems...</div><tbody ng-hide=loading><tr ng-repeat="system in filteredSystems = (getSystems() | systemsFilter:filter:orderBy:getPageStart():getPageSize():alpha)" ng-class="{&quot;list-row-odd&quot;: $index % 2 === 0, &quot;list-row-even&quot;: $index % 2 === 1}"><td width=20px><input ui-indeterminate=systemPartiallySelected(system) type=checkbox ng-model=system.enabled ng-change=updateSystemStatus(system) ng-if="!invalidType(getSystemStatus(system)) &amp;&amp; !loadingStatus(getSystemStatus(system))"></td><td class=sortedCol><a ng-href={{getSystemUrl(system)}}>{{system.name}}</a></td><td width=75px class=text-center><div tooltip={{installStatusTooltip(system)}} tooltip-trigger=mouseenter tooltip-append-to-body=true tooltip-placement=top><i ng-if=noInstallation(getSystemStatus(system)) class="fa fa-minus-circle fa-1-5x"></i><i ng-if=installationFail(getSystemStatus(system)) class="fa fa-exclamation-circle fa-1-5x fail"></i><i ng-if=installationSuccess(getSystemStatus(system)) class="fa fa-check-circle fa-1-5x success"></i><i ng-if=invalidType(getSystemStatus(system)) class="fa fa-ban fa-1-5x"></i><i ng-if=installationPending(getSystemStatus(system)) class="fa fa-clock-o fa-1-5x"></i></div></td></tr></tbody></table></div><div class=panel-footer><div class=spacewalk-list-footer-addons><div class=spacewalk-list-footer-addons-extra><span class=spacewalk-list-selection-btns><button type=submit value="Select All" ng-disabled=loading ng-click=selectAll() class="btn btn-default">Select All</button></span></div></div></div></div><div class=spacewalk-list-bottom-addons><div rha-insights-sat5-pagination=rha-insights-sat5-pagination></div></div><div class=text-right><hr><div class=row><div class=col-md-12><input type=submit value=Apply ng-disabled=loading ng-click=doApply() class="btn btn-default"></div></div></div></div></form>');
+    $templateCache.put("scripts/views/systemTable.html", '<div class=page-summary><p>Select the systems which will report data to Red Hat Access Insights. After clicking apply, newly selected systems will be associated with the Red Hat Insights channel and the RPM will be installed on the system. Deselected systems will be removed from the Red Hat Insights channel and the RPM will be uninstalled from the system.</p></div><div ng-if="getSystems().length &lt; 1"><strong>No systems are registered.</strong></div><form ng-if="getSystems().length &gt; 0"><div class="spacewalk-list list"><div class=spacewalk-list-top-addons><div class=spacewalk-list-alphabar><ul class="spacewalk-alphabar pagination pagination-sm"><li ng-repeat="a in alphas" ng-class="{active: a === alpha, disabled: disableAlphabarElement(a)}"><a ng-click=alphabarFilter(a) ng-disabled=disableAlphabarElement(a)>{{a}}</a></li></ul></div><div rha-insights-sat5-pagination=rha-insights-sat5-pagination></div></div><div class=spacewalk-list-top-extra></div><div class="panel panel-default"><div class=panel-heading><div class=spacewalk-list-head-addons><div class=spacewalk-list-filter><div class="input-group input-group-sm"><input ng-model=filter ng-change=doFilter() ng-disabled=loading placeholder="Filter by System Name" class="form-control"><span class=input-group-btn><button type=submit ng-disabled=loading class="btn btn-default spacewalk-button-filter"><i class="fa fa-eye"></i></button></span></div></div><div class=spacewalk-list-head-addons-extra><div class=list-sizeselector><select ng-options="size for size in pageSizes" ng-disabled=loading ng-change=setPageSize() ng-model=pageSize class=display-number>items per page</select></div></div></div></div><div class=table-responsive><table class="table table-striped"><thead><tr><th><input ui-indeterminate=allPartiallySelected() ng-checked=allSelected() type=checkbox ng-disabled=loading ng-click="toggleAll()"></th><th ng-class="{ascSort: orderBy === &quot;name&quot;, descSort: orderBy === &quot;-name&quot;}"><a ng-disabled=loading ng-click=toggleNameSort()>System</a></th><th ng-class="{ascSort: orderBy === &quot;status&quot;, descSort: orderBy === &quot;-status&quot;}"><a ng-disabled=loading ng-click=toggleStatusSort()>Status</a></th></tr></thead><div ng-show=loading><i class="fa fa-spinner fa-spin fa-1-5x"></i>Loading systems...</div><tbody ng-hide=loading><tr ng-repeat="system in filteredSystems = (getSystems() | systemsFilter:filter:orderBy:getPageStart():getPageSize():alpha)" ng-class="{&quot;list-row-odd&quot;: $index % 2 === 0, &quot;list-row-even&quot;: $index % 2 === 1}"><td width=20px><input ui-indeterminate=systemPartiallySelected(system) type=checkbox ng-model=system.enabled ng-change=updateSystemStatus(system) ng-if="!invalidType(getSystemStatus(system)) &amp;&amp; !loadingStatus(getSystemStatus(system))"></td><td class=sortedCol><a ng-href={{getSystemUrl(system)}}>{{system.name}}</a></td><td width=75px class=text-center><div tooltip={{installStatusTooltip(system)}} tooltip-trigger=mouseenter tooltip-append-to-body=true tooltip-placement=top><i ng-if=noInstallation(getSystemStatus(system)) class="fa fa-minus-circle fa-1-5x"></i><i ng-if=installationFail(getSystemStatus(system)) class="fa fa-exclamation-circle fa-1-5x fail"></i><i ng-if=installationSuccess(getSystemStatus(system)) class="fa fa-check-circle fa-1-5x success"></i><i ng-if=invalidType(getSystemStatus(system)) class="fa fa-ban fa-1-5x"></i><i ng-if=installationPending(getSystemStatus(system)) class="fa fa-clock-o fa-1-5x"></i></div></td></tr></tbody></table></div><div class=panel-footer><div class=spacewalk-list-footer-addons><div class=spacewalk-list-footer-addons-extra><span class=spacewalk-list-selection-btns><button type=submit value="Select All" ng-disabled=loading ng-click=toggleAll() class="btn btn-default">Select All</button></span></div></div></div></div><div class=spacewalk-list-bottom-addons><div rha-insights-sat5-pagination=rha-insights-sat5-pagination></div></div><div class=text-right><hr><div class=row><div class=col-md-12><input type=submit value=Apply ng-disabled=loading ng-click=doApply() class="btn btn-default"></div></div></div></div></form>');
     $templateCache.put("scripts/views/systemsOverview.html", '<div class=spacewalk-toolbar-h1><h1 ng-if="SystemOverviewService.tab === &quot;overview&quot;">Red Hat Access Insights Overview</h1><h1 ng-if="SystemOverviewService.tab === &quot;setup&quot;">Red Hat Access Insights Setup</h1></div><div ui-view="" class="wrapper ng-cloak main-content insights-main-content"></div>');
 } ]);

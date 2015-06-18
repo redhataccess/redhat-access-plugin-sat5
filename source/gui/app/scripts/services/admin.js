@@ -288,6 +288,12 @@ ADMIN_TABS) {
     return promise;
   };
 
+  var updateSystem = function(system) {
+    var index = _.findIndex(_systems, {'id': system.id});
+    _systems[index].enabled = system.enabled;
+    _systems[index].indeterminate = false;
+  };
+
   var updateSystemStatus = function(system) {
     var index = _.findIndex(_systemStatuses, {'id': system.id});
     _systemStatuses[index].enabled = system.enabled;
@@ -328,6 +334,7 @@ ADMIN_TABS) {
     setPasswordSet: setPasswordSet,
     rulesTabSelected: rulesTabSelected,
     getConfigLoaded: getConfigLoaded,
-    setConfigLoaded: setConfigLoaded
+    setConfigLoaded: setConfigLoaded,
+    updateSystem: updateSystem
   };
 });

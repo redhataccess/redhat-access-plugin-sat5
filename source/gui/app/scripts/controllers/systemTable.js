@@ -77,15 +77,11 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.toggleAll = function() {
     var allSelected = $scope.allSelected();
-    _.forEach(Admin.getSystems(), function(system) {
-      system.enabled = !allSelected;
+    _.forEach(Admin.getFilteredSystems(), function(system) {
+        system.enabled = !allSelected;
+        Admin.updateSystem(system);
+        Admin.updateSystemStatus(system);
     });
-  };
-
-  $scope.selectAll = function() {
-    $scope.allSelected = true;
-    $scope.toggleAll();
-    $scope.allPartiallySelected = true;
   };
 
   $scope.allSelected = function() {
@@ -105,8 +101,9 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.systemPartiallySelected = function(system) {
     var response = false;
-    if ($scope.getInstallationStatus(Admin.getSystemStatus(system)) === FAILED_INSTALL_STATUS ||
-        $scope.getInstallationStatus(Admin.getSystemStatus(system)) === IN_PROGRESS_INSTALL_STATUS) {
+    if (system.indeterminate !== false && 
+      ($scope.getInstallationStatus(Admin.getSystemStatus(system)) === FAILED_INSTALL_STATUS ||
+        $scope.getInstallationStatus(Admin.getSystemStatus(system)) === IN_PROGRESS_INSTALL_STATUS)) {
       response = true;
     }
     return response;
