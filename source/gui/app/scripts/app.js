@@ -12,7 +12,11 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate'])
 .config(function($urlRouterProvider, $locationProvider, $stateProvider) {
   $urlRouterProvider.otherwise(function() {
   });
-  $locationProvider.html5Mode(false);
+  $locationProvider.html5Mode({
+    enabled: false,
+    requireBase: false,
+    rewriteLinks: false
+  });
 
   $stateProvider
     .state('rhaInsightsSat5Setup', {
