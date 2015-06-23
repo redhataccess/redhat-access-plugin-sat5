@@ -4,48 +4,8 @@ angular.module('sat5TelemetryApp')
   'SYSTEMS_POPULATED': 'systems_populated',
   'GENERAL_CONFIG_LOADED': 'general_config_loaded'
 })
-.constant('SYSTEM_PAGE_URLS', {
-  'SYSTEM_OVERVIEW': 'systems/Overview.do',
-  'SYSTEMS': 'systems/SystemList.do',
-  'PHYSICAL': 'systems/PhysicalList.do',
-  'VIRTUAL': 'systems/VirtualSystemsList.do',
-  'OUT_OF_DATE': 'systems/OutOfDate.do',
-  'REQUIRING_REBOOT': 'systems/RequiringReboot.do',
-  'EXTRA_PACKAGES': 'systems/ExtraPackagesSystems.do',
-  'UNENTITLED': 'systems/Unentitled.do',
-  'UNGROUPED': 'systems/Ungrouped.do',
-  'INACTIVE': 'systems/Inactive.do',
-  'RECENTLY_REGISTERED': 'systems/Registered.do',
-  'PROXY': 'systems/ProxyList.do',
-  'DUPLICATE': 'systems/DuplicateIPList.do',
-  'CURRENCY': 'systems/SystemCurrency.do',
-  'DETAILS_OVERVIEW': 'systems/details/Overview.do',
-  'INSIGHTS': 'systems/Insights.do',
-  'SOFTWARE_CRASHES_OVERVIEW': 'systems/SoftwareCrashesOverview.do'
-})
 .constant('ADMIN_PAGE_URLS', {
   'INSIGHTS': 'admin/Insights.do'
-})
-.constant('SYSTEM_DETAILS_PAGE_URLS', {
-  'OVERVIEW': 'systems/details/Overview.do',
-  'PROPERTIES': 'systems/details/Edit.do',
-  'HARDWARE': 'systems/details/SystemHardware.do',
-  'MIGRATE': 'systems/details/SystemMigrate.do',
-  'NOTES': 'systems/details/Notes.do',
-  'CUSTOM_INFO': 'systems/details/ListCustomData.do',
-  'INSIGHTS': 'systems/details/Insights.do'
-})
-.constant('SAT5_ROOT_URLS', {
-  'ADMIN': 'admin',
-  'SYSTEMS': 'systems',
-  'SYSTEM_DETAILS': 'systems/details',
-  'SSM': 'ssm',
-  'ACTIVATIONKEYS': 'activationkeys',
-  'PROFILES': 'profiles',
-  'KICKSTART': 'kickstart',
-  'KEYS': 'keys',
-  'RHN': 'rhn',
-  'PROXY': 'redhat_access'
 })
 .constant('HTTP_CONST', {
   'ACCEPT': 'accept',
@@ -85,4 +45,8 @@ angular.module('sat5TelemetryApp')
   'INFO': 'info',
   'SUCCESS': 'success'
 })
-.constant('_', window._);
+.constant('_', window._)
+.constant('RHA_INSIGHTS', window.RHA_INSIGHTS)
+.constant('SYSTEM_DETAILS_PAGE_URLS', window.SYSTEM_DETAILS_PAGE_URLS)
+.constant('SAT5_ROOT_URLS', window.SAT5_ROOT_URLS)
+.constant('SYSTEM_PAGE_URLS', window.SYSTEM_PAGE_URLS);

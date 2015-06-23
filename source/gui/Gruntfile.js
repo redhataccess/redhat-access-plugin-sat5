@@ -104,7 +104,7 @@ module.exports = function (grunt) {
           removeScriptTypeAttributes: true,
           removeStyleLinkTypeAttributes: true
         },
-        usemin: 'scripts/insights.js'
+        usemin: 'scripts/insights.app.js'
       },
       main: {
         cwd: '<%= yeoman.app %>',
