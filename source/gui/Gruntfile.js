@@ -331,22 +331,12 @@ module.exports = function (grunt) {
     //uncomment for easier debugging
     uglify: {
       options: {
-        beautify: true,
-        compress: false,
-        mangle: false,
-        preserveComments: 'all'
+        //beautify: true,
+        //compress: false,
+        //mangle: false,
+        //preserveComments: 'all'
       }
     },
-    //uncomment uglify and concat for prod
-    //uglify: {
-      //dist: {
-        //files: {
-          //'<%= yeoman.dist %>/scripts/insights.js': [
-            //'<%= yeoman.dist %>/scripts/insights.js'
-          //]
-        //}
-      //}
-    //},
 
     imagemin: {
       dist: {
@@ -508,7 +498,6 @@ module.exports = function (grunt) {
     'cdnify',
     'cssmin',
     'uglify',
-    //'filerev',
     'usemin',
     'htmlmin'
   ]);
