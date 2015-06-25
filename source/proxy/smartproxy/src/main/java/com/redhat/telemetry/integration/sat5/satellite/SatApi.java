@@ -11,6 +11,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import com.redhat.telemetry.integration.sat5.util.Constants;
 import com.redhat.telemetry.integration.sat5.util.Util;
 
 public class SatApi {
@@ -313,9 +314,9 @@ public class SatApi {
       String parent) throws IOException, InterruptedException {
     HashMap<String, String> gpgKey = new HashMap<String, String>();
     String hostname = Util.getSatelliteHostname();
-    gpgKey.put("url", "http://" + hostname + "/pub/rhinsights.gpg");
-    gpgKey.put("id", "A3753C6C");
-    gpgKey.put("fingerprint", "C08B 170E 016E CDEB 10A5  AFCB 7649 4742 A375 3C6C");
+    gpgKey.put("url", Constants.GPG_KEY_URL);
+    gpgKey.put("id", Constants.GPG_KEY_ID);
+    gpgKey.put("fingerprint", Constants.GPG_KEY_FINGERPRINT);
 
     Object[] params = new Object[] {
       sessionKey, 

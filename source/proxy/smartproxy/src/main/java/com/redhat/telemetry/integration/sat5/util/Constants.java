@@ -78,4 +78,9 @@ public class Constants {
   public static final String SYSTEM_TYPE_PHYSICAL = "physical";
 
   public static final String SYSTEMID_HEADER = "x-rh-systemid";
+
+  //gpg key
+  public static final String GPG_KEY_URL = "https://www.redhat.com/security/f21541eb.txt";
+  public static final String GPG_KEY_FINGERPRINT = "B08B 659E E86A F623 BC90 E8DB 938A 80CA F215 41EB";
+  public static final String GPG_KEY_ID = "F21541EB";
 }
