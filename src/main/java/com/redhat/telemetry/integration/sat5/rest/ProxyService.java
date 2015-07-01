@@ -66,8 +66,6 @@ import org.jasypt.util.text.StrongTextEncryptor;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-
 //import com.jcabi.aspects.Loggable;
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
 import com.redhat.telemetry.integration.sat5.json.Product;
@@ -353,7 +351,7 @@ public class ProxyService {
       throw new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
-    request.addHeader(getBasicAuthHeader());
+    //request.addHeader(getBasicAuthHeader());
     request.addHeader(HttpHeaders.ACCEPT, responseType);
     request.addHeader(Constants.SYSTEMID_HEADER, getSatelliteSystemId());
     HttpResponse response = client.execute(request);
@@ -522,21 +520,6 @@ public class ProxyService {
     }
     finalResponse.entity(portalResponse.getEntity());
     return finalResponse.build();
-  }
-
-  /**
-   * Read from the disk to retrieve the basic auth credentials
-   */
-  private BasicHeader getBasicAuthHeader() 
-      throws ConfigurationException, UnsupportedEncodingException {
-    PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.PROPERTIES_URL);
-    String password = decryptPassword(properties.getString("password"));
-    BasicHeader authHeader = new BasicHeader(HttpHeaders.AUTHORIZATION,
-      "Basic " + DatatypeConverter.printBase64Binary(
-                (properties.getString("username") + ":" + 
-                 password).getBytes("UTF-8")));
-    return authHeader;
   }
 
   /**

@@ -41,7 +41,7 @@ echo `ls`
 rm -rf %{buildroot}
 #httpd.conf
 mkdir -p %{buildroot}/etc/httpd/conf.d
-cp source/rh-insights-sat5.conf %{buildroot}/etc/httpd/conf.d
+cp source/resources/rh-insights-sat5.conf %{buildroot}/etc/httpd/conf.d
 #js
 mkdir -p %{buildroot}/var/www/html/javascript
 cp source/gui/dist/scripts/insights.js %{buildroot}/var/www/html/javascript
