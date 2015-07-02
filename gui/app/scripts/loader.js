@@ -12,7 +12,8 @@ RHA_INSIGHTS.UTILS.isOnInsightsEnabledPage = function () {
       RHA_INSIGHTS.UTILS.isOnSystemOverviewPage() ||
       RHA_INSIGHTS.UTILS.isOnAdminPage() ||
       RHA_INSIGHTS.UTILS.isOnInsightsOverviewPage() ||
-      RHA_INSIGHTS.UTILS.isOnSystemTabPage()) {
+      RHA_INSIGHTS.UTILS.isOnSystemTabPage() ||
+      RHA_INSIGHTS.UTILS.isOnHelpPage()) {
     response = true;
   }
   return response;
@@ -102,6 +103,14 @@ RHA_INSIGHTS.UTILS.isOnSystemListPage = function() {
   }
 };
 
+RHA_INSIGHTS.UTILS.isOnHelpPage = function () {
+  if (RHA_INSIGHTS.UTILS.isOnPage(HELP_PAGE_URLS.INDEX)) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 var SAT5_ROOT_URLS = {
   'ADMIN': 'admin',
   'SYSTEMS': 'systems',
@@ -113,6 +122,10 @@ var SAT5_ROOT_URLS = {
   'KEYS': 'keys',
   'RHN': 'rhn',
   'PROXY': 'redhat_access'
+};
+
+var HELP_PAGE_URLS = {
+  'INDEX': 'help/index.do'
 };
 
 

@@ -158,6 +158,9 @@ _) {
           '</li>' + 
         '</ul>' + 
       '</li>');
+  } else if (RHA_INSIGHTS.UTILS.isOnHelpPage()) {
+    $('#help-url-list').append('<li><a style="font-size:12pt" href="https://access.redhat.com/insights/info">Red Hat Access Insights Info</a><br/>Information about Red Hat Access Insights</li>');
+    $('#help-url-list').append('<li><a style="font-size:12pt" href="https://access.redhat.com/insights/getting-started/satellite/5/">Red Hat Access Insights Getting Started Guide</a><br/>Using and administering Red Hat Access Insights</li>');
   }
 
   Admin.setEnabled(window.RHA_INSIGHTS.config.enabled);
