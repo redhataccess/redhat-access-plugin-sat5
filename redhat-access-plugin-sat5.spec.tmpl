@@ -1,4 +1,4 @@
-%define version 1.1.0
+%define version 1.1.1
 
 Name: redhat-access-plugin-sat5
 Version:  %{version}
@@ -41,14 +41,14 @@ echo `ls`
 rm -rf %{buildroot}
 #httpd.conf
 mkdir -p %{buildroot}/etc/httpd/conf.d
-cp source/resources/rh-insights-sat5.conf %{buildroot}/etc/httpd/conf.d
+cp resources/rh-insights-sat5.conf %{buildroot}/etc/httpd/conf.d
 #js
 mkdir -p %{buildroot}/var/www/html/javascript
-cp source/gui/dist/scripts/insights.js %{buildroot}/var/www/html/javascript
-cp source/gui/dist/scripts/insights.app.js %{buildroot}/var/www/html/javascript
+cp gui/dist/scripts/insights.js %{buildroot}/var/www/html/javascript
+cp gui/dist/scripts/insights.app.js %{buildroot}/var/www/html/javascript
 #css
 mkdir -p %{buildroot}/var/www/html/css
-cp source/gui/dist/styles/insights.css %{buildroot}/var/www/html/css
+cp gui/dist/styles/insights.css %{buildroot}/var/www/html/css
 #war
 #set $i = 0
 #for $artifact in $all_artifacts
@@ -61,27 +61,27 @@ cp %{SOURCE$i} %{buildroot}/usr/share/tomcat6/webapps/redhat_access.war
 #jsp files
 mkdir -p %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin
 mkdir -p %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc
-cp source/jsp/admin/insights.jsp %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin
-cp source/jsp/systems/insights.jsp %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems
-cp source/jsp/systems/sdc/insights.jsp %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc
+cp jsp/admin/insights.jsp %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/admin
+cp jsp/systems/insights.jsp %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems
+cp jsp/systems/sdc/insights.jsp %{buildroot}/usr/share/tomcat6/webapps/rhn/WEB-INF/pages/systems/sdc
 #log
 mkdir -p %{buildroot}/var/log/rhai
 touch %{buildroot}/var/log/rhai/rhai.log
 #properties file
 mkdir -p %{buildroot}/etc/redhat-access/
-cp source/resources/redhat-access-insights.properties %{buildroot}/etc/redhat-access/redhat-access-insights.properties
-cp source/resources/rhai.keystore %{buildroot}/etc/redhat-access/rhai.keystore
+cp resources/redhat-access-insights.properties %{buildroot}/etc/redhat-access/redhat-access-insights.properties
+cp resources/rhai.keystore %{buildroot}/etc/redhat-access/rhai.keystore
 #console helper
 mkdir -p %{buildroot}/etc/pam.d
-cp source/resources/redhat-access-systemid.pam %{buildroot}/etc/pam.d/redhat-access-systemid
+cp resources/redhat-access-systemid.pam %{buildroot}/etc/pam.d/redhat-access-systemid
 mkdir -p %{buildroot}/usr/sbin
-cp source/resources/redhat-access-systemid_wrapper.sh %{buildroot}/usr/sbin/redhat-access-systemid-wrapper
+cp resources/redhat-access-systemid_wrapper.sh %{buildroot}/usr/sbin/redhat-access-systemid-wrapper
 ln -s /usr/bin/consolehelper %{buildroot}/usr/sbin/redhat-access-systemid
 mkdir -p %{buildroot}/etc/security/console.apps
-cp source/resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/console.apps/redhat-access-systemid
+cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/console.apps/redhat-access-systemid
 #dan's people page gpg key
 mkdir -p %{buildroot}/var/www/html/pub
-cp source/resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
+cp resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
 
 
 %files
@@ -106,6 +106,9 @@ cp source/resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
 
 
 %changelog
+* Thu Jul 2 2015 Chris Kyrouac <ckyrouac@redhat.com> - 1.1.1-20
+- Refactor
+
 * Tue Jun 23 2015 Chris Kyrouac <ckyrouac@redhat.com> - 1.1.0-17
 - Minimize insights.js initial load size
 
