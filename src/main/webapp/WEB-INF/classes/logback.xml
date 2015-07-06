@@ -1,6 +1,6 @@
 <configuration debug="true" scan="true">
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>/var/log/rhai/rhai.log</file>
+    <file>/var/log/rhn/rhai.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <!-- daily rollover -->
       <fileNamePattern>rhai.%d{yyyy-MM-dd}.log</fileNamePattern>
