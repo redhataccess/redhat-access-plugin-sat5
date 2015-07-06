@@ -53,13 +53,8 @@ public class ConfigService {
 
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(Constants.PROPERTIES_URL);
-    String username = properties.getString(Constants.USERNAME_PROPERTY);
-    String password = properties.getString(Constants.PASSWORD_PROPERTY);
-    if (password != null && !password.equals("")) {
-      password = "true";
-    }
     boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-    Config config = new Config(enabled, username, password);
+    Config config = new Config(enabled);
     return config;
   }
 
@@ -93,14 +88,6 @@ public class ConfigService {
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.setFile(new File(Constants.PROPERTIES_URL));
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
-    properties.setProperty(Constants.USERNAME_PROPERTY, config.getUsername());
-    if (config.getPassword() != null && config.getPassword() != "") {
-      properties.setProperty(Constants.PASSWORD_PROPERTY, encryptPassword(config.getPassword()));
-    } else {
-      properties.setProperty(
-          Constants.PASSWORD_PROPERTY, 
-          propertiesReader.getString(Constants.PASSWORD_PROPERTY));
-    }
     if (portalUrl != null && portalUrl != "") {
       properties.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
     }
@@ -309,12 +296,6 @@ public class ConfigService {
           false,
           pathInfo);
     }
-  }
-
-  private String encryptPassword(String plainTextPassword) {
-    StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
-    textEncryptor.setPassword(Constants.ENCRYPTION_PASSWORD);
-    return textEncryptor.encrypt(plainTextPassword);
   }
 
   /**
