@@ -20,3 +20,4 @@ Session.vim
 .project
 .settings/
 .ropeproject
+.agignore
