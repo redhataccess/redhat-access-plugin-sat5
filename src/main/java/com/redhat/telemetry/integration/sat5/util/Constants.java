@@ -83,4 +83,11 @@ public class Constants {
   public static final String GPG_KEY_URL = "https://www.redhat.com/security/f21541eb.txt";
   public static final String GPG_KEY_FINGERPRINT = "B08B 659E E86A F623 BC90 E8DB 938A 80CA F215 41EB";
   public static final String GPG_KEY_ID = "F21541EB";
+
+  //satellite config
+  public static final String RHN_CONF_LOC = "/etc/rhn/rhn.conf";
+  public static final String RHN_CONF_HTTP_PROXY = "server.satellite.http_proxy";
+  public static final String RHN_CONF_HTTP_PROXY_USERNAME = "server.satellite.http_proxy_username";
+  public static final String RHN_CONF_HTTP_PROXY_PASSWORD = "server.satellite.http_proxy_password";
+  public static final String RHN_CONF_HTTP_PROXY_CA_CHAIN = "server.satellite.ca_chain";
 }

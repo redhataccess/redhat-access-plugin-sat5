@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.jasypt.util.text.StrongTextEncryptor;
 
 import com.redhat.telemetry.integration.sat5.json.Config;
 import com.redhat.telemetry.integration.sat5.json.Status;
@@ -178,6 +177,7 @@ public class ConfigService {
             ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
           }
         } else { //remove installed pieces
+          system.unregister();
           if (system.softwareChannelAssociated()) {
             system.updateSoftwareChannels(false);
           }

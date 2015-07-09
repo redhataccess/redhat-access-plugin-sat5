@@ -293,4 +293,8 @@ public abstract class AbstractSystem {
     }
     return version;
   }
+
+  public void unregister() {
+
+  }
 }

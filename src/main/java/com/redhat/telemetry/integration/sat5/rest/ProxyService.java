@@ -3,7 +3,6 @@ package com.redhat.telemetry.integration.sat5.rest;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
@@ -35,7 +34,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -47,26 +45,31 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.jasypt.util.text.StrongTextEncryptor;
+import org.jboss.resteasy.spi.NotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-//import com.jcabi.aspects.Loggable;
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
 import com.redhat.telemetry.integration.sat5.json.Product;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
@@ -171,9 +174,12 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
-      @CookieParam("pxt-session-cookie") String user) {
+      @CookieParam("pxt-session-cookie") String user) throws NotFoundException {
     try {
       return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
+    } catch (NotFoundException e) {
+      LOG.debug("Resource not found: " + path);
+      throw e;
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: application/json)", e);
       throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
@@ -256,6 +262,11 @@ public class ProxyService {
         requestType,
         responseType,
         body);
+
+      if (getIdResponse.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
+        throw new NotFoundException("Machine ID not found. The system is likely not registered.");
+      }
+
       JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
       String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
@@ -351,10 +362,49 @@ public class ProxyService {
       throw new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
-    //request.addHeader(getBasicAuthHeader());
+    //discover and add proxy info to request
+    RequestConfig requestConfig = null;
+
+    PropertiesConfiguration properties = new PropertiesConfiguration();
+    properties.load(Constants.RHN_CONF_LOC);
+    String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
+    HttpClientContext context = HttpClientContext.create();
+    if (proxyHostColonPort != null && proxyHostColonPort != "") {
+      //pull out the port from the http_proxy property
+      int proxyPort = 80;
+      String hostname = "";
+      if (proxyHostColonPort.contains(":")) {
+        Pattern portPattern = Pattern.compile("(.*):([0-9]*)$");
+        Matcher portMatcher = portPattern.matcher(proxyHostColonPort);
+        if (portMatcher.matches()) {
+          hostname = portMatcher.group(1);
+          proxyPort = Integer.parseInt(portMatcher.group(2));
+        }
+      } else {
+        hostname = proxyHostColonPort;
+      }
+
+      //set the username/password for the proxy
+      String proxyUser = properties.getString(Constants.RHN_CONF_HTTP_PROXY_USERNAME);
+      String proxyPassword = properties.getString(Constants.RHN_CONF_HTTP_PROXY_PASSWORD);
+      if (proxyUser != null && proxyUser != "" && proxyPassword != null && proxyPassword != "") {
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(
+            new AuthScope(hostname, proxyPort),
+            new UsernamePasswordCredentials(proxyUser, proxyPassword));
+        context.setCredentialsProvider(credsProvider);
+        LOG.debug("Proxyuser: " + proxyUser);
+      }
+
+      LOG.debug("Satellite is configured to use a proxy. Host: " + hostname + " | Port: " + Integer.toString(proxyPort));
+      HttpHost proxy = new HttpHost(hostname, proxyPort);
+      requestConfig = RequestConfig.custom().setProxy(proxy).build();
+    }
+    request.setConfig(requestConfig);
+
     request.addHeader(HttpHeaders.ACCEPT, responseType);
     request.addHeader(Constants.SYSTEMID_HEADER, getSatelliteSystemId());
-    HttpResponse response = client.execute(request);
+    HttpResponse response = client.execute(request, context);
     HttpEntity responseEntity = response.getEntity();
     String stringEntity = "";
     if (responseEntity != null) {
@@ -520,15 +570,6 @@ public class ProxyService {
     }
     finalResponse.entity(portalResponse.getEntity());
     return finalResponse.build();
-  }
-
-  /**
-   * Decrypt the stored password
-   */
-  private String decryptPassword(String encryptedPassword) {
-    StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
-    textEncryptor.setPassword(Constants.ENCRYPTION_PASSWORD);
-    return textEncryptor.decrypt(encryptedPassword);
   }
 
   /**
