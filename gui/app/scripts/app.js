@@ -9,7 +9,29 @@
  * Main module of the application.
  */
 angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate'])
-.config(function($urlRouterProvider, $locationProvider, $stateProvider) {
+.config(function(
+          $urlRouterProvider, 
+          $locationProvider, 
+          $stateProvider,
+          SAT5_ROOT_URLS, 
+          TELEMETRY_URLS,
+          InsightsConfigProvider,
+          SYSTEM_DETAILS_PAGE_URLS) {
+
+  InsightsConfigProvider.setGetSystemStatus(false);
+  InsightsConfigProvider.setApiRoot('/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/');
+  InsightsConfigProvider.setOverviewShowSystem(
+    function(system) {
+      window.location = '/' + SAT5_ROOT_URLS.RHN + '/' + 
+        SYSTEM_DETAILS_PAGE_URLS.INSIGHTS + '?sid=' + system.remote_leaf;
+    });
+  InsightsConfigProvider.setGetReportsErrorCallback(
+    function(data, status, headers, config) {
+      if (status === 404) {
+        return 'System is not registered with Access Insights.';
+      }
+    });
+
   $urlRouterProvider.otherwise(function() {
   });
   $locationProvider.html5Mode({
@@ -32,30 +54,21 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate'])
 
 })
 .run(function(
-$rootScope,
-$state,
-CONFIG,
-Sat5TelemetrySystems,
-SystemOverviewService,
-Util,
-Admin,
-SYSTEM_PAGE_URLS, 
-EVENTS,
-SAT5_ROOT_URLS, 
-ADMIN_PAGE_URLS, 
-SYSTEM_DETAILS_PAGE_URLS,
-TELEMETRY_URLS,
-RHA_INSIGHTS,
-_) {
+      $rootScope,
+      $state,
+      Sat5TelemetrySystems,
+      SystemOverviewService,
+      Util,
+      Admin,
+      SYSTEM_PAGE_URLS, 
+      EVENTS,
+      SAT5_ROOT_URLS, 
+      ADMIN_PAGE_URLS, 
+      SYSTEM_DETAILS_PAGE_URLS,
+      RHA_INSIGHTS,
+      TELEMETRY_URLS,
+      _) {
 
-  CONFIG.API_ROOT = '/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/';
-  CONFIG.authenticate = false;
-  CONFIG.preloadData = false;
-  CONFIG.getSystemStatus = false;
-  CONFIG.overviewShowSystem = function(system) {
-    window.location = '/' + SAT5_ROOT_URLS.RHN + '/' + 
-      SYSTEM_DETAILS_PAGE_URLS.INSIGHTS + '?sid=' + system.remote_leaf;
-  };
 
   var appendToSideNav = function(url, isState, content, hide) {
     var classString = '';
@@ -122,9 +135,22 @@ _) {
         removeClass('active');
       $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last').
         addClass('active');
-      
+
+
+      //Add header
       $('#spacewalk-content').
-        append('<div class="main-content insights-main-content"><div class="rule-summaries" loading="{isLoading: true}" machine-id="' + Util.getSidFromUrl(window.location.search) + '" rule="" system="{}"/></div>');
+        append('<h2>Red Hat Access Insights</h2>');
+      
+      //Add content
+      $('#spacewalk-content').
+        append('<div class="main-content insights-main-content">' + 
+                 '<div ' + 
+                   'class="rule-summaries" ' + 
+                   'loading="{isLoading: true}" ' + 
+                   'machine-id="' + Util.getSidFromUrl(window.location.search) + '" ' + 
+                   'rule="" ' + 
+                   'system="{}"/>' + 
+               '</div>');
 
       Admin.getSystemDetails(Util.getSidFromUrl())
         .then(function(response) {
@@ -135,9 +161,9 @@ _) {
           }
           $('#spacewalk-content > .spacewalk-toolbar-h1 > h1').html('<i class="fa ' + iconClass + '" />');
           $('#spacewalk-content > .spacewalk-toolbar-h1 > h1').append(response.data.name);
-          var firstLink = $("#spacewalk-content > .spacewalk-toolbar-h1 > .spacewalk-toolbar > a:eq(0)");
+          var firstLink = $('#spacewalk-content > .spacewalk-toolbar-h1 > .spacewalk-toolbar > a:eq(0)');
           firstLink.attr('href', firstLink.attr('href') + response.data.id);
-          var secondLink = $("#spacewalk-content > .spacewalk-toolbar-h1 > .spacewalk-toolbar > a:eq(1)");
+          var secondLink = $('#spacewalk-content > .spacewalk-toolbar-h1 > .spacewalk-toolbar > a:eq(1)');
           secondLink.attr('href', secondLink.attr('href') + response.data.id);
 
           $('#spacewalk-content > .spacewalk-toolbar > a:eq(0)').text(response.data.name);
