@@ -66,6 +66,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -263,14 +264,19 @@ public class ProxyService {
         responseType,
         body);
 
-      if (getIdResponse.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
-        throw new NotFoundException("Machine ID not found. The system is likely not registered.");
+      if (getIdResponse.getStatusCode() == HttpServletResponse.SC_OK) {
+        JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
+        String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
+        path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
+        LOG.debug("MachineID Path: " + path);
+      } else if (getIdResponse.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
+        throw new NotFoundException(
+            "Machine ID not found. Verify the system has been registered with " + 
+            "'redhat-access-insights --register'");
+      } else {
+        throw new InternalServerErrorException(
+            "Unable to retrieve Machine ID from Access Insights API.");
       }
-
-      JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
-      String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
-      path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
-      LOG.debug("MachineID Path: " + path);
     } else if (user != null && 
         !pathTypeInt.equals(Constants.SYSTEMS_STATUS_PATH) && 
         !pathTypeInt.equals(Constants.RULES_PATH)) {
