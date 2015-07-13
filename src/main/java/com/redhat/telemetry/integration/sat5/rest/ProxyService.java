@@ -1,7 +1,5 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,7 +13,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.SSLContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -35,37 +32,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContexts;
-import org.apache.http.util.EntityUtils;
 import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.json.JSONException;
@@ -74,6 +47,7 @@ import org.json.JSONObject;
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
 import com.redhat.telemetry.integration.sat5.json.Product;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
+import com.redhat.telemetry.integration.sat5.portal.InsightsApiClient;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 import com.redhat.telemetry.integration.sat5.util.Util;
@@ -82,10 +56,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("/r/insights")
-//@Loggable
 public class ProxyService {
   @Context ServletContext context;
-  private String portalUrl = "https://access.redhat.com/r/insights/";
   private Logger LOG = LoggerFactory.getLogger(ProxyService.class);
 
   @GET
@@ -108,7 +80,9 @@ public class ProxyService {
       return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /", e);
-      throw new WebApplicationException(new Throwable("Internal server error occurred. View server logs for details."), Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(
+          new Throwable("Internal server error occurred. View server logs for details."), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -127,7 +101,9 @@ public class ProxyService {
       return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
-      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(
+          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -144,7 +120,9 @@ public class ProxyService {
       return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: Text/plain)", e);
-      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(
+          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -162,7 +140,9 @@ public class ProxyService {
       return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /*", e);
-      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(
+          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -183,7 +163,9 @@ public class ProxyService {
       throw e;
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: application/json)", e);
-      throw new WebApplicationException(new Throwable("Internal server error occurred. Contact system admin for help."), Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(
+          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -196,40 +178,15 @@ public class ProxyService {
       String requestType,
       String responseType,
       byte[] body) 
-          throws JSONException, IOException, ConfigurationException, NoSuchAlgorithmException, KeyStoreException, CertificateException, KeyManagementException {
+          throws JSONException, 
+                 IOException, 
+                 ConfigurationException, 
+                 NoSuchAlgorithmException, 
+                 KeyStoreException, 
+                 CertificateException, 
+                 KeyManagementException {
 
-    //load config to check if service is enabled
-    LOG.debug("Loading properties file.");
-    PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.PROPERTIES_URL);
-    boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-    String configPortalUrl = properties.getString(Constants.PORTALURL_PROPERTY);
-    if (configPortalUrl != null) {
-      if (configPortalUrl.charAt(configPortalUrl.length() - 1) != '/') {
-        configPortalUrl = configPortalUrl + "/";
-      }
-      this.portalUrl = configPortalUrl;
-    }
-    if (!enabled) {
-      LOG.warn("Service is disabled.");
-      throw new WebApplicationException(new Throwable("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service."), Response.Status.FORBIDDEN);
-    }
-
-    //load custom keystore
-    LOG.debug("Loading rhai.keystore");
-    SSLContext sslcontext = SSLContexts.custom()
-            .loadTrustMaterial(new File("/etc/redhat-access/rhai.keystore"), "changeit".toCharArray(),
-                    new TrustSelfSignedStrategy())
-            .build();
-    SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-            sslcontext,
-            new String[] { "TLSv1" },
-            null,
-            SSLConnectionSocketFactory.getDefaultHostnameVerifier());
-    CloseableHttpClient client = HttpClients.custom()
-            .setSSLSocketFactory(sslsf)
-            .build();
-
+    InsightsApiClient client = new InsightsApiClient();
     String branchId = InetAddress.getLocalHost().getHostName();
     ArrayList<Integer> leafIds = new ArrayList<Integer>();
     String subsetHash = null;
@@ -254,15 +211,12 @@ public class ProxyService {
       LOG.debug("Request is for an individual system's reports. GET machine ID from portal.");
       String leafId = pathType.get("id");
       LOG.debug("leafId: " + leafId);
-      PortalResponse getIdResponse = proxyRequest(
-        client,
-        user,
+      PortalResponse getIdResponse = client.makeRequest(
         request.getMethod(),
         Constants.API_URL + Constants.BRANCH_URL + branchId + "/" + Constants.LEAF_URL + leafId,
-        null,
+        body,
         requestType,
-        responseType,
-        body);
+        responseType);
 
       if (getIdResponse.getStatusCode() == HttpServletResponse.SC_OK) {
         JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
@@ -296,145 +250,37 @@ public class ProxyService {
 
     LOG.debug("Forwarding request to portal.");
     PortalResponse portalResponse = 
-      proxyRequest(
-          client, 
-          user, 
+      client.makeRequest(
           request.getMethod(), 
           path, 
-          null,
+          body,
           requestType,
-          responseType,
-          body);
+          responseType);
     if (portalResponse.getStatusCode() == HttpServletResponse.SC_PRECONDITION_FAILED &&
         ! pathTypeInt.equals(Constants.UPLOADS_PATH)) {
       LOG.debug("Got a 412. Assuming this means the subset doesn't exist. Create the subset.");
       portalResponse =
-        proxyRequest(
-            client, 
-            user,
+        client.makeRequest(
             Constants.METHOD_POST, 
             Constants.API_URL + Constants.SUBSETS_URL, 
             buildNewSubsetPostBody(subsetHash, leafIds, branchId),
             MediaType.APPLICATION_JSON,
-            MediaType.APPLICATION_JSON,
-            body);
+            MediaType.APPLICATION_JSON);
       if (portalResponse.getStatusCode() ==
           HttpServletResponse.SC_CREATED) {
         LOG.debug("Subset created successfully. Forward the original request a second time.");
         portalResponse =
-          proxyRequest(
-              client, 
-              user, 
+          client.makeRequest(
               request.getMethod(), 
               path, 
-              null,
+              body,
               requestType,
-              responseType,
-              body);
+              responseType);
       }
     }
     Response finalResponse = buildFinalResponse(portalResponse);
     client.close();
     return finalResponse;
-  }
-
-  /**
-   * Make a request to the portal
-   */
-  private PortalResponse proxyRequest(
-      CloseableHttpClient client,
-      String user,
-      String method, 
-      String path,
-      HttpEntity entity,
-      String requestType,
-      String responseType,
-      byte[] body) throws ConfigurationException, IOException {
-
-    HttpRequestBase request;
-    if (method == Constants.METHOD_GET) {
-      request = new HttpGet(this.portalUrl + path);
-    } else if (method == Constants.METHOD_POST) {
-        request = new HttpPost(this.portalUrl + path);
-        request.addHeader(HttpHeaders.CONTENT_TYPE, requestType);
-        if (entity != null) {
-          ((HttpPost) request).setEntity(entity);
-        } else if (body != null) {
-          ((HttpPost) request).setEntity(new ByteArrayEntity(body));
-        }
-    } else if (method == Constants.METHOD_DELETE) {
-      request = new HttpDelete(this.portalUrl + path);
-    } else {
-      throw new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
-
-    //discover and add proxy info to request
-    RequestConfig requestConfig = null;
-
-    PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.RHN_CONF_LOC);
-    String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
-    HttpClientContext context = HttpClientContext.create();
-    if (proxyHostColonPort != null && proxyHostColonPort != "") {
-      //pull out the port from the http_proxy property
-      int proxyPort = 80;
-      String hostname = "";
-      if (proxyHostColonPort.contains(":")) {
-        Pattern portPattern = Pattern.compile("(.*):([0-9]*)$");
-        Matcher portMatcher = portPattern.matcher(proxyHostColonPort);
-        if (portMatcher.matches()) {
-          hostname = portMatcher.group(1);
-          proxyPort = Integer.parseInt(portMatcher.group(2));
-        }
-      } else {
-        hostname = proxyHostColonPort;
-      }
-
-      //set the username/password for the proxy
-      String proxyUser = properties.getString(Constants.RHN_CONF_HTTP_PROXY_USERNAME);
-      String proxyPassword = properties.getString(Constants.RHN_CONF_HTTP_PROXY_PASSWORD);
-      if (proxyUser != null && proxyUser != "" && proxyPassword != null && proxyPassword != "") {
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(
-            new AuthScope(hostname, proxyPort),
-            new UsernamePasswordCredentials(proxyUser, proxyPassword));
-        context.setCredentialsProvider(credsProvider);
-        LOG.debug("Proxyuser: " + proxyUser);
-      }
-
-      LOG.debug("Satellite is configured to use a proxy. Host: " + hostname + " | Port: " + Integer.toString(proxyPort));
-      HttpHost proxy = new HttpHost(hostname, proxyPort);
-      requestConfig = RequestConfig.custom().setProxy(proxy).build();
-    }
-    request.setConfig(requestConfig);
-
-    request.addHeader(HttpHeaders.ACCEPT, responseType);
-    request.addHeader(Constants.SYSTEMID_HEADER, getSatelliteSystemId());
-    HttpResponse response = client.execute(request, context);
-    HttpEntity responseEntity = response.getEntity();
-    String stringEntity = "";
-    if (responseEntity != null) {
-      stringEntity = EntityUtils.toString(response.getEntity(), "UTF-8");
-    }
-    PortalResponse portalResponse = 
-      new PortalResponse(
-          response.getStatusLine().getStatusCode(), 
-          stringEntity,
-          response.getAllHeaders());
-    request.releaseConnection();
-    return portalResponse;
-  }
-
-  private String getSatelliteSystemId() throws IOException {
-    CommandLine cmdLine = CommandLine.parse("/usr/sbin/redhat-access-systemid");
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    DefaultExecutor executor = new DefaultExecutor();
-    PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
-    executor.setStreamHandler(streamHandler);
-    executor.execute(cmdLine);
-    String systemIdXml = outputStream.toString();
-    systemIdXml = systemIdXml.replace(System.getProperty("line.separator"), "");
-    return(systemIdXml);
   }
 
   /**

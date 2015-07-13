@@ -6,6 +6,33 @@ div.panel.panel-default
   div.panel-body
     form.form-horizontal
       div.form-group
+        div.col-lg-offset-3.col-lg-6
+          input.btn.btn-primary(style='margin-right: 10px;', type='button', value='Test Connection to Red Hat Acccess Insights API', ng-click='doTestConnection()')
+          i.fa.fa-spinner.fa-spin.fa-1-5x(
+            ng-if='connectionStatus === "loading"',
+            tooltip='{{getLoadingTooltip()}}', 
+            tooltip-trigger='mouseenter', 
+            tooltip-append-to-body='true', 
+            tooltip-placement='top')
+          i.fa.fa-check-circle.fa-1-5x.text-success(
+            ng-if='connectionStatus === "success"',
+            tooltip='{{getSuccessTooltip()}}', 
+            tooltip-trigger='mouseenter', 
+            tooltip-append-to-body='true', 
+            tooltip-placement='top')
+          i.fa.fa-question-circle.fa-1-5x(
+            ng-if='connectionStatus === "unknown"',
+            tooltip='{{getUnknownTooltip()}}', 
+            tooltip-trigger='mouseenter', 
+            tooltip-append-to-body='true', 
+            tooltip-placement='top')
+          i.fa.fa-exclamation-circle.fa-1-5x.text-danger(
+            ng-if='connectionStatus === "fail"',
+            tooltip='{{getFailTooltip()}}', 
+            tooltip-trigger='mouseenter', 
+            tooltip-append-to-body='true', 
+            tooltip-placement='top')
+      div.form-group
         label.col-lg-3.control-label(for='rha-insights-sat5-enabled') Enable Access Insights Service
         div.col-lg-6
           div.checkbox
@@ -15,5 +42,20 @@ div.panel.panel-default
               ng-model='enabled',
               ng-disabled='loading')
       div.form-group
+        label.col-lg-3.control-label(for='rha-insights-sat5-enabled') Debug Mode
+        div.col-lg-6
+          div.checkbox
+            input(
+              id='rha-insights-sat5-debug',
+              type='checkbox', 
+              ng-model='debug',
+              ng-disabled='loading')
+      div.form-group
         div.col-lg-offset-3.col-lg-6
           input.btn.btn-success(type='submit', value='Update', ng-click='doUpdate()', ng-disabled='disableUpdateButton()')
+div.panel.panel-default
+  div.panel-heading
+    h4
+      | rhai.log
+  div.panel-body
+    div(ui-ace='{useWrapMode: true, showGutter: true, them: "twilight", firstLineNumber: 1}', readonly, ng-model='log')

@@ -10,6 +10,7 @@ angular.module('sat5TelemetryApp')
 .constant('HTTP_CONST', {
   'ACCEPT': 'accept',
   'APPLICATION_JSON': 'application/json',
+  'TEXT_PLAIN': 'text/plain',
   'CONTENT_TYPE': 'Content-Type',
   'GET': 'GET',
   'POST': 'POST'
@@ -19,6 +20,7 @@ angular.module('sat5TelemetryApp')
   'PASSWORD': 'password',
   'SATELLITE_USER': 'satellite_user',
   'ENABLED': 'enabled',
+  'DEBUG': 'debug',
   'SYSTEMS': 'systems'
 })
 .constant('TELEMETRY_API_KEYS', {
@@ -28,7 +30,9 @@ angular.module('sat5TelemetryApp')
   'GENERAL': '/redhat_access/config/general',
   'SYSTEMS': '/redhat_access/config/systems',
   'STATUS': '/redhat_access/config/status',
-  'SOFTWARE_CHANNELS': '/redhat_access/config/channels/software'
+  'SOFTWARE_CHANNELS': '/redhat_access/config/channels/software',
+  'CONNECTION': '/redhat_access/config/connection',
+  'LOG': '/redhat_access/config/log'
 })
 .constant('TELEMETRY_URLS', {
   'SYSTEMS_SUMMARY': '/redhat_access/r/insights/v1/systems?summary=true',

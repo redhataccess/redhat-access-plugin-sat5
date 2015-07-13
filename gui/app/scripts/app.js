@@ -8,7 +8,7 @@
  *
  * Main module of the application.
  */
-angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate'])
+angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
 .config(function(
           $urlRouterProvider, 
           $locationProvider, 
@@ -190,8 +190,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate'])
   }
 
   Admin.setEnabled(window.RHA_INSIGHTS.config.enabled);
-  Admin.setUsername(window.RHA_INSIGHTS.config.username);
-  Admin.setPasswordSet(Boolean(window.RHA_INSIGHTS.config.password)); //config.password is a boolean
+  Admin.setDebug(window.RHA_INSIGHTS.config.debug);
   Admin.setConfigLoaded(true);
   $rootScope.$broadcast(EVENTS.GENERAL_CONFIG_LOADED);
   if (window.RHA_INSIGHTS.config.enabled) {

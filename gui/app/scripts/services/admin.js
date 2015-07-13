@@ -9,6 +9,7 @@
  */
 angular.module('sat5TelemetryApp')
 .factory('Admin', function (
+_,
 $http, 
 EVENTS, 
 CONFIG_URLS, 
@@ -18,7 +19,8 @@ ADMIN_TABS) {
 
   var _tab = ADMIN_TABS.GENERAL;
   var _enabled = false;
-  var _username = "";
+  var _debug = false;
+  var _username = '';
   var _passwordSet = false;
   var _systems = [];
   var _systemStatuses = [];
@@ -63,6 +65,14 @@ ADMIN_TABS) {
 
   var setEnabled = function(enabled) {
     _enabled = enabled;
+  };
+
+  var getDebug = function() {
+    return _debug;
+  };
+
+  var setDebug = function(debug) {
+    _debug = debug;
   };
 
   var getPasswordSet = function() {
@@ -123,7 +133,7 @@ ADMIN_TABS) {
 
   var addSystemStatuses = function(systemStatuses) {
     _systemStatuses = _.union(_systemStatuses, systemStatuses);
-  }
+  };
 
   var getSystemStatus = function(system) {
     var status = _.where(_systemStatuses, {'id': system.id});
@@ -167,7 +177,7 @@ ADMIN_TABS) {
     return missingSystems;
   };
 
-  var postConfig = function(enabled, username, password) {
+  var postConfig = function(enabled, debug) {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
     headers[HTTP_CONST.CONTENT_TYPE] = HTTP_CONST.APPLICATION_JSON;
@@ -175,10 +185,7 @@ ADMIN_TABS) {
     params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
     var data = {};
     data[CONFIG_KEYS.ENABLED] = enabled;
-    data[CONFIG_KEYS.USERNAME] = username;
-    if (password !== null) {
-      data[CONFIG_KEYS.PASSWORD] = password;
-    }
+    data[CONFIG_KEYS.DEBUG] = debug;
     var promise = $http({
       method: HTTP_CONST.POST,
       url: CONFIG_URLS.GENERAL,
@@ -299,6 +306,34 @@ ADMIN_TABS) {
     _systemStatuses[index].enabled = system.enabled;
   };
 
+  var testConnection = function() {
+    var headers = {};
+    headers[HTTP_CONST.ACCEPT] = HTTP_CONST.APPLICATION_JSON;
+    var params = {};
+    params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
+    var promise = $http({
+      method: HTTP_CONST.GET,
+      url: CONFIG_URLS.CONNECTION,
+      headers: headers,
+      params: params
+    });
+    return promise;
+  };
+
+  var getLog = function() {
+    var headers = {};
+    headers[HTTP_CONST.ACCEPT] = HTTP_CONST.TEXT_PLAIN;
+    var params = {};
+    params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
+    var promise = $http({
+      method: HTTP_CONST.GET,
+      url: CONFIG_URLS.LOG,
+      headers: headers,
+      params: params
+    });
+    return promise;
+  };
+
   return {
     postConfig: postConfig,
     getConfig: getConfig,
@@ -310,6 +345,8 @@ ADMIN_TABS) {
     postSystems: postSystems,
     getEnabled: getEnabled,
     setEnabled: setEnabled,
+    getDebug: getDebug,
+    setDebug: setDebug,
     setUsername: setUsername,
     getUsername: getUsername,
     getSystems: getSystems,
@@ -335,6 +372,8 @@ ADMIN_TABS) {
     rulesTabSelected: rulesTabSelected,
     getConfigLoaded: getConfigLoaded,
     setConfigLoaded: setConfigLoaded,
-    updateSystem: updateSystem
+    updateSystem: updateSystem,
+    testConnection: testConnection,
+    getLog: getLog
   };
 });

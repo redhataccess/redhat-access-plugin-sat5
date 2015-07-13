@@ -139,3 +139,4 @@
         });
     }
 })();
+//# sourceMappingURL=insights.js.map

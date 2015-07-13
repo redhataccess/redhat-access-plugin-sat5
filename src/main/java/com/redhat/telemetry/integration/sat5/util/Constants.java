@@ -1,6 +1,8 @@
 package com.redhat.telemetry.integration.sat5.util;
 
 public class Constants {
+  public static final String PORTAL_URL = "https://access.redhat.com/r/insights/";
+
   public static final String SAT5_RPC_API_URL = "http://127.0.0.1/rpc/api";
   public static final String PEOPLE_REPO = 
     "http://access.redhat.com/insights/repo/";
@@ -50,12 +52,17 @@ public class Constants {
     "Red Hat Access Insights client configuration";
   public static final String CONFIG_PATH = 
     "/etc/redhat_access_proactive/redhat_access_proactive.conf";
+  public static final String VERSION_RHEL6_SERVER = "6Server";
+  public static final String VERSION_RHEL7_SERVER = "7Server";
+
+  //redhat-access-insights.properties 
   public static final String USERNAME_PROPERTY = "username";
   public static final String PASSWORD_PROPERTY = "password";
   public static final String ENABLED_PROPERTY = "enabled";
   public static final String PORTALURL_PROPERTY = "portalurl";
-  public static final String VERSION_RHEL6_SERVER = "6Server";
-  public static final String VERSION_RHEL7_SERVER = "7Server";
+  public static final String DEBUG_PROPERTY = "debug";
+  public static final String BOOLEAN_TYPE = "boolean";
+  public static final String STRING_TYPE = "string";
 
   //path types
   public static final String SYSTEMS_PATH = "0";
@@ -90,4 +97,8 @@ public class Constants {
   public static final String RHN_CONF_HTTP_PROXY_USERNAME = "server.satellite.http_proxy_username";
   public static final String RHN_CONF_HTTP_PROXY_PASSWORD = "server.satellite.http_proxy_password";
   public static final String RHN_CONF_HTTP_PROXY_CA_CHAIN = "server.satellite.ca_chain";
+
+  //ssl key store
+  public static final String SSL_KEY_STORE_LOC = "/etc/redhat-access/rhai.keystore";
+  public static final String SSL_KEY_STORE_PW = "changeit";
 }

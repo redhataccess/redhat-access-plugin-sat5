@@ -18,7 +18,10 @@ EVENTS) {
 
   $scope.softwareChannels = [];
   $scope.enabled = false;
+  $scope.connectionStatus = 'unknown';
   $scope.loading = true;
+  $scope.log = '';
+  $scope.debug = false;
 
   function fieldIsDirty(field) {
     var response = false;
@@ -38,7 +41,7 @@ EVENTS) {
 
   $scope.doUpdate = function() {
     $scope.loading = true;
-    Admin.postConfig($scope.enabled)
+    Admin.postConfig($scope.enabled, $scope.debug)
       .success(function(response) {
         $scope.loading = false;
         Admin.setEnabled($scope.enabled);
@@ -52,8 +55,55 @@ EVENTS) {
   };
 
   $scope.setValues = function() {
+    $scope.getLog();
+    $scope.doTestConnection();
     $scope.enabled = Admin.getEnabled();
+    $scope.debug = Admin.getDebug();
     $scope.loading = false;
+  };
+
+  $scope.getLog = function() {
+    Admin.getLog()
+      .success(function(log) {
+        $scope.log = log;
+      })
+      .error(function(error) {
+        console.log(error);
+        Alert.danger('Unable to retrieve rhai.log.');
+      });
+  };
+
+  $scope.doTestConnection = function() {
+    $scope.connectionStatus = 'loading';
+    Admin.testConnection()
+      .success(function(response) {
+        if (response.connected) {
+          $scope.connectionStatus = 'success';
+        } else {
+          $scope.connectionStatus = 'fail';
+          $scope.getLog();
+        }
+      })
+      .error(function(error) {
+        $scope.connectionStatus = 'unknown';
+        Alert.danger('Unable to test connection to Red Hat Access Insights API.');
+      });
+  };
+
+  $scope.getLoadingTooltip = function() {
+    return 'Trying to connect to Red Hat Access Insights API...';
+  };
+
+  $scope.getSuccessTooltip = function() {
+    return 'Connection to Red Hat Access Insights API was successful.';
+  };
+
+  $scope.getUnknownTooltip = function() {
+    return 'Press the button to test connection between Satellite and Red Hat Access Insights API.';
+  };
+
+  $scope.getFailTooltip = function() {
+    return 'Unable to connect to Red Hat Access Insights API.';
   };
 
   if (Admin.getConfigLoaded()) {

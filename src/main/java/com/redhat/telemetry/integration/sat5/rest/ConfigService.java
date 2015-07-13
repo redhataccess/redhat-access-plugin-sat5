@@ -1,6 +1,7 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,16 +17,22 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.redhat.telemetry.integration.sat5.json.Config;
+import com.redhat.telemetry.integration.sat5.json.Connection;
+import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.json.Status;
 import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
+import com.redhat.telemetry.integration.sat5.portal.InsightsApiClient;
 import com.redhat.telemetry.integration.sat5.satellite.AbstractSystem;
 import com.redhat.telemetry.integration.sat5.satellite.json.ApiSystem;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
@@ -33,11 +40,14 @@ import com.redhat.telemetry.integration.sat5.satellite.ScheduleCache;
 import com.redhat.telemetry.integration.sat5.satellite.Server6System;
 import com.redhat.telemetry.integration.sat5.satellite.Server7System;
 import com.redhat.telemetry.integration.sat5.util.Constants;
+import com.redhat.telemetry.integration.sat5.util.PropertiesHandler;
+import com.redhat.telemetry.integration.sat5.util.Util;
 
 
 @Path("/config")
 public class ConfigService {
   @Context ServletContext context;
+  private Logger LOG = LoggerFactory.getLogger(ConfigService.class);
 
   /**
    * Retrieve general config values
@@ -50,10 +60,9 @@ public class ConfigService {
       @QueryParam("satellite_user") String satelliteUser) 
           throws ConfigurationException, MalformedURLException, Exception {
 
-    PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.PROPERTIES_URL);
-    boolean enabled = properties.getBoolean(Constants.ENABLED_PROPERTY);
-    Config config = new Config(enabled);
+    Config config = new Config(
+        PropertiesHandler.getEnabled(), 
+        PropertiesHandler.getDebug()); 
     return config;
   }
 
@@ -80,13 +89,14 @@ public class ConfigService {
       server7System.createRepo();
       server7System.createChannel();
     } 
-    PropertiesConfiguration propertiesReader = new PropertiesConfiguration();
-    propertiesReader.load(Constants.PROPERTIES_URL);
-    String portalUrl = propertiesReader.getString(Constants.PORTALURL_PROPERTY);
+    Util.setLogLevel(config.getDebug());
+
+    String portalUrl = PropertiesHandler.getPortalUrl();
 
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.setFile(new File(Constants.PROPERTIES_URL));
     properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
+    properties.setProperty(Constants.DEBUG_PROPERTY, config.getDebug());
     if (portalUrl != null && portalUrl != "") {
       properties.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
     }
@@ -221,6 +231,42 @@ public class ConfigService {
     Status status = findSystemStatus(sessionKey, Integer.parseInt(id));
     return status;
   }
+
+  @GET
+  @Path("/connection")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Connection testConnection(
+      @CookieParam("pxt-session-cookie") String sessionKey,
+      @QueryParam("satellite_user") String satelliteUser) {
+    
+    try {
+      LOG.debug("Verifying connection to customer portal.");
+      InsightsApiClient client = new InsightsApiClient();
+      PortalResponse response = client.makeRequest(
+        Constants.METHOD_GET, 
+        "/me",
+        null,
+        null,
+        MediaType.APPLICATION_JSON);
+      if (response.getStatusCode() == 200) {
+        return new Connection(true, response.getStatusCode(), "response body", "success message");
+      } else {
+        return new Connection(false, response.getStatusCode(), "response body", "failure message");
+      }
+    } catch (Exception e) {
+      throw new WebApplicationException(
+          new Throwable("Unable to verify connection to Red Hat Customer Portal."), 
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  } 
+
+  @GET
+  @Path("/log")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String testConnection() throws IOException {
+    return Util.getLog();
+  }
+
 
   @SuppressWarnings("unchecked")
   private Status findSystemStatus(String sessionKey, int systemId) {
