@@ -58,4 +58,4 @@ div.panel.panel-default
     h4
       | rhai.log
   div.panel-body
-    div(ui-ace='{useWrapMode: true, showGutter: true, them: "twilight", firstLineNumber: 1}', readonly, ng-model='log')
+    div(ui-ace='{onLoad: onAceLoad, useWrapMode: true, showGutter: true, them: "twilight", firstLineNumber: 1}', readonly, ng-model='log')

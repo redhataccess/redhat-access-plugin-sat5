@@ -106,6 +106,10 @@ EVENTS) {
     return 'Unable to connect to Red Hat Access Insights API.';
   };
 
+  $scope.onAceLoad = function(editor) {
+    editor.$blockScrolling = Infinity;
+  };
+
   if (Admin.getConfigLoaded()) {
     $scope.setValues();
   } else {
