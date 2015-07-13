@@ -9,6 +9,8 @@ import java.net.InetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redhat.telemetry.integration.sat5.satellite.SatApi;
+
 import ch.qos.logback.classic.Level;
 
 public class Util {
@@ -69,4 +71,20 @@ public class Util {
       reader.close();
     }
   };
+
+  /**
+   * Check if a user is the satellite administrator
+   */
+  public static boolean userIsAdmin(String sessionKey, String username) {
+    Object[] userRoles = SatApi.listUserRoles(sessionKey, username);
+    boolean response = false;
+    if (userRoles != null) {
+      for (Object role : userRoles) {
+        if (role.equals("satellite_admin")) {
+          response = true;
+        }
+      }
+    }
+    return response;
+  }
 }

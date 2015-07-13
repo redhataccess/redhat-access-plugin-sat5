@@ -78,7 +78,7 @@ public class ConfigService {
       @QueryParam("satellite_user") String satelliteUser) 
           throws ConfigurationException, MalformedURLException, Exception {
 
-    if (!userIsAdmin(sessionKey, satelliteUser)) {
+    if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
       throw new Exception("Must be satellite admin.");
     }
     if (config.getEnabled()) {
@@ -239,6 +239,12 @@ public class ConfigService {
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("satellite_user") String satelliteUser) {
     
+    if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
+      throw new WebApplicationException(
+          new Throwable("Must be satellite admin."), 
+          Response.Status.UNAUTHORIZED);
+    }
+
     try {
       LOG.debug("Verifying connection to customer portal.");
       InsightsApiClient client = new InsightsApiClient();
@@ -263,7 +269,15 @@ public class ConfigService {
   @GET
   @Path("/log")
   @Produces(MediaType.TEXT_PLAIN)
-  public String testConnection() throws IOException {
+  public String getLog(
+      @CookieParam("pxt-session-cookie") String sessionKey,
+      @QueryParam("satellite_user") String satelliteUser) throws IOException {
+
+    if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
+      throw new WebApplicationException(
+          new Throwable("Must be satellite admin."), 
+          Response.Status.UNAUTHORIZED);
+    }
     return Util.getLog();
   }
 
@@ -342,21 +356,5 @@ public class ConfigService {
           false,
           pathInfo);
     }
-  }
-
-  /**
-   * Check if a user is the satellite administrator
-   */
-  private boolean userIsAdmin(String sessionKey, String username) {
-    Object[] userRoles = SatApi.listUserRoles(sessionKey, username);
-    boolean response = false;
-    if (userRoles != null) {
-      for (Object role : userRoles) {
-        if (role.equals("satellite_admin")) {
-          response = true;
-        }
-      }
-    }
-    return response;
   }
 }
