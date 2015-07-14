@@ -1,6 +1,5 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,26 +79,15 @@ public class ConfigService {
     if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
       throw new Exception("Must be satellite admin.");
     }
-    if (config.getEnabled()) {
-      Server6System server6System = new Server6System(sessionKey);
-      server6System.createRepo();
-      server6System.createChannel();
-      Server7System server7System = new Server7System(sessionKey);
-      server7System.createRepo();
-      server7System.createChannel();
-    } 
     Util.setLogLevel(config.getDebug());
 
     String portalUrl = PropertiesHandler.getPortalUrl();
-
-    PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.setFile(new File(Constants.PROPERTIES_URL));
-    properties.setProperty(Constants.ENABLED_PROPERTY, config.getEnabled());
-    properties.setProperty(Constants.DEBUG_PROPERTY, config.getDebug());
     if (portalUrl != null && portalUrl != "") {
-      properties.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
+      PropertiesHandler.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
     }
-    properties.save();
+    PropertiesHandler.setProperty(Constants.ENABLED_PROPERTY, Boolean.toString(config.getEnabled()));
+    PropertiesHandler.setProperty(Constants.DEBUG_PROPERTY, Boolean.toString(config.getDebug()));
+
     return Response.status(200).build();
   }
 
@@ -162,7 +149,7 @@ public class ConfigService {
   @Consumes(MediaType.APPLICATION_JSON)
   public ArrayList<Status> postSystems(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      ArrayList<Status> systems) {
+      ArrayList<Status> systems) throws ConfigurationException {
 
 
     for (Status sys : systems) {
@@ -175,22 +162,15 @@ public class ConfigService {
         }
         int packageId = system.getPackageId();
 
-        if (sys.getEnabled()) { //install missing pieces
-          system.updateSoftwareChannels(true);
-
+        if (sys.getEnabled() && !system.rpmInstalled()) {
           //install the package
-          if (!system.rpmInstalled()) {;
-            ArrayList<Integer> packageIds = new ArrayList<Integer>();
-            packageIds.add(packageId);
-            int actionId = 
-              SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
-            ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
-          }
+          ArrayList<Integer> packageIds = new ArrayList<Integer>();
+          packageIds.add(packageId);
+          int actionId = 
+            SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
+          ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
         } else { //remove installed pieces
           system.unregister();
-          if (system.softwareChannelAssociated()) {
-            system.updateSoftwareChannels(false);
-          }
           if (system.rpmInstalled()) {
             ArrayList<Integer> packageIds = new ArrayList<Integer>();
             packageIds.add(packageId);
@@ -209,7 +189,7 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public ArrayList<Status> getMultipleSystemStatus(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("systems") String systemIds) {
+      @QueryParam("systems") String systemIds) throws ConfigurationException {
 
     ArrayList<Status> statusList = new ArrayList<Status>();
     List<String> systemIdsList = Arrays.asList(systemIds.split("\\s*,\\s*"));
@@ -226,7 +206,7 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public Status getSingleSystemStatus(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @PathParam("id") String id) {
+      @PathParam("id") String id) throws ConfigurationException {
 
     Status status = findSystemStatus(sessionKey, Integer.parseInt(id));
     return status;
@@ -283,7 +263,7 @@ public class ConfigService {
 
 
   @SuppressWarnings("unchecked")
-  private Status findSystemStatus(String sessionKey, int systemId) {
+  private Status findSystemStatus(String sessionKey, int systemId) throws ConfigurationException {
 
     Object systemDetails = SatApi.getSystemDetails(sessionKey, systemId);
     HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
@@ -301,18 +281,15 @@ public class ConfigService {
     }
     if (system != null) {
       validSystem = true;
-      if(system.insightsChannelExists()) {
-        if (system.rpmInstalled()) {
-          installationStatus.setRpmInstalled(true);
-          enabled = true;
-        } else if (system.rpmScheduled()) {
-          installationStatus.setRpmScheduled(true);
-        }
+      if (system.rpmInstalled()) {
+        installationStatus.setRpmInstalled(true);
+        enabled = true;
+      } else if (system.rpmScheduled()) {
+        installationStatus.setRpmScheduled(true);
+      }
 
-        if (system.softwareChannelAssociated()) {
-          installationStatus.setSoftwareChannelAssociated(true);
-          enabled = true;
-        }
+      if (system.softwareChannelAssociated()) {
+        installationStatus.setSoftwareChannelAssociated(true);
       }
     }
 
@@ -323,38 +300,5 @@ public class ConfigService {
         enabled,
         validSystem);
     return status;
-  }
-
-  /**
-   * Create the insights config channel and add a default file
-   *
-   * XXX: This is no longer exposed. 
-   * Leaving the code here in case we decide to include it later.
-   */
-  @SuppressWarnings("unused")
-  private void createConfigChannel(String sessionKey) {
-    if (SatApi.configChannelExists(sessionKey, Constants.CONFIG_CHANNEL_LABEL) != 1) {
-      SatApi.createConfigChannel(
-          sessionKey, 
-          Constants.CONFIG_CHANNEL_LABEL, 
-          Constants.CONFIG_CHANNEL_NAME, 
-          Constants.CONFIG_CHANNEL_DESCRIPTION);
-      HashMap<String, Object> pathInfo = new  HashMap<String, Object>();
-      pathInfo.put("contents", 
-          "[redhat_access_proactive]" + 
-          System.getProperty("line.separator") +
-          "auto_config=true");
-      pathInfo.put("contents_enc64", false);
-      pathInfo.put("owner", "root");
-      pathInfo.put("group", "root");
-      pathInfo.put("permissions", "644");
-      pathInfo.put("binary", false);
-      SatApi.configCreateOrUpdatePath(
-          sessionKey,
-          Constants.CONFIG_CHANNEL_LABEL,
-          Constants.CONFIG_PATH,
-          false,
-          pathInfo);
-    }
   }
 }

@@ -285,14 +285,13 @@ module.exports = function (grunt) {
     useminPrepare: {
       html: '<%= yeoman.app %>/index.html',
       options: {
-        dest: '<%= yeoman.dist %>'
-        ,
+        dest: '<%= yeoman.dist %>',
         flow: {
           html: {
             steps: {
               js: [
-                'concat'
-                ,'uglifyjs'
+                'concat',
+                'uglifyjs'
               ],
               css: ['cssmin']
             },
@@ -332,10 +331,10 @@ module.exports = function (grunt) {
     uglify: {
       options: {
         sourceMap: true,
-        beautify: true,
-        compress: false,
-        mangle: false,
-        preserveComments: 'all'
+        //beautify: true,
+        //compress: false,
+        //mangle: false,
+        //preserveComments: 'all'
       }
     },
 

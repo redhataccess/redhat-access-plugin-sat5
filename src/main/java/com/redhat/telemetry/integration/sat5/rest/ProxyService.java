@@ -321,22 +321,22 @@ public class ProxyService {
    */
   private HashMap<String, String> parsePathType(String path) {
     LOG.debug("Path: " + path);
-    Pattern systemPattern = Pattern.compile("v1/systems/?(\\?.*)?$");
+    Pattern systemPattern = Pattern.compile("v[0-9]+/systems/?(\\?.*)?$");
     Matcher systemMatcher = systemPattern.matcher(path);
 
-    Pattern systemStatusPattern = Pattern.compile("v1/systems/status/?(\\?.*)?$");
+    Pattern systemStatusPattern = Pattern.compile("v[0-9]+/systems/status/?(\\?.*)?$");
     Matcher systemStatusMatcher = systemStatusPattern.matcher(path);
 
-    Pattern systemReportsPattern = Pattern.compile("v1/systems/(.*)/reports/?(\\?.*)?$");
+    Pattern systemReportsPattern = Pattern.compile("v[0-9]+/systems/(.*)/reports/?(\\?.*)?$");
     Matcher systemReportsMatcher = systemReportsPattern.matcher(path);
 
-    Pattern reportsPattern = Pattern.compile("v1/reports/?(\\?.*)?$");
+    Pattern reportsPattern = Pattern.compile("v[0-9]+/reports/?(\\?.*)?$");
     Matcher reportsMatcher = reportsPattern.matcher(path);
 
-    Pattern acksPattern = Pattern.compile("v1/acks/?(\\?.*)$");
+    Pattern acksPattern = Pattern.compile("v[0-9]+/acks/?(\\?.*)$");
     Matcher acksMatcher = acksPattern.matcher(path);
 
-    Pattern rulesPattern = Pattern.compile("v1/rules/?(\\?.*)$");
+    Pattern rulesPattern = Pattern.compile("v[0-9]+/rules/?(\\?.*)$");
     Matcher rulesMatcher = rulesPattern.matcher(path);
 
     Pattern uploadsPattern = Pattern.compile("uploads(/.*)?(/\\?.*)?$");

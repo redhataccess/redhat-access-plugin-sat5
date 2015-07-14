@@ -102,8 +102,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.systemPartiallySelected = function(system) {
     var response = false;
     if (system.indeterminate !== false && 
-      ($scope.getInstallationStatus(Admin.getSystemStatus(system)) === FAILED_INSTALL_STATUS ||
-        $scope.getInstallationStatus(Admin.getSystemStatus(system)) === IN_PROGRESS_INSTALL_STATUS)) {
+       ($scope.getInstallationStatus(Admin.getSystemStatus(system)) === IN_PROGRESS_INSTALL_STATUS)) {
       response = true;
     }
     return response;
@@ -140,14 +139,14 @@ SYSTEM_DETAILS_PAGE_URLS) {
     var message = '';
     var systemStatus = Admin.getSystemStatus(system);
     var installationStatus = $scope.getInstallationStatus(systemStatus);
-    if (installationStatus === FAILED_INSTALL_STATUS) {
-      message = 'RPM installation failed. Select the system to try again.';
+    if (installationStatus === NO_CHANNEL_STATUS) {
+      message = 'This system is not assigned a channel with the Access Insights RPM.';
     } else if (installationStatus === IN_PROGRESS_INSTALL_STATUS) {
-      message = 'RPM is scheduled to be installed';
+      message = 'Access Insights RPM is scheduled to be installed';
     } else if (installationStatus === NO_INSTALL_STATUS) {
-      message = 'RPM is not installed';
+      message = 'Access Insights RPM is not installed';
     } else if (installationStatus === SUCCESSFUL_INSTALL_STATUS) {
-      message = 'RPM is installed';
+      message = 'Access Insights RPM is installed';
     } else if (installationStatus === INVALID_TYPE_STATUS) {
       message = 'Unsupported system version';
     }
@@ -164,7 +163,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
    *  4 - invalid system type
    */
   var LOADING_STATUS = -1;
-  var FAILED_INSTALL_STATUS = 0;
+  var NO_CHANNEL_STATUS = 0;
   var IN_PROGRESS_INSTALL_STATUS = 1;
   var NO_INSTALL_STATUS = 2;
   var SUCCESSFUL_INSTALL_STATUS = 3;
@@ -178,11 +177,11 @@ SYSTEM_DETAILS_PAGE_URLS) {
       } else if (!installationStatus.rpmInstalled &&
           !installationStatus.rpmScheduled &&
           !installationStatus.softwareChannelAssociated) {
-        response = NO_INSTALL_STATUS;
+        response = NO_CHANNEL_STATUS;
       } else if ((!installationStatus.rpmInstalled && 
           !installationStatus.rpmScheduled) &&
           installationStatus.softwareChannelAssociated) {
-        response = FAILED_INSTALL_STATUS;
+        response = NO_INSTALL_STATUS;
       } else if (installationStatus.rpmScheduled) {
         response = IN_PROGRESS_INSTALL_STATUS;
       } else {
@@ -219,9 +218,9 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
-  $scope.installationFail = function(systemStatus) {
+  $scope.noChannel = function(systemStatus) {
     var status = $scope.getInstallationStatus(systemStatus);
-    if (status === FAILED_INSTALL_STATUS) {
+    if (status === NO_CHANNEL_STATUS) {
       return true;
     } else {
       return false;
@@ -239,7 +238,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.invalidType = function(systemStatus) {
     var status = $scope.getInstallationStatus(systemStatus);
-    if (status == INVALID_TYPE_STATUS) {
+    if (status === INVALID_TYPE_STATUS) {
       return true;
     } else {
       return false;
@@ -248,7 +247,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.loadingStatus = function(systemStatus) {
     var status = $scope.getInstallationStatus(systemStatus);
-    if (status == LOADING_STATUS) {
+    if (status === LOADING_STATUS) {
       return true;
     } else {
       return false;
