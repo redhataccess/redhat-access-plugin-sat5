@@ -1,4 +1,4 @@
-%define version 1.2.0
+%define version 2.0.0
 
 Name: redhat-access-plugin-sat5
 Version:  %{version}
@@ -106,6 +106,12 @@ cp resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
 
 
 %changelog
+* Tue Jul 14 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-24
+- Switch to base OS repos for redhat-access-insights RPM
+- Add Test Connection button
+- Add debug option to general tab on admin page
+- Add log dump to admin page
+
 * Mon Jul 6 2015 Chris Kyrouac <ckyrouac@redhat.com> - 1.2.0-23
 - Move log file to /var/log/rhn/rhai.log
 - Add dependency on spacewalk-java
