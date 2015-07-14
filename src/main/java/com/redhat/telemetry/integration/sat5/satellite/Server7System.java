@@ -1,6 +1,7 @@
 package com.redhat.telemetry.integration.sat5.satellite;
 
-import com.redhat.telemetry.integration.sat5.util.Constants;
+import org.apache.commons.configuration.ConfigurationException;
+
 import com.redhat.telemetry.integration.sat5.util.PropertiesHandler;
 
 public class Server7System extends AbstractSystem{
