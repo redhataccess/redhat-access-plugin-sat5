@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -63,15 +62,7 @@ public class InsightsApiClient {
              KeyManagementException,
              ConfigurationException {
     
-    //load config to check if service is enabled
-    LOG.debug("Loading properties file.");
-    boolean enabled = PropertiesHandler.getEnabled();
     loadPortalUrl();
-    if (!enabled) {
-      LOG.warn("Service is disabled.");
-      throw new WebApplicationException(new Throwable("Red Hat Access Insights service was disabled by the Satellite 5 administrator. The administrator must enable Red Hat Access Insights via the Satellite 5 GUI to continue using this service."), Response.Status.FORBIDDEN);
-    }
-
     client = HttpClients.custom()
             .setSSLSocketFactory(loadSSLKeystore())
             .build();

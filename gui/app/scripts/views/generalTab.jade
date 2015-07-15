@@ -53,7 +53,7 @@ div.panel.panel-default
       div.form-group
         div.col-lg-offset-3.col-lg-6
           input.btn.btn-success(type='submit', value='Update', ng-click='doUpdate()', ng-disabled='disableUpdateButton()')
-div.panel.panel-default
+div.panel.panel-default(ng-if='connectionStatus === "fail"')
   div.panel-heading
     h4
       | Test Connection Log

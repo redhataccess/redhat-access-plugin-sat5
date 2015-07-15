@@ -22,6 +22,8 @@ EVENTS) {
   $scope.loading = true;
   $scope.log = '';
   $scope.debug = false;
+  $scope.initialDebug = false;
+  $scope.initialEnabled = false;
 
   function fieldIsDirty(field) {
     var response = false;
@@ -33,7 +35,7 @@ EVENTS) {
 
   $scope.disableUpdateButton = function() {
     var response = false;
-    if ($scope.loading) {
+    if ($scope.loading || ($scope.initialDebug === $scope.debug && $scope.initialEnabled === $scope.enabled)) {
       response = true;
     }
     return response;
@@ -57,6 +59,8 @@ EVENTS) {
   $scope.setValues = function() {
     $scope.enabled = Admin.getEnabled();
     $scope.debug = Admin.getDebug();
+    $scope.initialDebug = $scope.debug;
+    $scope.initialEnabled = $scope.enabled;
     $scope.loading = false;
   };
 
