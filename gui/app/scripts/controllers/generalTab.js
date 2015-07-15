@@ -46,6 +46,8 @@ EVENTS) {
     Admin.postConfig($scope.enabled, $scope.debug)
       .success(function(response) {
         $scope.loading = false;
+        $scope.initialDebug = $scope.debug;
+        $scope.initialEnabled = $scope.enabled;
         Admin.setEnabled($scope.enabled);
         Alert.success(
           'Insights configuration was successfully updated.', true);
