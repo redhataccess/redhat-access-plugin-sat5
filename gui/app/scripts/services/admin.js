@@ -320,11 +320,12 @@ ADMIN_TABS) {
     return promise;
   };
 
-  var getLog = function() {
+  var getLog = function(timestamp) {
     var headers = {};
     headers[HTTP_CONST.ACCEPT] = HTTP_CONST.TEXT_PLAIN;
     var params = {};
     params[CONFIG_KEYS.SATELLITE_USER] = getSatelliteUser();
+    params[CONFIG_KEYS.TIMESTAMP] = timestamp;
     var promise = $http({
       method: HTTP_CONST.GET,
       url: CONFIG_URLS.LOG,

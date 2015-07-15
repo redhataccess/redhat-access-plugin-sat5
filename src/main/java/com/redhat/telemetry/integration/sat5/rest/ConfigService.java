@@ -2,8 +2,13 @@ package com.redhat.telemetry.integration.sat5.rest;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -217,13 +222,20 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public Connection testConnection(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("satellite_user") String satelliteUser) {
+      @QueryParam("satellite_user") String satelliteUser) throws ConfigurationException {
     
     if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
       throw new WebApplicationException(
           new Throwable("Must be satellite admin."), 
           Response.Status.UNAUTHORIZED);
     }
+    boolean debugIsOn = PropertiesHandler.getDebug();
+    if (!debugIsOn) {
+      Util.enableDebugMode();
+    }
+    Calendar cal = Calendar.getInstance();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+    String currentTimestamp = dateFormat.format(cal.getTime());
 
     try {
       LOG.debug("Verifying connection to customer portal.");
@@ -234,10 +246,13 @@ public class ConfigService {
         null,
         null,
         MediaType.APPLICATION_JSON);
+      if (!debugIsOn) {
+        Util.disableDebugMode();
+      }
       if (response.getStatusCode() == 200) {
-        return new Connection(true, response.getStatusCode(), "response body", "success message");
+        return new Connection(true, response.getStatusCode(), "response body", "success message", currentTimestamp);
       } else {
-        return new Connection(false, response.getStatusCode(), "response body", "failure message");
+        return new Connection(false, response.getStatusCode(), "response body", "failure message", currentTimestamp);
       }
     } catch (Exception e) {
       throw new WebApplicationException(
@@ -251,14 +266,22 @@ public class ConfigService {
   @Produces(MediaType.TEXT_PLAIN)
   public String getLog(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("satellite_user") String satelliteUser) throws IOException {
+      @QueryParam("timestamp") String timestamp,
+      @QueryParam("satellite_user") String satelliteUser) throws IOException, ParseException {
 
     if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
       throw new WebApplicationException(
           new Throwable("Must be satellite admin."), 
           Response.Status.UNAUTHORIZED);
     }
-    return Util.getLog();
+    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+    Date currentDate = null;
+    try {
+      currentDate = format.parse(timestamp);
+    } catch (ParseException e) {
+      currentDate = format.parse("1970-01-01 00:00:00,001");
+    }
+    return Util.getLog(currentDate);
   }
 
 

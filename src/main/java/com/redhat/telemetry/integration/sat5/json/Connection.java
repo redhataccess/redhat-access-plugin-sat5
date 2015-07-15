@@ -6,15 +6,17 @@ public class Connection {
   private int statusCode;
   private String responseBody;
   private String detailedMessage;
+  private String timestamp;
 
   public Connection() {
   }
 
-  public Connection(boolean connected, int statusCode, String responseBody, String detailedMessage) {
+  public Connection(boolean connected, int statusCode, String responseBody, String detailedMessage, String timestamp) {
     this.connected = connected;
     this.statusCode = statusCode;
     this.responseBody = responseBody;
     this.detailedMessage = detailedMessage;
+    this.timestamp = timestamp;
   }
 
   public void setConnected(boolean connected) {
@@ -47,5 +49,13 @@ public class Connection {
 
   public String getDetailedMessage() {
     return this.detailedMessage;
+  }
+
+  public void setTimestamp(String timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public String getTimestamp() {
+    return this.timestamp;
   }
 }

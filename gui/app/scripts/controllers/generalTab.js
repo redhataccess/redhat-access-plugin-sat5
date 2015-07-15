@@ -55,15 +55,13 @@ EVENTS) {
   };
 
   $scope.setValues = function() {
-    $scope.getLog();
-    $scope.doTestConnection();
     $scope.enabled = Admin.getEnabled();
     $scope.debug = Admin.getDebug();
     $scope.loading = false;
   };
 
-  $scope.getLog = function() {
-    Admin.getLog()
+  $scope.getLog = function(timestamp) {
+    Admin.getLog(timestamp)
       .success(function(log) {
         $scope.log = log;
       })
@@ -81,7 +79,7 @@ EVENTS) {
           $scope.connectionStatus = 'success';
         } else {
           $scope.connectionStatus = 'fail';
-          $scope.getLog();
+          $scope.getLog(response.timestamp);
         }
       })
       .error(function(error) {

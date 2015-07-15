@@ -14,10 +14,8 @@ public class PropertiesHandler {
   public static String getRHEL6ChannelLabel() throws ConfigurationException {
     String label = "rhel-x86_64-server-6";
     try {
-      LOG.error("getting channel label");
       label = (String) getProperty(Constants.RHEL6_CHANNEL_LABEL_PROPERTY, Constants.STRING_TYPE);
     } catch (NoSuchElementException e) {
-      LOG.error("rhel6channellabel property missing, setting it to default");
       setProperty(Constants.RHEL6_CHANNEL_LABEL_PROPERTY, label);
     }
     return label;

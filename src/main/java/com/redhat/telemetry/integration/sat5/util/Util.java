@@ -5,6 +5,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +60,26 @@ public class Util {
     log4jRoot.setLevel(org.apache.log4j.Level.DEBUG);
   }
 
-  public static String getLog() throws IOException {
+  public static String getLog(Date currentDate) throws IOException {
     BufferedReader reader = new BufferedReader(new FileReader("/var/log/rhn/rhai.log"));
+    //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+    //String currentTimestamp = dateFormat.format(calendar.getTime());
     try {
       StringBuilder builder = new StringBuilder();
       String line = reader.readLine();
+      boolean afterCurrentDate = false;
       while (line != null) {
-        builder.append(line);
-        builder.append("\n");
+        try {
+          Date lineDate = extractLineDate(line);
+          if (!afterCurrentDate && lineDate.after(currentDate)) {
+            afterCurrentDate = true;
+          }
+          if (afterCurrentDate) {
+            builder.append(line);
+            builder.append("\n");
+          }
+        } catch (Exception e) {
+        }
         line = reader.readLine();
       }
       return builder.toString();
@@ -71,6 +87,21 @@ public class Util {
       reader.close();
     }
   };
+
+  private static Date extractLineDate(String line) throws ParseException {
+    Date date = null;
+    int firstSpaceIndex = line.indexOf(" ");
+    if (firstSpaceIndex != -1) {
+      int secondSpaceIndex = line.indexOf(" ", firstSpaceIndex + 1);
+      if (secondSpaceIndex != -1) {
+        String timestamp = line.substring(0, secondSpaceIndex);
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+        date = format.parse(timestamp);
+      }
+    }
+    return date;
+  }
+
 
   /**
    * Check if a user is the satellite administrator

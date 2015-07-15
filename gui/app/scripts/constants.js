@@ -21,7 +21,8 @@ angular.module('sat5TelemetryApp')
   'SATELLITE_USER': 'satellite_user',
   'ENABLED': 'enabled',
   'DEBUG': 'debug',
-  'SYSTEMS': 'systems'
+  'SYSTEMS': 'systems',
+  'TIMESTAMP': 'timestamp'
 })
 .constant('TELEMETRY_API_KEYS', {
   'REMOTE_LEAF': 'remote_leaf'
