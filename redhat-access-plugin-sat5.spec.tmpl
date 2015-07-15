@@ -106,6 +106,12 @@ cp resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
 
 
 %changelog
+* Wed Jul 15 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-26
+- Hide log unless test connection failed
+- Fix broken test connection button when insights is disabled
+- Disable update button unless a change is made
+- Force debug mode on while testing connection
+
 * Tue Jul 14 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-24
 - Switch to base OS repos for redhat-access-insights RPM
 - Add Test Connection button
