@@ -79,6 +79,7 @@ EVENTS) {
           $scope.connectionStatus = 'success';
         } else {
           $scope.connectionStatus = 'fail';
+          Alert.danger('Unable to connect to Red Hat Servers. Please view the Test Connection Log below for more info.');
           $scope.getLog(response.timestamp);
         }
       })
