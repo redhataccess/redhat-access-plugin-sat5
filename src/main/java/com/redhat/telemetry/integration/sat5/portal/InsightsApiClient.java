@@ -183,7 +183,7 @@ public class InsightsApiClient {
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(Constants.RHN_CONF_LOC);
     String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
-    if (proxyHostColonPort != null && proxyHostColonPort != "") {
+    if (!proxyHostColonPort.equals(null) && !proxyHostColonPort.equals("")) {
       //pull out the port from the http_proxy property
       int proxyPort = 80;
       String hostname = "";
