@@ -1,5 +1,5 @@
 div.page-summary
-  p Select the systems which will report data to Red Hat Access Insights. After clicking apply, newly selected systems will be associated with the Red Hat Insights channel and the RPM will be installed on the system. Deselected systems will be removed from the Red Hat Insights channel and the RPM will be uninstalled from the system.
+  p Select the systems which will report data to Red Hat Access Insights. After clicking apply, the redhat-access-insights RPM will be installed on the newly selected system. The RPM will be uninstalled from deselected systems.
 div(ng-if='getSystems().length < 1')
   strong No systems are registered.
 form(ng-if='getSystems().length > 0')

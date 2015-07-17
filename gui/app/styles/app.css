@@ -1,1 +1,4 @@
 .ace_editor { height: 400px; }
+.rha-insights-sidenav-sub ul:hover {
+  cursor: pointer;
+}

@@ -73,10 +73,10 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
   var appendToSideNav = function(url, isState, content, hide) {
     var classString = '';
     if (hide) {
-      classString = 'class="ng-hide"';
+      classString = classString + 'ng-hide';
     }
     $('#sidenav > ul').append(
-      '<li id="rha-insights-sidenav" ' + classString + '><a href="/' + SAT5_ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
+      '<li id="rha-insights-sidenav" class="' + classString + '"><a href="/' + SAT5_ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
     //highlight Insights nav>li when selected
     if (RHA_INSIGHTS.UTILS.isOnPage(url)) {
       var currentSelection = $('#sidenav > ul > li .active')[0];
@@ -174,7 +174,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
     appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>', false);
   } else if (RHA_INSIGHTS.UTILS.isOnInsightsOverviewPage()) {
     $('#rha-insights-sidenav').after(
-      '<li>' + 
+      '<li class="rha-insights-sidenav-sub">' + 
         '<ul class="nav nav-pills nav-stacked">' + 
           '<li id="rha-insights-sat5-systems-overview-tab" class="active">' + 
             '<a ng-click="SystemOverviewService.switchToOverviewTab()">Overview</a>' + 
