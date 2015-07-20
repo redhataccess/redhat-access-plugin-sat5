@@ -3,6 +3,7 @@ package com.redhat.telemetry.integration.sat5.portal;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.security.cert.CertificateException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -86,10 +87,13 @@ public class InsightsApiClient {
       String responseContentType) throws ConfigurationException, IOException {
 
     HttpRequestBase request;
+    String fullPath = this.portalUrl + path;
+
     if (method == Constants.METHOD_GET) {
-      request = new HttpGet(this.portalUrl + path);
+      request = new HttpGet(fullPath);
     } else if (method == Constants.METHOD_POST) {
-        request = new HttpPost(this.portalUrl + path);
+        LOG.debug("content type: " + requestContentType);
+        request = new HttpPost(fullPath);
         request.addHeader(HttpHeaders.CONTENT_TYPE, requestContentType);
         if (requestBody != null) {
           if (requestBody instanceof HttpEntity) {
@@ -99,13 +103,14 @@ public class InsightsApiClient {
           }
         }
     } else if (method == Constants.METHOD_DELETE) {
-      request = new HttpDelete(this.portalUrl + path);
+      request = new HttpDelete(fullPath);
     } else {
       throw new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     loadProxyInfo();
     request.setConfig(requestConfig);
+    LOG.debug("Accept header: " + responseContentType);
     request.addHeader(HttpHeaders.ACCEPT, responseContentType);
     request.addHeader(Constants.SYSTEMID_HEADER, getSatelliteSystemId());
     HttpResponse response = client.execute(request, context);
@@ -181,7 +186,7 @@ public class InsightsApiClient {
    */
   private void loadProxyInfo() throws ConfigurationException {
     PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.RHN_CONF_LOC);
+    properties.load(Constants.RHN_CONF_LOC); 
     String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
     if (!proxyHostColonPort.equals(null) && !proxyHostColonPort.equals("")) {
       //pull out the port from the http_proxy property
@@ -216,3 +221,4 @@ public class InsightsApiClient {
     }
   }
 }
+

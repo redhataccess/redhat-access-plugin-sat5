@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -55,12 +56,14 @@ import com.redhat.telemetry.integration.sat5.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Encoded
 @Path("/r/insights")
 public class ProxyService {
   @Context ServletContext context;
   private Logger LOG = LoggerFactory.getLogger(ProxyService.class);
 
   @GET
+  @Encoded
   @Path("/v1/branch_info")
   @Produces("application/json")
   public BranchInfo getBranchId() throws UnknownHostException, JSONException, IOException, InterruptedException {
@@ -70,6 +73,7 @@ public class ProxyService {
   }
 
   @GET
+  @Encoded
   @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   public Response proxyRootGetMultiPart(
@@ -87,6 +91,7 @@ public class ProxyService {
   }
 
   @POST
+  @Encoded
   @Path("/{path: .*}")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.APPLICATION_JSON)
@@ -109,6 +114,7 @@ public class ProxyService {
 
   @GET
   @POST
+  @Encoded
   @Path("/{path: .*}")
   @Produces(MediaType.TEXT_PLAIN)
   public Response proxyGetTextPlain(
@@ -127,6 +133,7 @@ public class ProxyService {
   }
 
   @POST
+  @Encoded
   @Path("/{path: .*}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
@@ -149,6 +156,7 @@ public class ProxyService {
   @GET
   @POST
   @DELETE
+  @Encoded
   @Path("/{path: .*}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response proxyGet(
