@@ -28,7 +28,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
   InsightsConfigProvider.setGetReportsErrorCallback(
     function(data, status, headers, config) {
       if (status === 404) {
-        return 'System is not registered with Access Insights.';
+        return 'This system is not registered with Red Hat Access Insights. To enable Access Insights, the Organization Administrator needs to go to Systems -> Insights -> Setup and select this system.';
       }
     });
 
