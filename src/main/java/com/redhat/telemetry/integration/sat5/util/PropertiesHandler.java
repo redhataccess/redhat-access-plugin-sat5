@@ -1,7 +1,5 @@
 package com.redhat.telemetry.integration.sat5.util;
 
-import java.io.File;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
@@ -38,7 +36,7 @@ public class PropertiesHandler {
     boolean enabled = (Boolean) getProperty(
         Constants.ENABLED_PROPERTY,
         Constants.BOOLEAN_TYPE,
-        Boolean.toString(false));
+        false);
     return enabled;
   }
 
@@ -46,69 +44,51 @@ public class PropertiesHandler {
     boolean debug = (Boolean) getProperty(
         Constants.DEBUG_PROPERTY, 
         Constants.BOOLEAN_TYPE, 
-        Boolean.toString(false));
+        false);
     return debug;
+  }
+
+  public static String getPortalUrl() throws ConfigurationException {
+    String portalUrl = (String) getProperty(
+        Constants.PORTALURL_PROPERTY, 
+        Constants.STRING_TYPE, 
+        Constants.PORTAL_URL);
+    return portalUrl;
   }
 
   private static Object getProperty(
       String propertyName, 
       String propertyType,
-      String defaultValue) throws ConfigurationException {
+      Object defaultValue) throws ConfigurationException {
 
     Object property = defaultValue;
     try {
-      property = getProperty(propertyName, propertyType);
+      property = getPropertyFromFile(propertyName, propertyType);
       if (property == null) {
         LOG.info(
             propertyName + 
             " property is null. Setting it to the default value: " + 
             defaultValue);
+        setProperty(propertyName, defaultValue.toString());
         property = defaultValue;
       }
     } catch (Exception e) {
       LOG.info(
           "Problem while retrieving property, " + propertyName + ". Setting it to the default value: " + 
-          defaultValue);
-      setProperty(propertyName, defaultValue);
+          defaultValue, e);
+      setProperty(propertyName, defaultValue.toString());
       property = defaultValue;
-      LOG.info(propertyName + " property: " + property);
-      return property;
     }
-    LOG.info(propertyName + " property: " + property);
     return property;
   }
 
-  public static String getPortalUrl() throws ConfigurationException {
-    return (String) getProperty(Constants.PORTALURL_PROPERTY, Constants.STRING_TYPE);
-  }
-
   public static void setProperty(String name, String value) throws ConfigurationException {
-    PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.setFile(new File(Constants.PROPERTIES_URL));
-    if (!name.equals(Constants.ENABLED_PROPERTY)) {
-      properties.setProperty(Constants.ENABLED_PROPERTY, getEnabled());
-    }
-    if (!name.equals(Constants.DEBUG_PROPERTY)) {
-      properties.setProperty(Constants.DEBUG_PROPERTY, getDebug());
-    }
-    if (!name.equals(Constants.PORTALURL_PROPERTY)) {
-      properties.setProperty(Constants.PORTALURL_PROPERTY, getPortalUrl());
-    }
-    if (!name.equals(Constants.RPM_NAME_PROPERTY)) {
-      properties.setProperty(Constants.RPM_NAME_PROPERTY, getRPMName());
-    }
-    if (!name.equals(Constants.RHEL6_CHANNEL_LABEL_PROPERTY)) {
-      properties.setProperty(Constants.RHEL6_CHANNEL_LABEL_PROPERTY, getRHEL6ChannelLabel());
-    }
-    if (!name.equals(Constants.RHEL7_CHANNEL_LABEL_PROPERTY)) {
-      properties.setProperty(Constants.RHEL7_CHANNEL_LABEL_PROPERTY, getRHEL7ChannelLabel());
-    }
+    PropertiesConfiguration properties = new PropertiesConfiguration(Constants.PROPERTIES_URL);
     properties.setProperty(name, value);
     properties.save();
   }
 
-  private static Object getProperty(String property, String type) throws ConfigurationException {
-    LOG.debug("Loading properties file.");
+  private static Object getPropertyFromFile(String property, String type) throws ConfigurationException {
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(Constants.PROPERTIES_URL);
     Object response = null;

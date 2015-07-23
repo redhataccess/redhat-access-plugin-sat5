@@ -65,7 +65,7 @@ public class Constants {
   public static final String GPG_KEY_ID = "F21541EB";
 
   //satellite config
-  public static final String RHN_CONF_LOC = "file:///etc/rhn/rhn.conf";
+  public static final String RHN_CONF_LOC = "/etc/rhn/rhn.conf";
   public static final String RHN_CONF_HTTP_PROXY = "server.satellite.http_proxy";
   public static final String RHN_CONF_HTTP_PROXY_USERNAME = "server.satellite.http_proxy_username";
   public static final String RHN_CONF_HTTP_PROXY_PASSWORD = "server.satellite.http_proxy_password";
