@@ -3,7 +3,6 @@ package com.redhat.telemetry.integration.sat5.portal;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.security.cert.CertificateException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -188,7 +187,7 @@ public class InsightsApiClient {
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(Constants.RHN_CONF_LOC); 
     String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
-    if (!proxyHostColonPort.equals(null) && !proxyHostColonPort.equals("")) {
+    if (proxyHostColonPort != null && !proxyHostColonPort.equals(null) && !proxyHostColonPort.equals("")) {
       //pull out the port from the http_proxy property
       int proxyPort = 80;
       String hostname = "";

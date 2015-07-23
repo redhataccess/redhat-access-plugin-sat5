@@ -255,8 +255,10 @@ public class ConfigService {
         return new Connection(false, response.getStatusCode(), "response body", "failure message", currentTimestamp);
       }
     } catch (Exception e) {
+      String message = "Unable to verify connection to Red Hat Customer Portal.";
+      LOG.error(message, e);
       throw new WebApplicationException(
-          new Throwable("Unable to verify connection to Red Hat Customer Portal."), 
+          new Throwable(message), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   } 
