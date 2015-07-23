@@ -57,5 +57,5 @@ div.panel.panel-default(ng-if='connectionStatus === "fail"')
   div.panel-heading
     h4
       | Test Connection Log
-  div.panel-body
+  div.panel-body.rha-insights-sat5-log
     div(ui-ace='{onLoad: onAceLoad, useWrapMode: true, showGutter: true, them: "twilight", firstLineNumber: 1}', readonly, ng-model='log')
