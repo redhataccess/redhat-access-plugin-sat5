@@ -169,6 +169,8 @@ public class ConfigService {
       @CookieParam("pxt-session-cookie") String sessionKey,
       ArrayList<Status> systems) {
 
+    //TODO: get map of redhat-access-insights packageId <=> arch
+
     try {
       for (Status sys : systems) {
         if (sys.getValidType()) {
@@ -293,16 +295,14 @@ public class ConfigService {
         Util.disableDebugMode();
       }
       if (response.getStatusCode() == 200) {
-        return new Connection(true, response.getStatusCode(), "response body", "success message", currentTimestamp);
+        return new Connection(true, response.getStatusCode(), "", "", currentTimestamp);
       } else {
-        return new Connection(false, response.getStatusCode(), "response body", "failure message", currentTimestamp);
+        return new Connection(false, response.getStatusCode(), "", "", currentTimestamp);
       }
     } catch (Exception e) {
       String message = "Unable to verify connection to Red Hat Customer Portal.";
       LOG.error(message, e);
-      throw new WebApplicationException(
-          new Throwable(message), 
-          Response.Status.INTERNAL_SERVER_ERROR);
+      return new Connection(false, 500, "", "", currentTimestamp);
     }
   } 
 
