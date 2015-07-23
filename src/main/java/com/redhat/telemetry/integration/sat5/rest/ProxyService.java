@@ -66,8 +66,16 @@ public class ProxyService {
   @Encoded
   @Path("/v1/branch_info")
   @Produces("application/json")
-  public BranchInfo getBranchId() throws UnknownHostException, JSONException, IOException, InterruptedException {
-    String hostname = Util.getSatelliteHostname();
+  public BranchInfo getBranchId() {
+    String hostname = "";
+    try {
+      hostname = Util.getSatelliteHostname();
+    } catch (Exception e) {
+      LOG.error("Unable to retrieve Satellite hostname at GET /r/insights/v1/branch_info", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
     BranchInfo branchInfo = new BranchInfo(hostname, -1, new Product("SAT", "5", "7"), hostname);
     return branchInfo;
   }
@@ -85,7 +93,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /", e);
       throw new WebApplicationException(
-          new Throwable("Internal server error occurred. View server logs for details."), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -107,7 +115,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
       throw new WebApplicationException(
-          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -127,7 +135,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: Text/plain)", e);
       throw new WebApplicationException(
-          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -148,7 +156,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /*", e);
       throw new WebApplicationException(
-          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -163,7 +171,7 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
-      @CookieParam("pxt-session-cookie") String user) throws NotFoundException {
+      @CookieParam("pxt-session-cookie") String user) {
     try {
       return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
     } catch (NotFoundException e) {
@@ -172,7 +180,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: application/json)", e);
       throw new WebApplicationException(
-          new Throwable("Internal server error occurred. Contact system admin for help."), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }

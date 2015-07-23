@@ -22,7 +22,7 @@ public class Constants {
   public final static String METHOD_PUT = "PUT";
   public final static String METHOD_DELETE = "DELETE";
 
-  public static final String PROPERTIES_URL = "/etc/redhat-access/redhat-access-insights.properties";
+  public static final String PROPERTIES_URL = "file:///etc/redhat-access/redhat-access-insights.properties";
   public static final String VERSION_RHEL6_SERVER = "6Server";
   public static final String VERSION_RHEL7_SERVER = "7Server";
 
@@ -65,7 +65,7 @@ public class Constants {
   public static final String GPG_KEY_ID = "F21541EB";
 
   //satellite config
-  public static final String RHN_CONF_LOC = "/etc/rhn/rhn.conf";
+  public static final String RHN_CONF_LOC = "file:///etc/rhn/rhn.conf";
   public static final String RHN_CONF_HTTP_PROXY = "server.satellite.http_proxy";
   public static final String RHN_CONF_HTTP_PROXY_USERNAME = "server.satellite.http_proxy_username";
   public static final String RHN_CONF_HTTP_PROXY_PASSWORD = "server.satellite.http_proxy_password";
@@ -74,4 +74,7 @@ public class Constants {
   //ssl key store
   public static final String SSL_KEY_STORE_LOC = "/etc/redhat-access/rhai.keystore";
   public static final String SSL_KEY_STORE_PW = "changeit";
+
+  public static final String INTERNAL_SERVER_ERROR_MESSAGE = 
+    "Internal server error occurred. View rhai.log for more details.";
 }

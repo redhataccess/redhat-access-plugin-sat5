@@ -1,9 +1,6 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,12 +57,20 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public Config getConfig(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("satellite_user") String satelliteUser) 
-          throws ConfigurationException, MalformedURLException, Exception {
+      @QueryParam("satellite_user") String satelliteUser) {
 
-    Config config = new Config(
-        PropertiesHandler.getEnabled(), 
-        PropertiesHandler.getDebug()); 
+    Config config = null;
+
+    try {
+      config = new Config(
+          PropertiesHandler.getEnabled(), 
+          PropertiesHandler.getDebug()); 
+    } catch (Exception e) {
+      LOG.error("Exception in GET /config/general", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
     return config;
   }
 
@@ -78,20 +83,28 @@ public class ConfigService {
   public Response postConfig(
       Config config,
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("satellite_user") String satelliteUser) 
-          throws ConfigurationException, MalformedURLException, Exception {
+      @QueryParam("satellite_user") String satelliteUser) {
 
     if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
-      throw new Exception("Must be satellite admin.");
+      throw new WebApplicationException(
+          new Throwable("Must be satellite admin."), 
+          Response.Status.UNAUTHORIZED);
     }
     Util.setLogLevel(config.getDebug());
 
-    String portalUrl = PropertiesHandler.getPortalUrl();
-    if (portalUrl != null && portalUrl != "") {
-      PropertiesHandler.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
+    try {
+      String portalUrl = PropertiesHandler.getPortalUrl();
+      if (portalUrl != null && portalUrl != "") {
+        PropertiesHandler.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
+      }
+      PropertiesHandler.setProperty(Constants.ENABLED_PROPERTY, Boolean.toString(config.getEnabled()));
+      PropertiesHandler.setProperty(Constants.DEBUG_PROPERTY, Boolean.toString(config.getDebug()));
+    } catch (Exception e) {
+      LOG.error("Exception in POST /config/general", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
-    PropertiesHandler.setProperty(Constants.ENABLED_PROPERTY, Boolean.toString(config.getEnabled()));
-    PropertiesHandler.setProperty(Constants.DEBUG_PROPERTY, Boolean.toString(config.getDebug()));
 
     return Response.status(200).build();
   }
@@ -152,41 +165,46 @@ public class ConfigService {
   @POST
   @Path("/systems")
   @Consumes(MediaType.APPLICATION_JSON)
-  public ArrayList<Status> postSystems(
+  public void postSystems(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      ArrayList<Status> systems) throws ConfigurationException {
+      ArrayList<Status> systems) {
 
+    try {
+      for (Status sys : systems) {
+        if (sys.getValidType()) {
+          AbstractSystem system = null;
+          if (sys.getVersion().equals(Constants.VERSION_RHEL6_SERVER)) {
+            system = new Server6System(sessionKey, sys.getId());
+          } else if (sys.getVersion().equals(Constants.VERSION_RHEL7_SERVER)) {
+            system = new Server7System(sessionKey, sys.getId());
+          }
+          int packageId = system.getPackageId();
 
-    for (Status sys : systems) {
-      if (sys.getValidType()) {
-        AbstractSystem system = null;
-        if (sys.getVersion().equals(Constants.VERSION_RHEL6_SERVER)) {
-          system = new Server6System(sessionKey, sys.getId());
-        } else if (sys.getVersion().equals(Constants.VERSION_RHEL7_SERVER)) {
-          system = new Server7System(sessionKey, sys.getId());
-        }
-        int packageId = system.getPackageId();
-
-        if (sys.getEnabled() && !system.rpmInstalled()) {
-          //install the package
-          ArrayList<Integer> packageIds = new ArrayList<Integer>();
-          packageIds.add(packageId);
-          int actionId = 
-            SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
-          ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
-        } else { //remove installed pieces
-          system.unregister();
-          if (system.rpmInstalled()) {
+          if (sys.getEnabled() && !system.rpmInstalled()) {
+            //install the package
             ArrayList<Integer> packageIds = new ArrayList<Integer>();
             packageIds.add(packageId);
             int actionId = 
-              SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
+              SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
             ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
+          } else { //remove installed pieces
+            system.unregister();
+            if (system.rpmInstalled()) {
+              ArrayList<Integer> packageIds = new ArrayList<Integer>();
+              packageIds.add(packageId);
+              int actionId = 
+                SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
+              ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
+            }
           }
         }
       }
+    } catch (Exception e) {
+      LOG.error("Exception in POST /config/systems", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
-    return systems;
   }
 
   @GET
@@ -194,14 +212,21 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public ArrayList<Status> getMultipleSystemStatus(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("systems") String systemIds) throws ConfigurationException {
+      @QueryParam("systems") String systemIds) {
 
     ArrayList<Status> statusList = new ArrayList<Status>();
     List<String> systemIdsList = Arrays.asList(systemIds.split("\\s*,\\s*"));
-    for (String id : systemIdsList) {
-      int systemId = Integer.parseInt(id);
-      Status status = findSystemStatus(sessionKey, systemId);
-      statusList.add(status);
+    try {
+      for (String id : systemIdsList) {
+        int systemId = Integer.parseInt(id);
+        Status status = findSystemStatus(sessionKey, systemId);
+        statusList.add(status);
+      }
+    } catch (Exception e) {
+      LOG.error("Exception in GET /config/status", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
     return statusList;
   }
@@ -211,9 +236,17 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public Status getSingleSystemStatus(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @PathParam("id") String id) throws ConfigurationException {
+      @PathParam("id") String id) {
 
-    Status status = findSystemStatus(sessionKey, Integer.parseInt(id));
+    Status status = null;
+    try {
+      status = findSystemStatus(sessionKey, Integer.parseInt(id));
+    } catch (Exception e) {
+      LOG.error("Exception in GET /status/{id}", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
     return status;
   }
 
@@ -222,14 +255,24 @@ public class ConfigService {
   @Produces(MediaType.APPLICATION_JSON)
   public Connection testConnection(
       @CookieParam("pxt-session-cookie") String sessionKey,
-      @QueryParam("satellite_user") String satelliteUser) throws ConfigurationException {
+      @QueryParam("satellite_user") String satelliteUser) {
     
     if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
       throw new WebApplicationException(
           new Throwable("Must be satellite admin."), 
           Response.Status.UNAUTHORIZED);
     }
-    boolean debugIsOn = PropertiesHandler.getDebug();
+    boolean debugIsOn = false;
+
+    try {
+      debugIsOn = PropertiesHandler.getDebug();
+    } catch (Exception e) {
+      LOG.error("Unable to load debugProperty in GET /config/connection", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+
     if (!debugIsOn) {
       Util.enableDebugMode();
     }
@@ -269,7 +312,7 @@ public class ConfigService {
   public String getLog(
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("timestamp") String timestamp,
-      @QueryParam("satellite_user") String satelliteUser) throws IOException, ParseException {
+      @QueryParam("satellite_user") String satelliteUser) {
 
     if (!Util.userIsAdmin(sessionKey, satelliteUser)) {
       throw new WebApplicationException(
@@ -278,12 +321,18 @@ public class ConfigService {
     }
     DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
     Date currentDate = null;
+    String logString = "";
     try {
       currentDate = format.parse(timestamp);
-    } catch (ParseException e) {
-      currentDate = format.parse("1970-01-01 00:00:00,001");
+      logString = Util.getLog(currentDate);
+    } catch (Exception e) {
+      LOG.error("Exception in GET /config/log", e);
+      throw new WebApplicationException(
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          Response.Status.INTERNAL_SERVER_ERROR);
     }
-    return Util.getLog(currentDate);
+
+    return logString;
   }
 
 

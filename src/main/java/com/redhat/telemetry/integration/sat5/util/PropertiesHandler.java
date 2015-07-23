@@ -61,18 +61,20 @@ public class PropertiesHandler {
       if (property == null) {
         LOG.info(
             propertyName + 
-            " property is missing. Setting it to the default value: " + 
+            " property is null. Setting it to the default value: " + 
             defaultValue);
         property = defaultValue;
       }
-      LOG.debug(propertyName + " property: " + property);
     } catch (Exception e) {
       LOG.info(
-          propertyName + 
-          " property is missing. Setting it to the default value: " + 
+          "Problem while retrieving property, " + propertyName + ". Setting it to the default value: " + 
           defaultValue);
       setProperty(propertyName, defaultValue);
+      property = defaultValue;
+      LOG.info(propertyName + " property: " + property);
+      return property;
     }
+    LOG.info(propertyName + " property: " + property);
     return property;
   }
 
