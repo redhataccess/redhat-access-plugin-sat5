@@ -35,6 +35,7 @@ public class Constants {
   public static final String DEBUG_PROPERTY = "debug";
   public static final String BOOLEAN_TYPE = "boolean";
   public static final String STRING_TYPE = "string";
+  public static final String INSIGHTS_CLIENT_RPM_NAME = "redhat-access-insights";
 
   //path types
   public static final String SYSTEMS_PATH = "0";

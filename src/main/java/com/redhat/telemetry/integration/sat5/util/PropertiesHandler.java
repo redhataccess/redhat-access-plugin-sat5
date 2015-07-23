@@ -30,7 +30,7 @@ public class PropertiesHandler {
     String rpmName = (String) getProperty(
         Constants.RPM_NAME_PROPERTY,
         Constants.STRING_TYPE,
-        "redhat-access-insights");
+        Constants.INSIGHTS_CLIENT_RPM_NAME);
     return rpmName;
   }
 
