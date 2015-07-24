@@ -19,22 +19,25 @@ form(ng-if='getSystems().length > 0')
               input.form-control(
                 ng-model='filter',
                 ng-change='doFilter()',
-                ng-disabled='loading',
+                ng-disabled='isLoading()',
                 type='text',
                 placeholder='Filter by System Name')
               span.input-group-btn
                 button.btn.btn-default.spacewalk-button-filter(
                   type='submit',
-                  ng-disabled='loading')
+                  ng-disabled='isLoading()')
                   i.fa.fa-eye
           div.spacewalk-list-head-addons-extra
             div.list-sizeselector
               select.display-number(
                   ng-options='size for size in pageSizes',
-                  ng-disabled='loading', 
+                  ng-disabled='isLoading()', 
                   ng-change='setPageSize()', 
                   ng-model='pageSize')
                 | items per page
+      div.panel-heading(ng-show='isLoading()') 
+        i.fa.fa-spinner.fa-spin.fa-1-5x
+        | {{getLoadingMessage()}}
       div.table-responsive
         table.table.table-striped
           thead
@@ -44,16 +47,13 @@ form(ng-if='getSystems().length > 0')
                   ui-indeterminate='allPartiallySelected()',
                   ng-checked='allSelected()',
                   type='checkbox',
-                  ng-disabled='loading',
+                  ng-disabled='isLoading()',
                   ng-click='toggleAll()')
               th(ng-class='{ascSort: orderBy === "name", descSort: orderBy === "-name"}')
-                a(ng-disabled='loading', ng-click='toggleNameSort()') System
+                a(ng-disabled='isLoading()', ng-click='toggleNameSort()') System
               th(ng-class='{ascSort: orderBy === "status", descSort: orderBy === "-status"}')
-                a(ng-disabled='loading', ng-click='toggleStatusSort()') Status
-          div(ng-show='loading')
-            i.fa.fa-spinner.fa-spin.fa-1-5x
-            | Loading systems...
-          tbody(ng-hide='loading')
+                a(ng-disabled='isLoading()', ng-click='toggleStatusSort()') Status
+          tbody
             tr(
               ng-repeat='system in filteredSystems = (getSystems() | systemsFilter:filter:orderBy:getPageStart():getPageSize():alpha)',
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
@@ -63,7 +63,8 @@ form(ng-if='getSystems().length > 0')
                   type='checkbox',
                   ng-model='system.enabled',
                   ng-change='updateSystemStatus(system)',
-                  ng-if='!invalidType(getSystemStatus(system)) && !loadingStatus(getSystemStatus(system))')
+                  ng-disabled='loadingStatus(getSystemStatus(system))',
+                  ng-if='!invalidType(getSystemStatus(system))')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
               td.text-center(width='75px')
@@ -72,6 +73,8 @@ form(ng-if='getSystems().length > 0')
                   tooltip-trigger='mouseenter', 
                   tooltip-append-to-body='true', 
                   tooltip-placement='top')
+                  i.fa.fa-question-circle.fa-1-5x(
+                    ng-if='loadingStatus(getSystemStatus(system))')
                   i.fa.fa-minus-circle.fa-1-5x(
                     ng-if='noInstallation(getSystemStatus(system))')
                   i.fa.fa-exclamation-circle.fa-1-5x.fail(
@@ -89,7 +92,7 @@ form(ng-if='getSystems().length > 0')
               button.btn.btn-default(
                 type='submit', 
                 value='Select All', 
-                ng-disabled='loading', 
+                ng-disabled='isLoading()', 
                 ng-click='toggleAll()') Select All
     div.spacewalk-list-bottom-addons
       div(rha-insights-sat5-pagination)
@@ -97,4 +100,4 @@ form(ng-if='getSystems().length > 0')
       hr
       div.row
         div.col-md-12
-          input.btn.btn-default(type='submit', value='Apply', ng-disabled='loading', ng-click='doApply()')
+          input.btn.btn-default(type='submit', value='Apply', ng-disabled='isLoading()', ng-click='doApply()')

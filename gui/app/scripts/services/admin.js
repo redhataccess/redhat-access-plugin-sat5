@@ -30,6 +30,7 @@ ADMIN_TABS) {
   var _filteredSystems = [];
   var _validSystems = [];
   var _configLoaded = false;
+  var _loadingStatuses = false;
 
   var setConfigLoaded = function(configLoaded) {
     _configLoaded = configLoaded;
@@ -37,6 +38,10 @@ ADMIN_TABS) {
 
   var getConfigLoaded = function() {
     return _configLoaded;
+  };
+
+  var getLoadingStatuses = function() {
+    return _loadingStatuses;
   };
 
   var setTab = function(tab) {
@@ -257,8 +262,10 @@ ADMIN_TABS) {
     var unknownSystems = getSystemsMissingStatus(filteredSystems);
     var promise = null;
     if (!_.isEmpty(unknownSystems)) {
+      _loadingStatuses = true;
       promise = getStatusPromise(unknownSystems).then(
         function(statuses) {
+          _loadingStatuses = false;
           addSystemStatuses(statuses.data);
           setEnabledProperty(unknownSystems);
         });
@@ -375,6 +382,7 @@ ADMIN_TABS) {
     setConfigLoaded: setConfigLoaded,
     updateSystem: updateSystem,
     testConnection: testConnection,
-    getLog: getLog
+    getLog: getLog,
+    getLoadingStatuses: getLoadingStatuses
   };
 });

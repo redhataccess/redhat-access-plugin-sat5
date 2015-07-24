@@ -15,7 +15,7 @@ Admin,
 Alert, 
 SAT5_ROOT_URLS, 
 SYSTEM_DETAILS_PAGE_URLS) {
-  $scope.loading = true;
+  $scope.loadingSystems = true;
   $scope.filter = '';
   $scope.systems = [];
   $scope.orderBy = 'name';
@@ -34,6 +34,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.getPageStart = Admin.getPageStart;
   $scope.getSystemStatus = Admin.getSystemStatus;
   $scope.updateSystemStatus = Admin.updateSystemStatus;
+  $scope.getLoadingStatuses = Admin.getLoadingStatuses;
 
   $scope.disableAlphabarElement = function(alpha) {
     return !_.some(Admin.getSystems(), function(sys) {
@@ -118,18 +119,18 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.doApply = function() {
-    $scope.loading = true;
+    $scope.loadingSystems = true;
     Alert.info('Applying changes to systems...');
     Admin.postSystems(Admin.getSystemStatuses())
       .success(function(response) {
         Admin.updateStatuses().then(function() {
-          $scope.loading = false;
+          $scope.loadingSystems = false;
           Alert.success('Successfully applied changes to systems.', true);
         });
       })
       .error(function(error) {
         Admin.updateStatuses().then(function() {
-          $scope.loading = false;
+          $scope.loadingSystems = false;
           Alert.danger('Problem updating systems. Please try again.', true);
         });
       });
@@ -266,14 +267,33 @@ SYSTEM_DETAILS_PAGE_URLS) {
     });
   };
 
+  $scope.isLoading = function() {
+    var response = false;
+    if ($scope.loadingSystems || $scope.getLoadingStatuses()) {
+      response = true;
+    }
+    return response;
+  };
+
+  $scope.getLoadingMessage = function() {
+    var message = 'Loading ';
+    if ($scope.loadingSystems) {
+      message = message + 'systems';
+    } else if ($scope.getLoadingStatuses()) {
+      message = message + 'statuses'; 
+    }
+    return message + '...';
+  };
+
   $scope.populateSystems = function() {
+    $scope.loadingSystems = true;
     var promise = Admin.getSystemsPromise()
       .success(function(response) {
-        $scope.loading = false;
+        $scope.loadingSystems = false;
         Admin.setSystems(response);
       })
       .error(function(error) {
-        $scope.loading = false;
+        $scope.loadingSystems = false;
         Alert.danger('Problem loading systems. Please try again.');
       });
     return promise;
