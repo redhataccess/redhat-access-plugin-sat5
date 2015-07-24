@@ -419,6 +419,13 @@ module.exports = function (grunt) {
           cwd: '.tmp/images',
           dest: '<%= yeoman.dist %>/images',
           src: ['generated/*']
+        }, {
+          expand: true,
+          cwd: 'bower_components/insights/release/images',
+          dest: '<%= yeoman.dist %>/images',
+          src: [
+            'bg_dount-hole-na.png'
+          ]
         }]
       },
       styles: {

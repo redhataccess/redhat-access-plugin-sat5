@@ -50,6 +50,9 @@ cp gui/dist/scripts/insights.app.js %{buildroot}/var/www/html/javascript
 #css
 mkdir -p %{buildroot}/var/www/html/css
 cp gui/dist/styles/insights.css %{buildroot}/var/www/html/css
+#images
+mkdir -p %{buildroot}/var/www/html/images
+cp gui/dist/images/bg_dount-hole-na.png %{buildroot}/var/www/html/images/bg_dount-hole-na.png
 #war
 #set $i = 0
 #for $artifact in $all_artifacts
@@ -80,9 +83,6 @@ cp resources/redhat-access-systemid_wrapper.sh %{buildroot}/usr/sbin/redhat-acce
 ln -s /usr/bin/consolehelper %{buildroot}/usr/sbin/redhat-access-systemid
 mkdir -p %{buildroot}/etc/security/console.apps
 cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/console.apps/redhat-access-systemid
-#dan's people page gpg key
-mkdir -p %{buildroot}/var/www/html/pub
-cp resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
 
 
 %files
@@ -102,10 +102,15 @@ cp resources/rhinsights.gpg %{buildroot}/var/www/html/pub/rhinsights.gpg
 /etc/security/console.apps/redhat-access-systemid
 %attr(0750,root,tomcat) /usr/sbin/redhat-access-systemid-wrapper
 %attr(0750,root,tomcat) /usr/sbin/redhat-access-systemid
-/var/www/html/pub/rhinsights.gpg
+/var/www/html/images/bg_dount-hole-na.png
 
 
 %changelog
+* Fri Jul 24 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-31
+- Add bg_dount-hole-na.png to gui/dist/images
+- Exclude GET /acks from subsets
+- Remove Dan's people page gpg key
+
 * Thu Jul 23 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-30
 - Insights 3.3.3
 - Clean log spam
