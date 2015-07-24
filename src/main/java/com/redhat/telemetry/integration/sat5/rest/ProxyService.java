@@ -249,7 +249,8 @@ public class ProxyService {
       }
     } else if (user != null && 
         !pathTypeInt.equals(Constants.SYSTEMS_STATUS_PATH) && 
-        !pathTypeInt.equals(Constants.RULES_PATH)) {
+        !pathTypeInt.equals(Constants.RULES_PATH) &&
+        !pathTypeInt.equals(Constants.ACKS_PATH)) { //TODO: whitelist subset paths instead of blacklist
       path = addSubsetToPath(path, subsetHash);
       LOG.debug("Path with subset: " + path);
     }
