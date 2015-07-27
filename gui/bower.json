@@ -6,7 +6,7 @@
     "uri.js": "~1.14.1",
     "angular-ui-utils": "bower-indeterminate",
     "angular-ui-ace": "bower",
-    "insights": "http://labs-git.usersys.redhat.com/labs/insights/repository/archive.tar.gz?ref=3.3.6"
+    "insights": "http://labs-git.usersys.redhat.com/labs/insights/repository/archive.tar.gz?ref=3.3.7"
   },
   "devDependencies": {
     "lodash": "~3.3.0"
