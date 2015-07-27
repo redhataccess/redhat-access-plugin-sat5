@@ -53,6 +53,12 @@ cp gui/dist/styles/insights.css %{buildroot}/var/www/html/css
 #images
 mkdir -p %{buildroot}/var/www/html/images
 cp gui/dist/images/bg_dount-hole-na.png %{buildroot}/var/www/html/images/bg_dount-hole-na.png
+cp gui/dist/images/i_chart.png %{buildroot}/var/www/html/images/i_chart.png
+#fonts
+mkdir -p %{buildroot}/var/www/html/components/bootstrap/dist/fonts
+cp gui/dist/fonts/glyphicons-halflings-regular.woff %{buildroot}/var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
+cp gui/dist/fonts/glyphicons-halflings-regular.ttf %{buildroot}/var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf
+
 #war
 #set $i = 0
 #for $artifact in $all_artifacts
@@ -103,7 +109,9 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 %attr(0750,root,tomcat) /usr/sbin/redhat-access-systemid-wrapper
 %attr(0750,root,tomcat) /usr/sbin/redhat-access-systemid
 /var/www/html/images/bg_dount-hole-na.png
-
+/var/www/html/images/i_chart.png
+/var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf
+/var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
 
 %changelog
 * Fri Jul 24 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-32
