@@ -9,11 +9,11 @@ import java.util.HashMap;
 //      the system and the package is not yet installed.
 public class ScheduleCache {
   private static final ScheduleCache INSTANCE = new ScheduleCache();
-  private HashMap<Integer, Integer> schedules;
+  private HashMap<Integer, Schedule> schedules;
  
   private ScheduleCache() {
     if (this.schedules == null) {
-      this.schedules = new HashMap<Integer, Integer>();
+      this.schedules = new HashMap<Integer, Schedule>();
     }
   }
  
@@ -21,16 +21,16 @@ public class ScheduleCache {
     return INSTANCE;
   }
 
-  public void addSchedule(int sysId, int scheduleId) {
-    this.schedules.put(sysId, scheduleId);
+  public void addSchedule(int sysId, int actionId, String type) {
+    this.schedules.put(sysId, new Schedule(actionId, type));
   }
 
-  public Integer getSystemSchedule(int sysId) {
-    Integer schedule = this.schedules.get(sysId);
+  public Schedule getSystemSchedule(int sysId) {
+    Schedule schedule = this.schedules.get(sysId);
     return schedule;
   }
 
-  public HashMap<Integer, Integer> getSchedules() {
+  public HashMap<Integer, Schedule> getSchedules() {
     return this.schedules;
   }
 

@@ -5,26 +5,20 @@ import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
 public class Status {
 
   int id;
-  String version;
   SystemInstallStatus installationStatus;
-  boolean enabled; // 0 -> unchecked, 1 -> partial, 2 -> checked
-  boolean validType;
+  boolean enabled; 
 
   public Status() {
   }
 
   public Status(
       int id, 
-      String version, 
       SystemInstallStatus installationStatus, 
-      boolean enabled,
-      boolean validType) {
+      boolean enabled) {
 
     this.id = id;
-    this.version = version;
     this.installationStatus = installationStatus;
     this.enabled = enabled;
-    this.validType = validType;
   }
 
   public void setId(int id) {
@@ -33,14 +27,6 @@ public class Status {
 
   public int getId() {
     return this.id;
-  }
-
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  public String getVersion() {
-    return this.version;
   }
 
   public void setInstallationStatus(SystemInstallStatus installationStatus) {
@@ -57,13 +43,5 @@ public class Status {
 
   public boolean getEnabled() {
     return this.enabled;
-  }
-
-  public void setValidType(boolean validType) {
-    this.validType = validType;
-  }
-
-  public boolean getValidType() {
-    return this.validType;
   }
 }

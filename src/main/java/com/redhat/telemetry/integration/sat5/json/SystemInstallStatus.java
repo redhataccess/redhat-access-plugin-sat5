@@ -1,25 +1,27 @@
 package com.redhat.telemetry.integration.sat5.json;
 
+import com.redhat.telemetry.integration.sat5.util.Constants;
+
 public class SystemInstallStatus {
 
 
   boolean rpmInstalled;
-  boolean softwareChannelAssociated;
-  boolean rpmScheduled;
+  boolean rpmAvailable;
+  String rpmScheduled;
 
   public SystemInstallStatus() {
-    rpmScheduled = false;
+    rpmScheduled = Constants.NOT_SCHEDULED;
     rpmInstalled = false;
-    softwareChannelAssociated = false;
+    rpmAvailable = false;
   }
 
   public SystemInstallStatus(
-      boolean softwareChannelAssociated,
+      boolean rpmAvailable,
       boolean rpmInstalled,
-      boolean rpmScheduled) {
+      String rpmScheduled) {
 
     this.rpmInstalled = rpmInstalled;
-    this.softwareChannelAssociated = softwareChannelAssociated;
+    this.rpmAvailable = rpmAvailable;
     this.rpmScheduled = rpmScheduled;
   }
 
@@ -27,23 +29,23 @@ public class SystemInstallStatus {
     return this.rpmInstalled;
   }
 
-  public boolean getSoftwareChannelAssociated() {
-    return this.softwareChannelAssociated;
+  public boolean getRpmAvailable() {
+    return this.rpmAvailable;
   }
 
   public void setRpmInstalled(boolean rpmInstalled) {
     this.rpmInstalled = rpmInstalled;
   }
 
-  public void setSoftwareChannelAssociated(boolean softwareChannelAssociated) {
-    this.softwareChannelAssociated = softwareChannelAssociated;
+  public void setRpmAvailable(boolean rpmAvailable) {
+    this.rpmAvailable = rpmAvailable;
   }
 
-  public void setRpmScheduled(boolean rpmScheduled) {
+  public void setRpmScheduled(String rpmScheduled) {
     this.rpmScheduled = rpmScheduled;
   }
 
-  public boolean getRpmScheduled () {
+  public String getRpmScheduled () {
     return this.rpmScheduled;
   }
 }

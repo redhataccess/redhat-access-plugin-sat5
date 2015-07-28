@@ -63,7 +63,7 @@ form(ng-if='getSystems().length > 0')
                   type='checkbox',
                   ng-model='system.enabled',
                   ng-change='updateSystemStatus(system)',
-                  ng-disabled='loadingStatus(getSystemStatus(system))',
+                  ng-disabled='disableSystemCheckbox(system)',
                   ng-if='!invalidType(getSystemStatus(system))')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}

@@ -18,6 +18,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
           InsightsConfigProvider,
           SYSTEM_DETAILS_PAGE_URLS) {
 
+  InsightsConfigProvider.setFetchRelatedSolution(false);         
   InsightsConfigProvider.setGetSystemStatus(true);
   InsightsConfigProvider.setApiRoot('/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/');
   InsightsConfigProvider.setOverviewShowSystem(

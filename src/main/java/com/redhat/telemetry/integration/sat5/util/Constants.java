@@ -77,4 +77,8 @@ public class Constants {
 
   public static final String INTERNAL_SERVER_ERROR_MESSAGE = 
     "Internal server error occurred. View rhai.log for more details.";
+
+  public static final String INSTALL_SCHEDULED = "install";
+  public static final String UNINSTALL_SCHEDULED = "uninstall";
+  public static final String NOT_SCHEDULED = "no";
 }

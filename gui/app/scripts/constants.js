@@ -50,6 +50,11 @@ angular.module('sat5TelemetryApp')
   'INFO': 'info',
   'SUCCESS': 'success'
 })
+.constant('RPM_SCHEDULE_CONST', {
+  'INSTALL': 'install',
+  'UNINSTALL': 'uninstall',
+  'NOT_SCHEDULED': 'no'
+})
 .constant('_', window._)
 .constant('RHA_INSIGHTS', window.RHA_INSIGHTS)
 .constant('SYSTEM_DETAILS_PAGE_URLS', window.SYSTEM_DETAILS_PAGE_URLS)

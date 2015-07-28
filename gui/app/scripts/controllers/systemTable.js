@@ -13,6 +13,7 @@ _,
 $scope, 
 Admin, 
 Alert, 
+RPM_SCHEDULE_CONST,
 SAT5_ROOT_URLS, 
 SYSTEM_DETAILS_PAGE_URLS) {
   $scope.loadingSystems = true;
@@ -35,6 +36,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.getSystemStatus = Admin.getSystemStatus;
   $scope.updateSystemStatus = Admin.updateSystemStatus;
   $scope.getLoadingStatuses = Admin.getLoadingStatuses;
+  $scope.updatingSystems = false;
 
   $scope.disableAlphabarElement = function(alpha) {
     return !_.some(Admin.getSystems(), function(sys) {
@@ -119,21 +121,29 @@ SYSTEM_DETAILS_PAGE_URLS) {
   };
 
   $scope.doApply = function() {
-    $scope.loadingSystems = true;
+    $scope.updatingSystems = true;
     Alert.info('Applying changes to systems...');
     Admin.postSystems(Admin.getSystemStatuses())
       .success(function(response) {
-        Admin.updateStatuses().then(function() {
-          $scope.loadingSystems = false;
-          Alert.success('Successfully applied changes to systems.', true);
-        });
+        $scope.updatingSystems = false;
+        Alert.success('Successfully applied changes to systems.', true);
+        Admin.updateStatuses();
       })
       .error(function(error) {
-        Admin.updateStatuses().then(function() {
-          $scope.loadingSystems = false;
-          Alert.danger('Problem updating systems. Please try again.', true);
-        });
+        $scope.updatingSystems = false;
+        Alert.danger('Problem updating systems. Please try again.', true);
+        Admin.updateStatuses();
       });
+  };
+
+  $scope.disableSystemCheckbox = function(system) {
+    var response = false;
+    if ($scope.loadingStatus($scope.getSystemStatus(system)) || 
+        $scope.installationPending($scope.getSystemStatus(system)) ||
+        $scope.isLoading()) {
+      response = true;
+    }
+    return response;
   };
 
   $scope.installStatusTooltip = function(system) {
@@ -141,15 +151,18 @@ SYSTEM_DETAILS_PAGE_URLS) {
     var systemStatus = Admin.getSystemStatus(system);
     var installationStatus = $scope.getInstallationStatus(systemStatus);
     if (installationStatus === NO_CHANNEL_STATUS) {
-      message = 'This system is not assigned a channel with the Access Insights RPM.';
+      message = 'Access Insights RPM is not available to this server.';
     } else if (installationStatus === IN_PROGRESS_INSTALL_STATUS) {
-      message = 'Access Insights RPM is scheduled to be installed';
+      message = 'Access Insights RPM is scheduled to be ';
+      if (systemStatus.installationStatus.rpmScheduled === RPM_SCHEDULE_CONST.INSTALL) {
+        message = message + 'installed.';
+      } else {
+        message = message + 'uninstalled.';
+      }
     } else if (installationStatus === NO_INSTALL_STATUS) {
       message = 'Access Insights RPM is not installed';
     } else if (installationStatus === SUCCESSFUL_INSTALL_STATUS) {
       message = 'Access Insights RPM is installed';
-    } else if (installationStatus === INVALID_TYPE_STATUS) {
-      message = 'Unsupported system version';
     }
 
     return message;
@@ -173,17 +186,15 @@ SYSTEM_DETAILS_PAGE_URLS) {
     var response = -1;
     if (!_.isEmpty(systemStatus)) {
       var installationStatus = systemStatus.installationStatus;
-      if (!systemStatus.validType) {
-        response = INVALID_TYPE_STATUS;
-      } else if (!installationStatus.rpmInstalled &&
-          !installationStatus.rpmScheduled &&
-          !installationStatus.softwareChannelAssociated) {
+      if (!installationStatus.rpmInstalled &&
+          installationStatus.rpmScheduled === RPM_SCHEDULE_CONST.NOT_SCHEDULED &&
+          !installationStatus.rpmAvailable) {
         response = NO_CHANNEL_STATUS;
       } else if ((!installationStatus.rpmInstalled && 
-          !installationStatus.rpmScheduled) &&
-          installationStatus.softwareChannelAssociated) {
+          installationStatus.rpmScheduled === RPM_SCHEDULE_CONST.NOT_SCHEDULED) &&
+          installationStatus.rpmAvailable) {
         response = NO_INSTALL_STATUS;
-      } else if (installationStatus.rpmScheduled) {
+      } else if (installationStatus.rpmScheduled !== RPM_SCHEDULE_CONST.NOT_SCHEDULED) {
         response = IN_PROGRESS_INSTALL_STATUS;
       } else {
         response = SUCCESSFUL_INSTALL_STATUS;
@@ -228,15 +239,6 @@ SYSTEM_DETAILS_PAGE_URLS) {
     }
   };
 
-  $scope.installationPending = function(systemStatus) {
-    var status = $scope.getInstallationStatus(systemStatus);
-    if (status === IN_PROGRESS_INSTALL_STATUS) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
   $scope.invalidType = function(systemStatus) {
     var status = $scope.getInstallationStatus(systemStatus);
     if (status === INVALID_TYPE_STATUS) {
@@ -269,7 +271,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.isLoading = function() {
     var response = false;
-    if ($scope.loadingSystems || $scope.getLoadingStatuses()) {
+    if ($scope.loadingSystems || $scope.getLoadingStatuses() || $scope.updatingSystems) {
       response = true;
     }
     return response;
@@ -277,7 +279,9 @@ SYSTEM_DETAILS_PAGE_URLS) {
 
   $scope.getLoadingMessage = function() {
     var message = 'Loading ';
-    if ($scope.loadingSystems) {
+    if ($scope.updatingSystems) {
+      message = 'Applying changes...';
+    } else if ($scope.loadingSystems) {
       message = message + 'systems';
     } else if ($scope.getLoadingStatuses()) {
       message = message + 'statuses'; 

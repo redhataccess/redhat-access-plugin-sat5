@@ -23,7 +23,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +30,11 @@ import com.redhat.telemetry.integration.sat5.json.Config;
 import com.redhat.telemetry.integration.sat5.json.Connection;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.json.Status;
-import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
 import com.redhat.telemetry.integration.sat5.portal.InsightsApiClient;
-import com.redhat.telemetry.integration.sat5.satellite.AbstractSystem;
 import com.redhat.telemetry.integration.sat5.satellite.json.ApiSystem;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.satellite.ScheduleCache;
-import com.redhat.telemetry.integration.sat5.satellite.Server6System;
-import com.redhat.telemetry.integration.sat5.satellite.Server7System;
+import com.redhat.telemetry.integration.sat5.satellite.SatelliteSystem;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 import com.redhat.telemetry.integration.sat5.util.PropertiesHandler;
 import com.redhat.telemetry.integration.sat5.util.Util;
@@ -173,32 +169,28 @@ public class ConfigService {
 
     try {
       for (Status sys : systems) {
-        if (sys.getValidType()) {
-          AbstractSystem system = null;
-          if (sys.getVersion().equals(Constants.VERSION_RHEL6_SERVER)) {
-            system = new Server6System(sessionKey, sys.getId());
-          } else if (sys.getVersion().equals(Constants.VERSION_RHEL7_SERVER)) {
-            system = new Server7System(sessionKey, sys.getId());
-          }
-          int packageId = system.getPackageId();
+        SatelliteSystem system = new SatelliteSystem(sessionKey, sys.getId());
 
-          if (sys.getEnabled() && !system.rpmInstalled()) {
-            //install the package
-            ArrayList<Integer> packageIds = new ArrayList<Integer>();
-            packageIds.add(packageId);
-            int actionId = 
-              SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
-            ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
-          } else { //remove installed pieces
-            system.unregister();
-            if (system.rpmInstalled()) {
-              ArrayList<Integer> packageIds = new ArrayList<Integer>();
-              packageIds.add(packageId);
-              int actionId = 
-                SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
-              ScheduleCache.getInstance().addSchedule(sys.getId(), actionId);
-            }
-          }
+        int installedPackageId = system.isPackageInstalled();
+        if (sys.getEnabled() && installedPackageId == -1) {
+          int packageId = system.getAvailablePackageId();
+          LOG.debug("Installing redhat-access-insights on system... SystemID: " + 
+              sys.getId() + " | PackageId: " + packageId);
+          //install the package
+          ArrayList<Integer> packageIds = new ArrayList<Integer>();
+          packageIds.add(packageId);
+          int actionId = 
+            SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
+          ScheduleCache.getInstance().addSchedule(sys.getId(), actionId, Constants.INSTALL_SCHEDULED);
+        } else if (!sys.getEnabled() && installedPackageId > -1) { //remove installed pieces
+          LOG.debug("Uninstalling redhat-access-insights from system... SystemID: " + 
+              sys.getId() + " | PackageId: " + installedPackageId);
+          system.unregister();
+          ArrayList<Integer> packageIds = new ArrayList<Integer>();
+          packageIds.add(installedPackageId);
+          int actionId = 
+            SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
+          ScheduleCache.getInstance().addSchedule(sys.getId(), actionId, Constants.UNINSTALL_SCHEDULED);
         }
       }
     } catch (Exception e) {
@@ -216,21 +208,28 @@ public class ConfigService {
       @CookieParam("pxt-session-cookie") String sessionKey,
       @QueryParam("systems") String systemIds) {
 
-    ArrayList<Status> statusList = new ArrayList<Status>();
-    List<String> systemIdsList = Arrays.asList(systemIds.split("\\s*,\\s*"));
     try {
-      for (String id : systemIdsList) {
-        int systemId = Integer.parseInt(id);
-        Status status = findSystemStatus(sessionKey, systemId);
-        statusList.add(status);
+      ArrayList<Status> statusList = new ArrayList<Status>();
+      List<String> systemIdsList = Arrays.asList(systemIds.split("\\s*,\\s*"));
+      try {
+        for (String id : systemIdsList) {
+          SatelliteSystem system = new SatelliteSystem(sessionKey, Integer.parseInt(id));
+          Status status = system.getStatus();
+          statusList.add(status);
+        }
+      } catch (Exception e) {
+        LOG.error("Exception in GET /config/status", e);
+        throw new WebApplicationException(
+            new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+            Response.Status.INTERNAL_SERVER_ERROR);
       }
+      return statusList;
     } catch (Exception e) {
-      LOG.error("Exception in GET /config/status", e);
+      LOG.error("Exception in GET /status", e);
       throw new WebApplicationException(
           new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
-    return statusList;
   }
 
   @GET
@@ -242,7 +241,8 @@ public class ConfigService {
 
     Status status = null;
     try {
-      status = findSystemStatus(sessionKey, Integer.parseInt(id));
+      SatelliteSystem system = new SatelliteSystem(sessionKey, Integer.parseInt(id));
+      status = system.getStatus();
     } catch (Exception e) {
       LOG.error("Exception in GET /status/{id}", e);
       throw new WebApplicationException(
@@ -333,46 +333,5 @@ public class ConfigService {
     }
 
     return logString;
-  }
-
-
-  @SuppressWarnings("unchecked")
-  private Status findSystemStatus(String sessionKey, int systemId) throws ConfigurationException {
-
-    Object systemDetails = SatApi.getSystemDetails(sessionKey, systemId);
-    HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
-    String systemVersion = (String) systemDetailsMap.get("release");
-    SystemInstallStatus installationStatus = new SystemInstallStatus();
-    boolean validSystem = false;
-    boolean enabled = false;
-
-    //get the status of redhat access installation for each system
-    AbstractSystem system = null;
-    if (systemVersion.equals(Constants.VERSION_RHEL6_SERVER)) {
-      system = new Server6System(sessionKey, systemId);
-    } else if (systemVersion.equals(Constants.VERSION_RHEL7_SERVER)) {
-      system = new Server7System(sessionKey, systemId);
-    }
-    if (system != null) {
-      validSystem = true;
-      if (system.rpmInstalled()) {
-        installationStatus.setRpmInstalled(true);
-        enabled = true;
-      } else if (system.rpmScheduled()) {
-        installationStatus.setRpmScheduled(true);
-      }
-
-      if (system.softwareChannelAssociated()) {
-        installationStatus.setSoftwareChannelAssociated(true);
-      }
-    }
-
-    Status status = new Status(
-        systemId,
-        systemVersion,
-        installationStatus,
-        enabled,
-        validSystem);
-    return status;
   }
 }

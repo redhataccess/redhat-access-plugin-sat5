@@ -12,7 +12,6 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import com.redhat.telemetry.integration.sat5.util.Constants;
-import com.redhat.telemetry.integration.sat5.util.Util;
 
 public class SatApi {
 
@@ -71,6 +70,14 @@ public class SatApi {
   }
 
   public static Object[]
+  findPackageByNVREA(String sessionKey, String name, String version, String release, String epoch, String archLabel) {
+    Object[] params = new Object[] {sessionKey, name, version, release, epoch, archLabel};
+    Object[] response = 
+      (Object[]) makeRequest("packages.findByNvrea", params);
+    return response;
+  }
+
+  public static Object[]
   listAllInstallablePackages(String sessionKey, int serverId) {
     Object[] params = new Object[] {sessionKey, serverId};
     Object[] response = 
@@ -83,6 +90,14 @@ public class SatApi {
     Object[] params = new Object[] {sessionKey, actionId};
     Object[] response = 
       (Object[]) makeRequest("schedule.listInProgressSystems", params);
+    return response;
+  }
+
+  public static Object[]
+  listInstalledPackages(String sessionKey, int serverId) {
+    Object[] params = new Object[] {sessionKey, serverId};
+    Object[] response = 
+      (Object[]) makeRequest("system.listPackages", params);
     return response;
   }
 
@@ -251,6 +266,14 @@ public class SatApi {
   }
 
   public static Object[]
+  listSystemsWithPackage(String sessionKey, int packageId) {
+    Object[] params = new Object[] {sessionKey, packageId};
+    Object[] response = 
+      (Object[]) makeRequest("channel.software.listSystemsWithPackage", params);
+    return response;
+  }
+
+  public static Object[]
   lookupFileInfo(
       String sessionKey, 
       int serverId, 
@@ -259,6 +282,14 @@ public class SatApi {
     Object[] params = new Object[] {sessionKey, serverId, paths, searchLocal};
     Object[] response = 
       (Object[]) makeRequest("system.config.lookupFileInfo", params);
+    return response;
+  }
+
+  public static Object[]
+  searchPackageByName(String sessionKey, String name) {
+    Object[] params = new Object[] {sessionKey, name};
+    Object[] response = 
+      (Object[]) makeRequest("packages.search.name", params);
     return response;
   }
 
@@ -313,7 +344,6 @@ public class SatApi {
       String archLabel,
       String parent) throws IOException, InterruptedException {
     HashMap<String, String> gpgKey = new HashMap<String, String>();
-    String hostname = Util.getSatelliteHostname();
     gpgKey.put("url", Constants.GPG_KEY_URL);
     gpgKey.put("id", Constants.GPG_KEY_ID);
     gpgKey.put("fingerprint", Constants.GPG_KEY_FINGERPRINT);
