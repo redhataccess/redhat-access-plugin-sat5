@@ -178,14 +178,16 @@ public class Util {
     properties.load(Constants.RHN_CONF_LOC); 
     String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
     String hostname = "";
-    if (proxyHostColonPort.contains(":")) {
-      Pattern portPattern = Pattern.compile("(.*):([0-9]*)$");
-      Matcher portMatcher = portPattern.matcher(proxyHostColonPort);
-      if (portMatcher.matches()) {
-        hostname = portMatcher.group(1);
+    if (proxyHostColonPort != null) {
+      if (proxyHostColonPort.contains(":")) {
+        Pattern portPattern = Pattern.compile("(.*):([0-9]*)$");
+        Matcher portMatcher = portPattern.matcher(proxyHostColonPort);
+        if (portMatcher.matches()) {
+          hostname = portMatcher.group(1);
+        }
+      } else {
+        hostname = proxyHostColonPort;
       }
-    } else {
-      hostname = proxyHostColonPort;
     }
     return hostname; 
   }
@@ -197,14 +199,17 @@ public class Util {
     PropertiesConfiguration properties = new PropertiesConfiguration();
     properties.load(Constants.RHN_CONF_LOC); 
     String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
-    int port = 80;
-    if (proxyHostColonPort.contains(":")) {
-      Pattern portPattern = Pattern.compile("(.*):([0-9]*)$");
-      Matcher portMatcher = portPattern.matcher(proxyHostColonPort);
-      if (portMatcher.matches()) {
-        port = Integer.parseInt(portMatcher.group(2));
-      }
-    } 
+    int port = -1;
+    if (proxyHostColonPort != null) {
+      port = 80;
+      if (proxyHostColonPort.contains(":")) {
+        Pattern portPattern = Pattern.compile("(.*):([0-9]*)$");
+        Matcher portMatcher = portPattern.matcher(proxyHostColonPort);
+        if (portMatcher.matches()) {
+          port = Integer.parseInt(portMatcher.group(2));
+        }
+      } 
+    }
     return port;
   }
 
