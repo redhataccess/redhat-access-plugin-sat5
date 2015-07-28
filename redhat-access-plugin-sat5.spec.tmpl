@@ -114,6 +114,14 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 /var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
 
 %changelog
+* Tue Jul 28 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-34
+- Insights v3.3.9
+- Support installing redhat-access-insights on any system type
+- Refactor InsightsApiClient 
+- Overview page bug fixes
+- Clean up loading message on setup table
+- Fix 404s in web UI
+
 * Fri Jul 24 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-32
 - Add bg_dount-hole-na.png to gui/dist/images
 - Exclude GET /acks from subsets
