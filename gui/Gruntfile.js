@@ -330,11 +330,11 @@ module.exports = function (grunt) {
     //uncomment for easier debugging
     uglify: {
       options: {
-        sourceMap: true,
-        //beautify: true,
-        //compress: false,
-        //mangle: false,
-        //preserveComments: 'all'
+        //sourceMap: true,
+        beautify: true,
+        compress: false,
+        mangle: false,
+        preserveComments: 'all'
       }
     },
 

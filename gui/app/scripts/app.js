@@ -55,6 +55,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
 
 })
 .run(function(
+      $timeout,
       $rootScope,
       $state,
       Sat5TelemetrySystems,
@@ -117,9 +118,16 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
     $('<th id="rha-insights-system-health-col-head" class="ng-hide">Insights</th>').insertAfter(
       $('.table > thead > tr > th:eq(' + HEALTH_TABLE_POS + ')'));
 
-    var count = $('.table > tbody > tr').length;
+    //for (i < pageSize)
+    //  if at end of table
+    //    break
+    var pageSize = $('.list-sizeselector > select').val();
     if (Util.thereAreSystemsOnOverviewPage()) {
-      for(var i = 0; i < count; i++) {
+      for(var i = 0; i < pageSize; i++) {
+        var row = $('.table > tbody > tr:eq(' + i + ')');
+        if (row.length === 0) {
+          break;
+        }
         var systemUrl = $('.table > tbody > tr:eq(' + i + ') > td:eq(1) > a')[0].href;
         var sid = Util.getSidFromUrl(systemUrl);
 
@@ -127,6 +135,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
           $('.table > tbody > tr:eq(' + i + ') > td:eq(' + HEALTH_TABLE_POS + ')'));
       }
     }
+    
   } else if (RHA_INSIGHTS.UTILS.isOnSystemDetailsPage()) {
     $('<li id="rha-insights-system-details" class="ng-hide"><a href="/rhn/systems/details/Insights.do?' + 
       'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(
