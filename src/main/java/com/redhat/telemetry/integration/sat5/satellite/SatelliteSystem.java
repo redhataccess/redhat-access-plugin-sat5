@@ -96,26 +96,29 @@ public class SatelliteSystem {
     SystemInstallStatus installStatus = new SystemInstallStatus();
     boolean enabled = false;
 
-    if (this.isPackageInstalled() != -1) {
+    int packageIsInstalled = this.isPackageInstalled();
+    if (packageIsInstalled != -1) {
       installStatus.setRpmInstalled(true);
       enabled = true;
     } else {
       installStatus.setRpmInstalled(false);
     }
 
-    String scheduledStatus = this.rpmScheduled();
-    if (this.rpmScheduled() != null) {
-      installStatus.setRpmScheduled(scheduledStatus);
-    } else {
-      installStatus.setRpmScheduled(Constants.NOT_SCHEDULED);
-    }
-
     if (!installStatus.getRpmInstalled()) {
-      this.packageId = this.getAvailablePackageId();
-      if (packageId == -1) {
-        installStatus.setRpmAvailable(false);
+      String scheduledStatus = this.rpmScheduled();
+      if (this.rpmScheduled() != null) {
+        installStatus.setRpmScheduled(scheduledStatus);
       } else {
-        installStatus.setRpmAvailable(true);
+        installStatus.setRpmScheduled(Constants.NOT_SCHEDULED);
+      }
+
+      if (installStatus.getRpmScheduled() == Constants.NOT_SCHEDULED) {
+        this.packageId = this.getAvailablePackageId();
+        if (packageId == -1) {
+          installStatus.setRpmAvailable(false);
+        } else {
+          installStatus.setRpmAvailable(true);
+        }
       }
     }
 
