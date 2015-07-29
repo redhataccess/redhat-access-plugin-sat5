@@ -84,8 +84,10 @@ public class SatelliteSystem {
       Object[] insightsPackages = 
         SatApi.findPackageByNVREA(this.sessionKey, name, version, release, epoch, arch);
       //TODO: could there be multiple packages found?
-      HashMap<Object, Object> insightsPackagesMap = (HashMap<Object, Object>) insightsPackages[0]; 
-      insightsPackageId = (Integer) insightsPackagesMap.get("id");
+      if (insightsPackages != null && insightsPackages.length != 0) {
+        HashMap<Object, Object> insightsPackagesMap = (HashMap<Object, Object>) insightsPackages[0]; 
+        insightsPackageId = (Integer) insightsPackagesMap.get("id");
+      }
     }
     return insightsPackageId;
   }
