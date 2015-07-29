@@ -8,22 +8,6 @@ import org.slf4j.LoggerFactory;
 public class PropertiesHandler {
   private static Logger LOG = LoggerFactory.getLogger(PropertiesHandler.class);
 
-  public static String getRHEL6ChannelLabel() throws ConfigurationException {
-    String rhel6ChannelLabel = (String) getProperty(
-        Constants.RHEL6_CHANNEL_LABEL_PROPERTY,
-        Constants.STRING_TYPE,
-        "rhel-x86_64-server-6");
-    return rhel6ChannelLabel;
-  }
-
-  public static String getRHEL7ChannelLabel() throws ConfigurationException {
-    String rhel7ChannelLabel = (String) getProperty(
-        Constants.RHEL7_CHANNEL_LABEL_PROPERTY,
-        Constants.STRING_TYPE,
-        "rhel-x86_64-server-7");
-    return rhel7ChannelLabel;
-  }
-
   public static String getRPMName() throws ConfigurationException {
     String rpmName = (String) getProperty(
         Constants.RPM_NAME_PROPERTY,

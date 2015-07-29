@@ -27,8 +27,6 @@ public class Constants {
   public static final String VERSION_RHEL7_SERVER = "7Server";
 
   //redhat-access-insights.properties 
-  public static final String RHEL6_CHANNEL_LABEL_PROPERTY = "rhel6channellabel";
-  public static final String RHEL7_CHANNEL_LABEL_PROPERTY = "rhel7channellabel";
   public static final String RPM_NAME_PROPERTY = "rpmname";
   public static final String ENABLED_PROPERTY = "enabled";
   public static final String PORTALURL_PROPERTY = "portalurl";
