@@ -68,18 +68,7 @@ RHA_INSIGHTS.UTILS.isOnInsightsOverviewPage = function() {
 
 RHA_INSIGHTS.UTILS.isOnSystemOverviewPage = function() {
   var response = false;
-  var query = window.location.search;
-  var showGroupsIndex = query.indexOf('showgroups');
-  var showGroups = false;
-  if (showGroupsIndex !== -1) {
-    var value = '';
-    value = query.substring(showGroupsIndex, 16); //16 is length of showgroups=false
-    if (window._.contains(value, 'true')) {
-      showGroups = true;
-    } else {
-      showGroups = false;
-    }
-  }
+  var showGroups = RHA_INSIGHTS.UTILS.showGroups();
 
   if (RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.SYSTEM_OVERVIEW) &&
       !showGroups) {
@@ -88,14 +77,31 @@ RHA_INSIGHTS.UTILS.isOnSystemOverviewPage = function() {
   return response;
 };
 
+RHA_INSIGHTS.UTILS.showGroups = function() {
+  var query = window.location.search;
+  var showGroupsIndex = query.indexOf('showgroups');
+  var showGroups = false;
+  if (showGroupsIndex !== -1) {
+    var value = '';
+    value = query.substring(showGroupsIndex, 16); //16 is length of showgroups=false
+    if (value.indexOf('true') > -1) {
+      showGroups = true;
+    } else {
+      showGroups = false;
+    }
+  }
+  return showGroups;
+};
+
 RHA_INSIGHTS.UTILS.isOnSystemListPage = function() {
-  if (RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.SYSTEMS) ||
+  if ((RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.SYSTEMS) ||
       RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.PHYSICAL) ||
       RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.OUT_OF_DATE) ||
       RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.REQUIRING_REBOOT) ||
       RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.UNGROUPED) ||
       RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_PAGE_URLS.INACTIVE) ||
-      RHA_INSIGHTS.UTILS.isOnSystemOverviewPage()) {
+      RHA_INSIGHTS.UTILS.isOnSystemOverviewPage()) &&
+      !RHA_INSIGHTS.UTILS.showGroups()) {
     return true;
   } else {
     return false;
