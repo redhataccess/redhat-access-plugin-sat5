@@ -30,11 +30,10 @@ form(ng-if='getSystems().length > 0')
           div.spacewalk-list-head-addons-extra
             div.list-sizeselector
               select.display-number(
-                  ng-options='size for size in pageSizes',
-                  ng-disabled='isLoading()', 
-                  ng-change='setPageSize()', 
+                  ng-disabled='isLoading()',
+                  ng-options='s.value as s.value for s in pageSizes',
+                  ng-change='setPageSize(pageSize)',
                   ng-model='pageSize')
-                | items per page
       div.panel-heading(ng-show='isLoading()') 
         i.fa.fa-spinner.fa-spin.fa-1-5x
         | {{getLoadingMessage()}}
@@ -55,7 +54,7 @@ form(ng-if='getSystems().length > 0')
                 a(ng-disabled='isLoading()', ng-click='toggleStatusSort()') Status
           tbody
             tr(
-              ng-repeat='system in filteredSystems = (getSystems() | systemsFilter:filter:orderBy:getPageStart():getPageSize():alpha)',
+              ng-repeat='system in filteredSystems = (getSystems() | systemsFilter:filter:orderBy:getPageStart():alpha)',
               ng-class='{"list-row-odd": $index % 2 === 0, "list-row-even": $index % 2 === 1}')
               td(width='20px')
                 input(
@@ -77,12 +76,10 @@ form(ng-if='getSystems().length > 0')
                     ng-if='loadingStatus(getSystemStatus(system))')
                   i.fa.fa-minus-circle.fa-1-5x(
                     ng-if='noInstallation(getSystemStatus(system))')
-                  i.fa.fa-exclamation-circle.fa-1-5x.fail(
+                  i.fa.fa-ban.fa-1-5x(
                     ng-if='noChannel(getSystemStatus(system))') 
                   i.fa.fa-check-circle.fa-1-5x.success(
                     ng-if='installationSuccess(getSystemStatus(system))') 
-                  i.fa.fa-ban.fa-1-5x(
-                    ng-if='invalidType(getSystemStatus(system))') 
                   i.fa.fa-clock-o.fa-1-5x(
                     ng-if='installationPending(getSystemStatus(system))')
       div.panel-footer

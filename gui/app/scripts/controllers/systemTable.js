@@ -20,8 +20,28 @@ SYSTEM_DETAILS_PAGE_URLS) {
   $scope.filter = '';
   $scope.systems = [];
   $scope.orderBy = 'name';
-  $scope.pageSize = 10;
-  $scope.pageSizes = [5, 10, 20, 50];
+  $scope.pageSizes = [
+    {
+      'value': 5
+    }, 
+    {
+      'value': 10
+    }, 
+    {
+      'value': 20
+    }, 
+    {
+      'value': 50
+    }, 
+    {
+      'value': 100
+    }, 
+    {
+      'value': 250
+    }, 
+    {
+      'value': 500
+    }];
   $scope.alphas = 
     ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 
      'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
@@ -57,9 +77,9 @@ SYSTEM_DETAILS_PAGE_URLS) {
     Admin.setPage(0);
   };
 
-  $scope.setPageSize = function() {
+  $scope.setPageSize = function(pageSize) {
     Admin.setPage(0);
-    Admin.setPageSize($scope.pageSize);
+    Admin.setPageSize(pageSize);
   };
 
   $scope.toggleStatusSort = function() {
@@ -140,6 +160,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
     var response = false;
     if ($scope.loadingStatus($scope.getSystemStatus(system)) || 
         $scope.installationPending($scope.getSystemStatus(system)) ||
+        $scope.noChannel($scope.getSystemStatus(system)) ||
         $scope.isLoading()) {
       response = true;
     }
