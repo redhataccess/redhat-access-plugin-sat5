@@ -114,6 +114,9 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 /var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
 
 %changelog
+* Thu Jul 30 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-39
+- Wait a second for system list to load before adding health-icon directive
+
 * Wed Jul 29 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-38
 - Fix race condition when determining length of systems table
 - Hide insights column on system groups page
