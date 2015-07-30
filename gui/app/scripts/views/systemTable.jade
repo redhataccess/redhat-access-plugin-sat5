@@ -30,6 +30,7 @@ form(ng-if='getSystems().length > 0')
           div.spacewalk-list-head-addons-extra
             div.list-sizeselector
               select.display-number(
+                  ng-init='pageSize = 10',
                   ng-disabled='isLoading()',
                   ng-options='s.value as s.value for s in pageSizes',
                   ng-change='setPageSize(pageSize)',

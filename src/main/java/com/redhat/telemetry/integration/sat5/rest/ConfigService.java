@@ -23,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,13 +119,15 @@ public class ConfigService {
 
     Object[] apiSystems = SatApi.listSystems(sessionKey);
     ArrayList<ApiSystem> systems = new ArrayList<ApiSystem>();
-    for (Object apiSys : apiSystems) {
-      HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) apiSys;
-      ApiSystem sys = new ApiSystem(
-          (Integer) apiSysMap.get("id"),
-          (String) apiSysMap.get("name"),
-          "");
-      systems.add(sys);
+    if (apiSystems != null) {
+      for (Object apiSys : apiSystems) {
+        HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) apiSys;
+        ApiSystem sys = new ApiSystem(
+            (Integer) apiSysMap.get("id"),
+            (String) apiSysMap.get("name"),
+            "");
+        systems.add(sys);
+      }
     }
 
     return systems;
@@ -137,21 +140,24 @@ public class ConfigService {
   public ApiSystem getSystem(
       @PathParam("id") String id,
       @CookieParam("pxt-session-cookie") String sessionKey) {
+    ApiSystem sys = new ApiSystem(-1, "", "");
 
     Object systemName = SatApi.getSystemName(sessionKey, Integer.parseInt(id));
-    HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) systemName;
-
     Object systemDetails = SatApi.getSystemDetails(sessionKey, Integer.parseInt(id));
-    HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
 
-    String type = "";   
-    if (systemDetailsMap.get("virtualization") != null) {
-      type = Constants.SYSTEM_TYPE_GUEST; //TODO: find out which values mean guest vs host
-    } else {
-      type = Constants.SYSTEM_TYPE_PHYSICAL;
+    if (systemDetails != null && systemName != null) {
+      HashMap<Object, Object> systemDetailsMap = (HashMap<Object, Object>) systemDetails;
+      HashMap<Object, Object> apiSysMap = (HashMap<Object, Object>) systemName;
+
+      String type = "";   
+      if (systemDetailsMap.get("virtualization") != null) {
+        type = Constants.SYSTEM_TYPE_GUEST; //TODO: find out which values mean guest vs host
+      } else {
+        type = Constants.SYSTEM_TYPE_PHYSICAL;
+      }
+
+      sys = new ApiSystem((Integer) apiSysMap.get("id"), (String) apiSysMap.get("name"), type);
     }
-
-    ApiSystem sys = new ApiSystem((Integer) apiSysMap.get("id"), (String) apiSysMap.get("name"), type);
     return sys;
   }
 
@@ -165,31 +171,40 @@ public class ConfigService {
       @CookieParam("pxt-session-cookie") String sessionKey,
       ArrayList<Status> systems) {
 
-    //TODO: get map of redhat-access-insights packageId <=> arch
-
     try {
-      for (Status sys : systems) {
-        SatelliteSystem system = new SatelliteSystem(sessionKey, sys.getId());
 
-        int installedPackageId = system.isPackageInstalled();
-        if (sys.getEnabled() && installedPackageId == -1) {
-          int packageId = system.getAvailablePackageId();
+      Object[] rhaiPackages = 
+        SatApi.searchPackageByName(sessionKey, PropertiesHandler.getRPMName());
+      HashMap<Integer, Integer> systemToPackageMap = 
+        buildListOfSystemsWithRPMInstalled(sessionKey, rhaiPackages);
+      for (Status sys : systems) {
+        Integer packageId = systemToPackageMap.get(sys.getId());
+        SatelliteSystem system = new SatelliteSystem(sessionKey, sys.getId(), packageId);
+
+        boolean packageIsInstalled = system.isPackageInstalled();
+        Integer installedPackageId = system.getPackageId();
+        if (sys.getEnabled() && !packageIsInstalled) {
+          HashMap<String, Integer> channelLabels = buildListOfChannelsWithRPM(sessionKey, rhaiPackages);
+          system.findAvailablePackageId(channelLabels);
+          Integer availablePackageId = system.getAvailablePackageId();
           LOG.debug("Installing redhat-access-insights on system... SystemID: " + 
-              sys.getId() + " | PackageId: " + packageId);
+              sys.getId() + " | PackageId: " + availablePackageId);
           //install the package
           ArrayList<Integer> packageIds = new ArrayList<Integer>();
-          packageIds.add(packageId);
-          int actionId = 
+          packageIds.add(availablePackageId);
+          Integer actionId = 
             SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
+          LOG.debug("Install action id for system (" + sys.getId() + "): " + actionId);
           ScheduleCache.getInstance().addSchedule(sys.getId(), actionId, Constants.INSTALL_SCHEDULED);
-        } else if (!sys.getEnabled() && installedPackageId > -1) { //remove installed pieces
+        } else if (!sys.getEnabled() && packageIsInstalled) { //remove installed pieces
           LOG.debug("Uninstalling redhat-access-insights from system... SystemID: " + 
               sys.getId() + " | PackageId: " + installedPackageId);
           system.unregister();
           ArrayList<Integer> packageIds = new ArrayList<Integer>();
           packageIds.add(installedPackageId);
-          int actionId = 
+          Integer actionId = 
             SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
+          LOG.debug("Uninstall action id for system (" + sys.getId() + "): " + actionId);
           ScheduleCache.getInstance().addSchedule(sys.getId(), actionId, Constants.UNINSTALL_SCHEDULED);
         }
       }
@@ -201,6 +216,53 @@ public class ConfigService {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private HashMap<String, Integer> buildListOfChannelsWithRPM(
+      String sessionKey, Object[] rhaiPackages) throws ConfigurationException {
+
+    HashMap<String, Integer> channelLabels = new HashMap<String, Integer>();
+    if (rhaiPackages != null) {
+      for (Object rhaiPackage : rhaiPackages) {
+        HashMap<Object, Object> rhaiPackageMap = (HashMap<Object, Object>) rhaiPackage;
+        Integer packageId = (Integer) rhaiPackageMap.get("id");
+        if (packageId != null) {
+          Object[] channels = SatApi.listProvidingChannels(sessionKey, packageId);
+          if (channels != null) {
+            for (Object channel : channels) {
+              HashMap<Object, Object> channelsMap = (HashMap<Object, Object>) channel;
+              String label = (String) channelsMap.get("label");
+              channelLabels.put(label, packageId);
+            }
+          }
+        }
+      }
+    }
+    return channelLabels;
+  }
+
+  @SuppressWarnings("unchecked")
+  private HashMap<Integer, Integer> buildListOfSystemsWithRPMInstalled(
+      String sessionKey,
+      Object[] rhaiPackages) throws ConfigurationException {
+
+    HashMap<Integer, Integer> systemToPackageMap = new HashMap<Integer, Integer>();
+    if (rhaiPackages != null) {
+      for (Object rhaiPackage : rhaiPackages) {
+        HashMap<Object, Object> rhaiPackageMap = (HashMap<Object, Object>) rhaiPackage;
+        int packageId = (Integer) rhaiPackageMap.get("id");
+        Object[] systemsWithPackage = SatApi.listSystemsWithPackage(sessionKey, packageId);
+        if (systemsWithPackage != null) {
+          for (Object systemWithPackage : systemsWithPackage) {
+            HashMap<Object, Object> systemWithPackageMap = (HashMap<Object, Object>) systemWithPackage;
+            int systemId = (Integer) systemWithPackageMap.get("id");
+            systemToPackageMap.put(systemId, packageId);
+          }
+        }
+      }
+    }
+    return systemToPackageMap;
+  }
+
   @GET
   @Path("/status")
   @Produces(MediaType.APPLICATION_JSON)
@@ -209,11 +271,19 @@ public class ConfigService {
       @QueryParam("systems") String systemIds) {
 
     try {
+      Object[] rhaiPackages = 
+        SatApi.searchPackageByName(sessionKey, PropertiesHandler.getRPMName());
+      HashMap<Integer, Integer> systemToPackageMap = 
+        buildListOfSystemsWithRPMInstalled(sessionKey, rhaiPackages);
+      HashMap<String, Integer> channelLabels = buildListOfChannelsWithRPM(sessionKey, rhaiPackages);
+
       ArrayList<Status> statusList = new ArrayList<Status>();
       List<String> systemIdsList = Arrays.asList(systemIds.split("\\s*,\\s*"));
       try {
         for (String id : systemIdsList) {
-          SatelliteSystem system = new SatelliteSystem(sessionKey, Integer.parseInt(id));
+          Integer packageId = systemToPackageMap.get(Integer.parseInt(id));
+          SatelliteSystem system = new SatelliteSystem(sessionKey, Integer.parseInt(id), packageId);
+          system.findAvailablePackageId(channelLabels);
           Status status = system.getStatus();
           statusList.add(status);
         }
@@ -230,26 +300,6 @@ public class ConfigService {
           new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
           Response.Status.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  @GET
-  @Path("/status/{id}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Status getSingleSystemStatus(
-      @CookieParam("pxt-session-cookie") String sessionKey,
-      @PathParam("id") String id) {
-
-    Status status = null;
-    try {
-      SatelliteSystem system = new SatelliteSystem(sessionKey, Integer.parseInt(id));
-      status = system.getStatus();
-    } catch (Exception e) {
-      LOG.error("Exception in GET /status/{id}", e);
-      throw new WebApplicationException(
-          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
-          Response.Status.INTERNAL_SERVER_ERROR);
-    }
-    return status;
   }
 
   @GET

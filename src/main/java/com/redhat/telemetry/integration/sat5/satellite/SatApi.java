@@ -22,6 +22,14 @@ public class SatApi {
   }
 
   public static Object[]
+  listProvidingChannels(String sessionKey, int packageId) {
+    Object[] params = new Object[] {sessionKey, packageId};
+    Object[] response = 
+      (Object[]) makeRequest("packages.listProvidingChannels", params);
+    return response;
+  }
+
+  public static Object[]
   listUsersInOrg(String sessionKey) {
     Object[] params = new Object[] {sessionKey};
     Object[] response = 

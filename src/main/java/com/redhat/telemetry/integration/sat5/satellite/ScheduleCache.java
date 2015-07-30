@@ -21,11 +21,11 @@ public class ScheduleCache {
     return INSTANCE;
   }
 
-  public void addSchedule(int sysId, int actionId, String type) {
+  public void addSchedule(Integer sysId, Integer actionId, String type) {
     this.schedules.put(sysId, new Schedule(actionId, type));
   }
 
-  public Schedule getSystemSchedule(int sysId) {
+  public Schedule getSystemSchedule(Integer sysId) {
     Schedule schedule = this.schedules.get(sysId);
     return schedule;
   }
@@ -34,7 +34,7 @@ public class ScheduleCache {
     return this.schedules;
   }
 
-  public void remove(int sysId) {
+  public void remove(Integer sysId) {
     this.schedules.remove(sysId);
   }
 }

@@ -1,19 +1,19 @@
 package com.redhat.telemetry.integration.sat5.satellite;
 
 public class Schedule {
-  private int id = -1;
+  private Integer id = -1;
   private String type = null;
 
-  public Schedule(int id, String type) {
+  public Schedule(Integer id, String type) {
     this.id = id;
     this.type = type;
   }
 
-  public int getId() {
+  public Integer getId() {
     return this.id;
   }
 
-  public void setId(int id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
