@@ -26,6 +26,10 @@ TELEMETRY_URLS) {
       headers: headers
     });
     promise.success(angular.bind(this, function(systems) {
+      var alertDiv = $('#rha-insights-sat5-loading-alert');
+      if (alertDiv) {
+        alertDiv.remove();
+      }
       this.systems = systems.systems;
       $rootScope.$broadcast(EVENTS.SYSTEMS_POPULATED);
     }));
