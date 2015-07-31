@@ -81,6 +81,8 @@ touch %{buildroot}/var/log/rhn/rhai.log
 mkdir -p %{buildroot}/etc/redhat-access/
 cp resources/redhat-access-insights.properties %{buildroot}/etc/redhat-access/redhat-access-insights.properties
 cp resources/rhai.keystore %{buildroot}/etc/redhat-access/rhai.keystore
+#schedule-cache
+cp resources/schedule-cache.properties %{buildroot}/etc/redhat-access/schedule-cache.properties
 #console helper
 mkdir -p %{buildroot}/etc/pam.d
 cp resources/redhat-access-systemid.pam %{buildroot}/etc/pam.d/redhat-access-systemid
@@ -96,6 +98,7 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 %config /etc/httpd/conf.d/rh-insights-sat5.conf
 %config(noreplace) %attr(0644,tomcat,tomcat) /etc/redhat-access/redhat-access-insights.properties
 /etc/redhat-access/rhai.keystore
+ %config(noreplace) %attr(0644,tomcat,tomcat) /etc/redhat-access/schedule-cache.properties
 /var/www/html/javascript/insights.js
 /var/www/html/javascript/insights.app.js
 /var/www/html/css/insights.css

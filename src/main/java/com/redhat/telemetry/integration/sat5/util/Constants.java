@@ -79,4 +79,6 @@ public class Constants {
   public static final String INSTALL_SCHEDULED = "install";
   public static final String UNINSTALL_SCHEDULED = "uninstall";
   public static final String NOT_SCHEDULED = "no";
+
+  public static final String SCHEDULE_CACHE_FILE_URL = "file:///etc/redhat-access/schedule-cache.properties";
 }

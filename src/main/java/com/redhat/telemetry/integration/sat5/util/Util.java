@@ -144,7 +144,8 @@ public class Util {
    */
   public static String loadPortalUrl() throws ConfigurationException {
     String response = Constants.PORTAL_URL;
-    String configPortalUrl = PropertiesHandler.getPortalUrl();
+    PropertiesHandler propertiesHandler = new PropertiesHandler();
+    String configPortalUrl = propertiesHandler.getPortalUrl();
     if (configPortalUrl != null) {
       if (configPortalUrl.charAt(configPortalUrl.length() - 1) != '/') {
         configPortalUrl = configPortalUrl + "/";

@@ -21,7 +21,8 @@ public class SmartProxyApplication extends Application {
 
    public SmartProxyApplication() {
       try {
-        boolean debug = PropertiesHandler.getDebug();
+        PropertiesHandler propertiesHandler = new PropertiesHandler();
+        boolean debug = propertiesHandler.getDebug();
         Util.setLogLevel(debug);
       } catch (Exception e) {
         LOG.error("Unable to determine debug level at startup.");

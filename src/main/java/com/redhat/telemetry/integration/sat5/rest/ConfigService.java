@@ -34,10 +34,10 @@ import com.redhat.telemetry.integration.sat5.json.Status;
 import com.redhat.telemetry.integration.sat5.portal.InsightsApiClient;
 import com.redhat.telemetry.integration.sat5.satellite.json.ApiSystem;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
-import com.redhat.telemetry.integration.sat5.satellite.ScheduleCache;
 import com.redhat.telemetry.integration.sat5.satellite.SatelliteSystem;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 import com.redhat.telemetry.integration.sat5.util.PropertiesHandler;
+import com.redhat.telemetry.integration.sat5.util.ScheduleHandler;
 import com.redhat.telemetry.integration.sat5.util.Util;
 
 
@@ -45,6 +45,7 @@ import com.redhat.telemetry.integration.sat5.util.Util;
 public class ConfigService {
   @Context ServletContext context;
   private Logger LOG = LoggerFactory.getLogger(ConfigService.class);
+  private PropertiesHandler propertiesHandler = new PropertiesHandler();
 
   /**
    * Retrieve general config values
@@ -60,8 +61,8 @@ public class ConfigService {
 
     try {
       config = new Config(
-          PropertiesHandler.getEnabled(), 
-          PropertiesHandler.getDebug()); 
+          propertiesHandler.getEnabled(), 
+          propertiesHandler.getDebug()); 
     } catch (Exception e) {
       LOG.error("Exception in GET /config/general", e);
       throw new WebApplicationException(
@@ -90,12 +91,12 @@ public class ConfigService {
     Util.setLogLevel(config.getDebug());
 
     try {
-      String portalUrl = PropertiesHandler.getPortalUrl();
+      String portalUrl = propertiesHandler.getPortalUrl();
       if (portalUrl != null && portalUrl != "") {
-        PropertiesHandler.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
+        propertiesHandler.setProperty(Constants.PORTALURL_PROPERTY, portalUrl);
       }
-      PropertiesHandler.setProperty(Constants.ENABLED_PROPERTY, Boolean.toString(config.getEnabled()));
-      PropertiesHandler.setProperty(Constants.DEBUG_PROPERTY, Boolean.toString(config.getDebug()));
+      propertiesHandler.setProperty(Constants.ENABLED_PROPERTY, Boolean.toString(config.getEnabled()));
+      propertiesHandler.setProperty(Constants.DEBUG_PROPERTY, Boolean.toString(config.getDebug()));
     } catch (Exception e) {
       LOG.error("Exception in POST /config/general", e);
       throw new WebApplicationException(
@@ -174,7 +175,7 @@ public class ConfigService {
     try {
 
       Object[] rhaiPackages = 
-        SatApi.searchPackageByName(sessionKey, PropertiesHandler.getRPMName());
+        SatApi.searchPackageByName(sessionKey, propertiesHandler.getRPMName());
       HashMap<Integer, Integer> systemToPackageMap = 
         buildListOfSystemsWithRPMInstalled(sessionKey, rhaiPackages);
       for (Status sys : systems) {
@@ -183,6 +184,7 @@ public class ConfigService {
 
         boolean packageIsInstalled = system.isPackageInstalled();
         Integer installedPackageId = system.getPackageId();
+        ScheduleHandler scheduleHandler = new ScheduleHandler();
         if (sys.getEnabled() && !packageIsInstalled) {
           HashMap<String, Integer> channelLabels = buildListOfChannelsWithRPM(sessionKey, rhaiPackages);
           system.findAvailablePackageId(channelLabels);
@@ -195,7 +197,7 @@ public class ConfigService {
           Integer actionId = 
             SatApi.schedulePackageInstall(sessionKey, sys.getId(), packageIds, 60000);
           LOG.debug("Install action id for system (" + sys.getId() + "): " + actionId);
-          ScheduleCache.getInstance().addSchedule(sys.getId(), actionId, Constants.INSTALL_SCHEDULED);
+          scheduleHandler.add(sys.getId(), actionId, Constants.INSTALL_SCHEDULED);
         } else if (!sys.getEnabled() && packageIsInstalled) { //remove installed pieces
           LOG.debug("Uninstalling redhat-access-insights from system... SystemID: " + 
               sys.getId() + " | PackageId: " + installedPackageId);
@@ -205,7 +207,7 @@ public class ConfigService {
           Integer actionId = 
             SatApi.schedulePackageRemove(sessionKey, sys.getId(), packageIds);
           LOG.debug("Uninstall action id for system (" + sys.getId() + "): " + actionId);
-          ScheduleCache.getInstance().addSchedule(sys.getId(), actionId, Constants.UNINSTALL_SCHEDULED);
+          scheduleHandler.add(sys.getId(), actionId, Constants.UNINSTALL_SCHEDULED);
         }
       }
     } catch (Exception e) {
@@ -272,7 +274,7 @@ public class ConfigService {
 
     try {
       Object[] rhaiPackages = 
-        SatApi.searchPackageByName(sessionKey, PropertiesHandler.getRPMName());
+        SatApi.searchPackageByName(sessionKey, propertiesHandler.getRPMName());
       HashMap<Integer, Integer> systemToPackageMap = 
         buildListOfSystemsWithRPMInstalled(sessionKey, rhaiPackages);
       HashMap<String, Integer> channelLabels = buildListOfChannelsWithRPM(sessionKey, rhaiPackages);
@@ -317,7 +319,7 @@ public class ConfigService {
     boolean debugIsOn = false;
 
     try {
-      debugIsOn = PropertiesHandler.getDebug();
+      debugIsOn = propertiesHandler.getDebug();
     } catch (Exception e) {
       LOG.error("Unable to load debugProperty in GET /config/connection", e);
       throw new WebApplicationException(
