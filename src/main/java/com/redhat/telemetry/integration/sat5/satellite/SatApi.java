@@ -277,7 +277,7 @@ public class SatApi {
   listSystemsWithPackage(String sessionKey, int packageId) {
     Object[] params = new Object[] {sessionKey, packageId};
     Object[] response = 
-      (Object[]) makeRequest("channel.software.listSystemsWithPackage", params);
+      (Object[]) makeRequest("system.listSystemsWithPackage", params);
     return response;
   }
 
