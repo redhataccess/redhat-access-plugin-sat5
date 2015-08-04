@@ -9,6 +9,8 @@ public class Constants {
     "v1/";
   public final static String SYSTEMS_URL =
     API_URL + "systems/";
+  public final static String SYSTEMS_URL_PLAIN =
+    "systems/";
   public final static String SUBSETS_URL =
     "subsets/";
   public final static String REPORTS_URL =

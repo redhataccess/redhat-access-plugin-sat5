@@ -425,6 +425,7 @@ module.exports = function (grunt) {
           dest: '<%= yeoman.dist %>/images',
           src: [
             'bg_dount-hole-na.png',
+            'bg_chart-shadow.png',
             'i_chart.png'
           ]
         }, {

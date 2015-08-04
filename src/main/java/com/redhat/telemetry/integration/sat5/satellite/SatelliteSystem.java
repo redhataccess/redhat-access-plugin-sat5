@@ -1,11 +1,22 @@
 package com.redhat.telemetry.integration.sat5.satellite;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.security.cert.CertificateException;
+
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.json.JSONException;
 
+import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.json.Status;
 import com.redhat.telemetry.integration.sat5.json.SystemInstallStatus;
+import com.redhat.telemetry.integration.sat5.portal.InsightsApiClient;
+import com.redhat.telemetry.integration.sat5.portal.InsightsApiUtils;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 import com.redhat.telemetry.integration.sat5.util.ScheduleHandler;
 
@@ -129,7 +140,26 @@ public class SatelliteSystem {
     return type;
   }
 
-  public void unregister() {
+  public PortalResponse unregister() 
+    throws KeyManagementException, 
+           CertificateException, 
+           KeyStoreException, 
+           IOException, 
+           ConfigurationException, 
+           NoSuchAlgorithmException,
+           JSONException,
+           InterruptedException {
 
+    String machineId = 
+      InsightsApiUtils.leafIdToMachineId(Integer.toString(systemId));
+
+    InsightsApiClient client = new InsightsApiClient();
+    PortalResponse response = client.makeRequest(
+      Constants.METHOD_DELETE, 
+      "/" + Constants.SYSTEMS_URL_PLAIN + machineId,
+      null,
+      null,
+      MediaType.APPLICATION_JSON);
+    return response;
   }
 }

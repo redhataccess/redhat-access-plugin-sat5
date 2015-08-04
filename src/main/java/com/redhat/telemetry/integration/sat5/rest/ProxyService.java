@@ -1,7 +1,6 @@
 package com.redhat.telemetry.integration.sat5.rest;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -40,15 +39,14 @@ import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.redhat.telemetry.integration.sat5.json.BranchInfo;
 import com.redhat.telemetry.integration.sat5.json.Product;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
 import com.redhat.telemetry.integration.sat5.portal.InsightsApiClient;
+import com.redhat.telemetry.integration.sat5.portal.InsightsApiUtils;
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 import com.redhat.telemetry.integration.sat5.util.Util;
@@ -200,10 +198,11 @@ public class ProxyService {
                  NoSuchAlgorithmException, 
                  KeyStoreException, 
                  CertificateException, 
-                 KeyManagementException {
+                 KeyManagementException,
+                 InterruptedException {
 
     InsightsApiClient client = new InsightsApiClient();
-    String branchId = InetAddress.getLocalHost().getHostName();
+    String branchId = Util.getSatelliteHostname();
     ArrayList<Integer> leafIds = new ArrayList<Integer>();
     String subsetHash = null;
 
@@ -226,27 +225,9 @@ public class ProxyService {
     if (pathTypeInt.equals(Constants.SYSTEM_REPORTS_PATH) && pathType.get("id") != null) {
       LOG.debug("Request is for an individual system's reports. GET machine ID from portal.");
       String leafId = pathType.get("id");
-      LOG.debug("leafId: " + leafId);
-      PortalResponse getIdResponse = client.makeRequest(
-        request.getMethod(),
-        Constants.API_URL + Constants.BRANCH_URL + branchId + "/" + Constants.LEAF_URL + leafId,
-        body,
-        requestType,
-        responseType);
-
-      if (getIdResponse.getStatusCode() == HttpServletResponse.SC_OK) {
-        JSONObject responseJson = new JSONObject(getIdResponse.getEntity());
-        String machineId = (String) responseJson.get(Constants.MACHINE_ID_KEY);
-        path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
-        LOG.debug("MachineID Path: " + path);
-      } else if (getIdResponse.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
-        throw new NotFoundException(
-            "Machine ID not found. Verify the system has been registered with " + 
-            "'redhat-access-insights --register'");
-      } else {
-        throw new InternalServerErrorException(
-            "Unable to retrieve Machine ID from Access Insights API.");
-      }
+      String machineId = InsightsApiUtils.leafIdToMachineId(leafId);
+      path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
+      LOG.debug("MachineID Path: " + path);
     } else if (user != null && 
         !pathTypeInt.equals(Constants.RULES_PATH) &&
         !pathTypeInt.equals(Constants.ACKS_PATH)) { //TODO: whitelist subset paths instead of blacklist
