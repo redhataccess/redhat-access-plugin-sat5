@@ -52,8 +52,7 @@ form(ng-if='getSystems().length > 0')
               th(ng-class='{ascSort: orderBy === "name", descSort: orderBy === "-name"}')
                 a(ng-disabled='isLoading()', ng-click='toggleNameSort()') System
               th Last Check In
-              th(ng-class='{ascSort: orderBy === "status", descSort: orderBy === "-status"}')
-                a(ng-disabled='isLoading()', ng-click='toggleStatusSort()') RPM Status
+              th RPM Status
           tbody
             tr(
               ng-repeat='system in filteredSystems = (getSystems() | systemsFilter:filter:orderBy:getPageStart():alpha)',
@@ -69,7 +68,8 @@ form(ng-if='getSystems().length > 0')
               td.sortedCol
                 a(ng-href='{{getSystemUrl(system)}}') {{system.name}}
               td(width='150px')
-                span(ng-if='getSystemLastCheckIn(system) !== "never"') {{getSystemLastCheckIn(system) | timeAgo }}
+                span(ng-if='getSystemLastCheckIn(system) !== null && getSystemLastCheckIn(system) !== "never"') {{getSystemLastCheckIn(system) | timeAgo }}
+                span(ng-if='getSystemLastCheckIn(system) === null') Pending
                 span(ng-if='getSystemLastCheckIn(system) === "never"') Not registered
               td.text-center(width='100px')
                 div(
