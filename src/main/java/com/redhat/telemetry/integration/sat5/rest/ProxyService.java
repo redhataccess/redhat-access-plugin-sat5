@@ -248,7 +248,6 @@ public class ProxyService {
             "Unable to retrieve Machine ID from Access Insights API.");
       }
     } else if (user != null && 
-        !pathTypeInt.equals(Constants.SYSTEMS_STATUS_PATH) && 
         !pathTypeInt.equals(Constants.RULES_PATH) &&
         !pathTypeInt.equals(Constants.ACKS_PATH)) { //TODO: whitelist subset paths instead of blacklist
       path = addSubsetToPath(path, subsetHash);
