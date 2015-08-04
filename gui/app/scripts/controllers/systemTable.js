@@ -13,6 +13,7 @@ _,
 $scope, 
 Admin, 
 Alert, 
+Sat5TelemetrySystems,
 RPM_SCHEDULE_CONST,
 SAT5_ROOT_URLS, 
 SYSTEM_DETAILS_PAGE_URLS) {
@@ -306,13 +307,24 @@ SYSTEM_DETAILS_PAGE_URLS) {
       message = message + 'systems';
     } else if ($scope.getLoadingStatuses()) {
       message = message + 'statuses'; 
+    } else if ($scope.loadingInsightsSystems) {
+      message = message + 'Access Insights statuses';
     }
     return message + '...';
   };
 
+  $scope.getSystemLastCheckIn = function(system) {
+    var insightsSystem = _.find(Sat5TelemetrySystems.systems, {'remote_leaf': system.id.toString()});
+    var lastCheckIn = 'never';
+    if (!_.isEmpty(insightsSystem)) {
+      lastCheckIn = insightsSystem.last_check_in;
+    }
+    return lastCheckIn;
+  };
+
   $scope.populateSystems = function() {
     $scope.loadingSystems = true;
-    var promise = Admin.getSystemsPromise()
+    Admin.getSystemsPromise()
       .success(function(response) {
         $scope.loadingSystems = false;
         Admin.setSystems(response);
@@ -321,7 +333,16 @@ SYSTEM_DETAILS_PAGE_URLS) {
         $scope.loadingSystems = false;
         Alert.danger('Problem loading systems. Please try again.');
       });
-    return promise;
+
+    $scope.loadingInsightsSystems = true;
+    Sat5TelemetrySystems.populate()
+      .success(function(response) {
+        $scope.loadingInsightsSystems = false;
+      })
+      .error(function(error) {
+        $scope.loadingInsightsSystems = false;
+        Alert.danger('Problem loading Insights systems. Please try again.');
+      });
   };
 
   $scope.populateSystems();
