@@ -262,6 +262,52 @@ ADMIN_TABS) {
     var unknownSystems = getSystemsMissingStatus(filteredSystems);
     var promise = null;
     if (!_.isEmpty(unknownSystems)) {
+      //XXX: this would be useful if users start hitting timeouts on large page sizes
+      //      it needs more testing first.
+      //
+      //get systems in chunks of 10, 3 chunks at a time
+      //var CHUNK_SIZE = 10;
+      //var PARALLEL_CHUNKS = 3;
+      //var promises = [];
+      //var chunks = _.chunk(unknownSystems, CHUNK_SIZE * PARALLEL_CHUNKS);
+      ////build the promises
+      //_.forEach(chunks, function(chunk) {
+        //var subChunks = _.chunk(chunk, CHUNK_SIZE);
+        //var subPromises = [];
+        //for (var i = 0; i < PARALLEL_CHUNKS; i++) {
+          //var currentChunk = subChunks[i];
+          //if (subChunks[i] !== undefined) {
+            //subPromises.push(getStatusPromise(subChunks[i]));
+          //} else {
+            //break;
+          //}
+        //}
+        //promises.push(subPromises);
+      //});
+      
+      ////make the requests
+      //var data = [];
+      //var makeRequest = function(index) {
+        //$q.all(promises[index]).then(function(statuses) {
+          //if (index < promises.length) {
+            //console.log('next: ' + index);
+            //console.log(statuses);
+            //_.forEach(statuses, function(status) {
+              //data.push(status.data);
+            //});
+            //makeRequest(index + 1);
+          //} else {
+            ////all the statuses are loaded now
+            //_loadingStatuses = false;
+            //var flatData = _.flatten(data);
+            //console.log(flatData);
+            //addSystemStatuses(flatData);
+            //setEnabledProperty(unknownSystems);
+          //}
+        //});
+      //};
+      //makeRequest(0);
+
       _loadingStatuses = true;
       promise = getStatusPromise(unknownSystems).then(
         function(statuses) {

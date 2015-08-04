@@ -116,6 +116,17 @@ RHA_INSIGHTS.UTILS.isOnHelpPage = function () {
   }
 };
 
+
+RHA_INSIGHTS.UTILS.getSystemTableSize = function () {
+  var length = $('.table-responsive > table > tbody tr').length;
+  console.log('systemtablesize: ' + length);
+  return length;
+};
+
+RHA_INSIGHTS.UTILS.getSystemPageSize = function () {
+  return 500;
+};
+
 var SAT5_ROOT_URLS = {
   'ADMIN': 'admin',
   'SYSTEMS': 'systems',
@@ -172,25 +183,26 @@ window.SYSTEM_DETAILS_PAGE_URLS = SYSTEM_DETAILS_PAGE_URLS;
 if (RHA_INSIGHTS.UTILS.isOnInsightsEnabledPage()) {
   $.get('/redhat_access/config/general')
     .done(function(insightsConfig) {
-      if (RHA_INSIGHTS.UTILS.isOnSystemListPage()) {
-        $('#spacewalk-content').prepend(
-          '<div id="rha-insights-sat5-loading-alert" class="alert alert-info">' + 
-            'Loading Red Hat Access Insights...' + 
-          '</div>'); 
-      }
       window.RHA_INSIGHTS.config = insightsConfig;
 
       if (insightsConfig.enabled || RHA_INSIGHTS.UTILS.isOnAdminPage()) {
+        if (RHA_INSIGHTS.UTILS.isOnSystemListPage()) {
+          $('#spacewalk-content').prepend(
+            '<div id="rha-insights-sat5-loading-alert" class="alert alert-info">' + 
+              'Loading Red Hat Access Insights...' + 
+            '</div>'); 
+        }
         $.ajax({
           dataType: 'script',
           cache: true,
           url: '/javascript/insights.app.js'
         }).done(function(script, status) {
-          //wait a second for the list to load
+          //wait two seconds for the list to load
+          //need to wait to ensure the insights health icon cell is added to each row
           if (RHA_INSIGHTS.UTILS.isOnSystemListPage()) {
             setTimeout(function() {
               angular.bootstrap(document, ['sat5TelemetryApp']);
-            }, 1000);
+            }, 2000);
           } else {
             angular.bootstrap(document, ['sat5TelemetryApp']);
           }

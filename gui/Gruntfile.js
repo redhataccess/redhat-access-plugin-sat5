@@ -330,7 +330,7 @@ module.exports = function (grunt) {
     //uncomment for easier debugging
     uglify: {
       options: {
-        sourceMap: true,
+        sourceMap: true
         //beautify: true,
         //compress: false,
         //mangle: false,

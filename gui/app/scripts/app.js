@@ -55,7 +55,6 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
 
 })
 .run(function(
-      $timeout,
       $rootScope,
       $state,
       Sat5TelemetrySystems,
@@ -137,6 +136,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
     }
     
   } else if (RHA_INSIGHTS.UTILS.isOnSystemDetailsPage()) {
+
     $('<li id="rha-insights-system-details" class="ng-hide"><a href="/rhn/systems/details/Insights.do?' + 
       'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(
         $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last')); 
