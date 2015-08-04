@@ -176,7 +176,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
       message = 'Access Insights RPM is not available to this server.';
     } else if (installationStatus === IN_PROGRESS_INSTALL_STATUS) {
       message = 'Access Insights RPM is scheduled to be ';
-      if (systemStatus.installationStatus.rpmScheduled === RPM_SCHEDULE_CONST.INSTALL) {
+      if (_.startsWith(systemStatus.installationStatus.rpmScheduled, RPM_SCHEDULE_CONST.INSTALL)) {
         message = message + 'installed.';
       } else {
         message = message + 'uninstalled.';
@@ -320,6 +320,22 @@ SYSTEM_DETAILS_PAGE_URLS) {
       lastCheckIn = insightsSystem.last_check_in;
     }
     return lastCheckIn;
+  };
+
+  $scope.getPendingActionUrl = function(system) {
+    var url = '/rhn/schedule/InProgressSystems.do?aid=';
+    var status = Admin.getSystemStatus(system);
+    var schedule = '';
+    if (!_.isEmpty(status) && !_.isEmpty(status.installationStatus)) {
+      schedule = status.installationStatus.rpmScheduled;
+    }
+    if (!_.isEmpty(schedule)) {
+      var aid = schedule.split(':');
+      if (aid.length > 1) {
+        url = url + aid[1];
+      }
+    }
+    return url;
   };
 
   $scope.populateSystems = function() {

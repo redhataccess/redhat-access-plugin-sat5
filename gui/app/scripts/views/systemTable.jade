@@ -85,8 +85,9 @@ form(ng-if='getSystems().length > 0')
                     ng-if='noChannel(getSystemStatus(system))') 
                   i.fa.fa-check-circle.fa-1-5x.success(
                     ng-if='installationSuccess(getSystemStatus(system))') 
-                  i.fa.fa-clock-o.fa-1-5x(
-                    ng-if='installationPending(getSystemStatus(system))')
+                  a(ng-href='{{getPendingActionUrl(system)}}')
+                    i.fa.fa-clock-o.fa-1-5x(
+                      ng-if='installationPending(getSystemStatus(system))')
       div.panel-footer
         div.spacewalk-list-footer-addons
           div.spacewalk-list-footer-addons-extra

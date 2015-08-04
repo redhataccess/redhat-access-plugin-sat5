@@ -128,7 +128,7 @@ public class SatelliteSystem {
           HashMap<Object, Object> actionMap = (HashMap<Object, Object>) action;
           Integer serverId = (Integer) actionMap.get("server_id");
           if (serverId.equals(this.systemId)) {
-            type = scheduleHandler.getType(this.systemId);
+            type = scheduleHandler.getType(this.systemId) + ":" + Integer.toString(actionId);
           }
         }
       }
