@@ -357,7 +357,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
       })
       .error(function(error) {
         $scope.loadingInsightsSystems = false;
-        Alert.danger('Problem loading Insights systems. Please try again.');
+        Alert.danger('Unable to load last check in times. Please validate the connection to Red Hat Access Insights and try again.');
       });
   };
 
