@@ -119,6 +119,15 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 /var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
 
 %changelog
+* Tue Aug 4 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-41
+- Clean up error message when loading last check in fails
+- Show 'Pending' when system is registered but hasn't ingressed yet
+- Link to pending action from setup table
+- Last check in column in setup table
+- Link to doc from unregistered system's Insights tab
+- Wait 2 seconds for systems table to load before adding insights column
+- Remove systems path from subset blacklist
+
 * Fri Jul 31 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-40
 - Bug fixes in getStatus
 - Persist schedules on disk
