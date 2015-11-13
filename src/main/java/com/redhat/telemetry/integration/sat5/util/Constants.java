@@ -28,7 +28,7 @@ public class Constants {
   public static final String VERSION_RHEL6_SERVER = "6Server";
   public static final String VERSION_RHEL7_SERVER = "7Server";
 
-  //redhat-access-insights.properties 
+  //redhat-access-insights.properties
   public static final String RPM_NAME_PROPERTY = "rpmname";
   public static final String ENABLED_PROPERTY = "enabled";
   public static final String PORTALURL_PROPERTY = "portalurl";
@@ -38,6 +38,7 @@ public class Constants {
   public static final String INSIGHTS_CLIENT_RPM_NAME = "redhat-access-insights";
 
   //path types
+  public static final String PASSTHRU_PATH = "-1";
   public static final String SYSTEMS_PATH = "0";
   public static final String SYSTEM_REPORTS_PATH = "1";
   public static final String REPORTS_PATH = "2";
@@ -45,6 +46,7 @@ public class Constants {
   public static final String RULES_PATH = "4";
   public static final String UPLOADS_PATH = "5";
   public static final String SYSTEMS_STATUS_PATH = "6";
+
 
   //telemetry api json keys
   public static final String MACHINE_ID_KEY = "machine_id";
@@ -75,7 +77,7 @@ public class Constants {
   public static final String SSL_KEY_STORE_LOC = "/etc/redhat-access/rhai.keystore";
   public static final String SSL_KEY_STORE_PW = "changeit";
 
-  public static final String INTERNAL_SERVER_ERROR_MESSAGE = 
+  public static final String INTERNAL_SERVER_ERROR_MESSAGE =
     "Internal server error occurred. View rhai.log for more details.";
 
   public static final String INSTALL_SCHEDULED = "install";

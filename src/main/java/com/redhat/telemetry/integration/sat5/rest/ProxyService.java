@@ -71,7 +71,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Unable to retrieve Satellite hostname at GET /r/insights/v1/branch_info", e);
       throw new WebApplicationException(
-          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
     }
     BranchInfo branchInfo = new BranchInfo(hostname, -1, new Product("SAT", "5", "7"), hostname);
@@ -91,7 +91,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /", e);
       throw new WebApplicationException(
-          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -113,7 +113,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
       throw new WebApplicationException(
-          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -133,7 +133,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: Text/plain)", e);
       throw new WebApplicationException(
-          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -154,7 +154,7 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /*", e);
       throw new WebApplicationException(
-          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
@@ -178,26 +178,26 @@ public class ProxyService {
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: application/json)", e);
       throw new WebApplicationException(
-          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE), 
+          new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
   //@Loggable
   private Response proxy(
-      String path, 
-      String user, 
-      UriInfo uriInfo, 
+      String path,
+      String user,
+      UriInfo uriInfo,
       Request request,
       String requestType,
       String responseType,
-      byte[] body) 
-          throws JSONException, 
-                 IOException, 
-                 ConfigurationException, 
-                 NoSuchAlgorithmException, 
-                 KeyStoreException, 
-                 CertificateException, 
+      byte[] body)
+          throws JSONException,
+                 IOException,
+                 ConfigurationException,
+                 NoSuchAlgorithmException,
+                 KeyStoreException,
+                 CertificateException,
                  KeyManagementException,
                  InterruptedException {
 
@@ -228,15 +228,15 @@ public class ProxyService {
       String machineId = InsightsApiUtils.leafIdToMachineId(leafId);
       path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
       LOG.debug("MachineID Path: " + path);
-    } else if (user != null && 
+    } else if (user != null &&
         !pathTypeInt.equals(Constants.RULES_PATH) &&
         !pathTypeInt.equals(Constants.ACKS_PATH)) { //TODO: whitelist subset paths instead of blacklist
       path = addSubsetToPath(path, subsetHash);
       LOG.debug("Path with subset: " + path);
     }
 
-    if (!pathTypeInt.equals(Constants.UPLOADS_PATH)) {
-      LOG.debug("Adding branchID query param to URL.");
+    if (!pathTypeInt.equals(Constants.UPLOADS_PATH) && !pathTypeInt.equals(Constants.PASSTHRU_PATH)) {
+      LOG.debug("Adding branchID query param to URLLINDANI.");
       String prepend = "?";
       if (path.contains("?")) {
         prepend = "&";
@@ -246,20 +246,20 @@ public class ProxyService {
     }
 
     LOG.debug("Forwarding request to portal.");
-    PortalResponse portalResponse = 
+    PortalResponse portalResponse =
       client.makeRequest(
-          request.getMethod(), 
-          path, 
+          request.getMethod(),
+          path,
           body,
           requestType,
           responseType);
     if (portalResponse.getStatusCode() == HttpServletResponse.SC_PRECONDITION_FAILED &&
-        ! pathTypeInt.equals(Constants.UPLOADS_PATH)) {
+        ! pathTypeInt.equals(Constants.UPLOADS_PATH) && !pathTypeInt.equals(Constants.PASSTHRU_PATH)) {
       LOG.debug("Got a 412. Assuming this means the subset doesn't exist. Create the subset.");
       portalResponse =
         client.makeRequest(
-            Constants.METHOD_POST, 
-            Constants.API_URL + Constants.SUBSETS_URL, 
+            Constants.METHOD_POST,
+            Constants.API_URL + Constants.SUBSETS_URL,
             buildNewSubsetPostBody(subsetHash, leafIds, branchId),
             MediaType.APPLICATION_JSON,
             MediaType.APPLICATION_JSON);
@@ -268,8 +268,8 @@ public class ProxyService {
         LOG.debug("Subset created successfully. Forward the original request a second time.");
         portalResponse =
           client.makeRequest(
-              request.getMethod(), 
-              path, 
+              request.getMethod(),
+              path,
               body,
               requestType,
               responseType);
@@ -284,9 +284,9 @@ public class ProxyService {
    * Add the query params from the jax-rs request to the apache request to the portal
    */
   private String addQueryToPath(
-      String path, 
+      String path,
       String fullUri) {
-	  
+
     String response = path;
     int index = fullUri.indexOf("?");
     if (index == -1) {
@@ -366,8 +366,8 @@ public class ProxyService {
       response.put("type", Constants.SYSTEMS_STATUS_PATH);
       response.put("index", Integer.toString(path.indexOf("systems")));
     } else {
-      response.put("type", "-1");
-      response.put("index", "-1");
+      response.put("type", Constants.PASSTHRU_PATH);
+      response.put("index", Constants.PASSTHRU_PATH);
     }
     return response;
   }
@@ -391,12 +391,12 @@ public class ProxyService {
    * Build the JSON request to make a new subset
    */
   private StringEntity buildNewSubsetPostBody(
-      String hash, 
+      String hash,
       ArrayList<Integer> ids,
-      String branchId) 
+      String branchId)
       throws UnknownHostException {
     StringEntity entity = new StringEntity(
-      "{\"" + Constants.HASH_KEY + "\":\"" + hash + "\"," + 
+      "{\"" + Constants.HASH_KEY + "\":\"" + hash + "\"," +
        "\"" + Constants.LEAF_IDS_KEY + "\":[" + StringUtils.join(ids.toArray(), ",") + "]," +
        "\"" + Constants.BRANCH_ID_KEY + "\":\"" + branchId + "\"}",
       ContentType.APPLICATION_JSON);
@@ -408,11 +408,11 @@ public class ProxyService {
    */
   private Response buildFinalResponse(PortalResponse portalResponse)
         throws IOException {
-    ResponseBuilder finalResponse = 
+    ResponseBuilder finalResponse =
       Response.status(portalResponse.getStatusCode());
     for (Header header : portalResponse.getHeaders()) {
       //TODO: probably want to white list headers instead
-      if (!header.getName().equals(HttpHeaders.TRANSFER_ENCODING) && 
+      if (!header.getName().equals(HttpHeaders.TRANSFER_ENCODING) &&
           !header.getName().equals(HttpHeaders.VARY)) {
         finalResponse.header(header.getName(), header.getValue());
       }
