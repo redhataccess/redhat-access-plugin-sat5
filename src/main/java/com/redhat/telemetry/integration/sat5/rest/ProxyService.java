@@ -85,9 +85,10 @@ public class ProxyService {
   public Response proxyRootGetMultiPart(
       @Context Request request,
       @Context UriInfo uriInfo,
+      @HeaderParam("user-agent") String userAgent,
       @CookieParam("pxt-session-cookie") String user) {
     try {
-      return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null);
+      return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null,userAgent);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /", e);
       throw new WebApplicationException(
@@ -106,10 +107,11 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
       @HeaderParam("Content-Type") String contentType,
+      @HeaderParam("user-agent") String userAgent,
       @CookieParam("pxt-session-cookie") String user,
       byte[] body) {
     try {
-      return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body);
+      return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body,userAgent);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
       throw new WebApplicationException(
@@ -127,9 +129,10 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
+      @HeaderParam("user-agent") String userAgent,
       @CookieParam("pxt-session-cookie") String user) {
     try {
-      return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null);
+      return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null, userAgent);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: Text/plain)", e);
       throw new WebApplicationException(
@@ -148,9 +151,10 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
       @CookieParam("pxt-session-cookie") String user,
+      @HeaderParam("user-agent") String userAgent,
       byte[] body) {
     try {
-      return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body);
+      return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body, userAgent);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /*", e);
       throw new WebApplicationException(
@@ -169,9 +173,10 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
+      @HeaderParam("user-agent") String userAgent,
       @CookieParam("pxt-session-cookie") String user) {
     try {
-      return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null);
+      return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null,userAgent);
     } catch (NotFoundException e) {
       LOG.debug("Resource not found: " + path);
       throw e;
@@ -191,7 +196,8 @@ public class ProxyService {
       Request request,
       String requestType,
       String responseType,
-      byte[] body)
+      byte[] body,
+      String userAgent)
           throws JSONException,
                  IOException,
                  ConfigurationException,
@@ -205,9 +211,12 @@ public class ProxyService {
     String branchId = Util.getSatelliteHostname();
     ArrayList<Integer> leafIds = new ArrayList<Integer>();
     String subsetHash = null;
+    boolean isPassThrough = isPassThruRequest(userAgent);
+    LOG.debug("Request user agent " + userAgent);
+    LOG.debug("Request is pass through? " + isPassThrough);
 
     //If user is set, assume call originated from satellite, not uploader
-    if (user != null) {
+    if ((user != null) && (!isPassThrough)) {
       LOG.debug("Creating subset hash.");
       leafIds = SatApi.getUsersSystemIDs(user);
       subsetHash = createSubsetHash(leafIds, branchId);
@@ -216,35 +225,35 @@ public class ProxyService {
     }
     path = addQueryToPath(path, uriInfo.getRequestUri().toString());
     LOG.debug("Path with query: " + path);
-
     LOG.debug("Determining request type from path.");
     HashMap<String, String> pathType = parsePathType(path);
     String pathTypeInt = pathType.get("type");
     LOG.debug("Pathtype: " + pathTypeInt);
-
-    if (pathTypeInt.equals(Constants.SYSTEM_REPORTS_PATH) && pathType.get("id") != null) {
-      LOG.debug("Request is for an individual system's reports. GET machine ID from portal.");
-      String leafId = pathType.get("id");
-      String machineId = InsightsApiUtils.leafIdToMachineId(leafId);
-      path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
-      LOG.debug("MachineID Path: " + path);
-    } else if (user != null &&
-        !pathTypeInt.equals(Constants.RULES_PATH) &&
-        !pathTypeInt.equals(Constants.ACKS_PATH)) { //TODO: whitelist subset paths instead of blacklist
-      path = addSubsetToPath(path, subsetHash);
-      LOG.debug("Path with subset: " + path);
-    }
-
-    if (!pathTypeInt.equals(Constants.UPLOADS_PATH) && !pathTypeInt.equals(Constants.PASSTHRU_PATH)) {
-      LOG.debug("Adding branchID query param to URLLINDANI.");
-      String prepend = "?";
-      if (path.contains("?")) {
-        prepend = "&";
+    if (!isPassThrough){
+      //Only inspect and modify request if its NOT a pass through
+      if (pathTypeInt.equals(Constants.SYSTEM_REPORTS_PATH) && pathType.get("id") != null) {
+        LOG.debug("Request is for an individual system's reports. GET machine ID from portal.");
+        String leafId = pathType.get("id");
+        String machineId = InsightsApiUtils.leafIdToMachineId(leafId);
+        path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
+        LOG.debug("MachineID Path: " + path);
+      } else if (user != null &&
+          !pathTypeInt.equals(Constants.RULES_PATH) &&
+          !pathTypeInt.equals(Constants.ACKS_PATH)) { //TODO: whitelist subset paths instead of blacklist
+        path = addSubsetToPath(path, subsetHash);
+        LOG.debug("Path with subset: " + path);
       }
-      path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
-      LOG.debug("Path with branchId query param: " + path);
-    }
 
+      if (!pathTypeInt.equals(Constants.UPLOADS_PATH)) {
+        LOG.debug("Adding branchID query param to URI.");
+        String prepend = "?";
+        if (path.contains("?")) {
+          prepend = "&";
+        }
+        path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
+        LOG.debug("Path with branchId query param: " + path);
+      }
+    }
     LOG.debug("Forwarding request to portal.");
     PortalResponse portalResponse =
       client.makeRequest(
@@ -254,7 +263,7 @@ public class ProxyService {
           requestType,
           responseType);
     if (portalResponse.getStatusCode() == HttpServletResponse.SC_PRECONDITION_FAILED &&
-        ! pathTypeInt.equals(Constants.UPLOADS_PATH) && !pathTypeInt.equals(Constants.PASSTHRU_PATH)) {
+        ! pathTypeInt.equals(Constants.UPLOADS_PATH) && !isPassThrough) {
       LOG.debug("Got a 412. Assuming this means the subset doesn't exist. Create the subset.");
       portalResponse =
         client.makeRequest(
@@ -366,8 +375,8 @@ public class ProxyService {
       response.put("type", Constants.SYSTEMS_STATUS_PATH);
       response.put("index", Integer.toString(path.indexOf("systems")));
     } else {
-      response.put("type", Constants.PASSTHRU_PATH);
-      response.put("index", Constants.PASSTHRU_PATH);
+      response.put("type", "-1");
+      response.put("index", "-1");
     }
     return response;
   }
@@ -428,5 +437,18 @@ public class ProxyService {
   private String createSubsetHash(ArrayList<Integer> leafIds, String branchId) {
     Collections.sort(leafIds);
     return branchId + "__" + DigestUtils.sha1Hex(StringUtils.join(leafIds.toArray()));
+  }
+
+  /**
+   * Return true if the request is coming from another management application
+   * such as CFME
+   */
+  private boolean  isPassThruRequest(String userAgent){
+      //TODO we can make this more generic, but there are no plans to support anything
+      //other than CFME at this time.
+      if (userAgent == null){
+        return false;
+      }
+      return userAgent.contains(Constants.CFME_USER_AGENT_BASE) ? true : false;
   }
 }

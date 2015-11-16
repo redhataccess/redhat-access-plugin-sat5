@@ -38,7 +38,6 @@ public class Constants {
   public static final String INSIGHTS_CLIENT_RPM_NAME = "redhat-access-insights";
 
   //path types
-  public static final String PASSTHRU_PATH = "-1";
   public static final String SYSTEMS_PATH = "0";
   public static final String SYSTEM_REPORTS_PATH = "1";
   public static final String REPORTS_PATH = "2";
@@ -85,4 +84,6 @@ public class Constants {
   public static final String NOT_SCHEDULED = "no";
 
   public static final String SCHEDULE_CACHE_FILE_URL = "file:///etc/redhat-access/schedule-cache.properties";
+
+  public static final String CFME_USER_AGENT_BASE = "redhat_access_cfme";
 }

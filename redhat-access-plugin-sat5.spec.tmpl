@@ -1,11 +1,11 @@
-%define version 2.0.0
+%define version 2.0.1
 
 Name: redhat-access-plugin-sat5
 Version:  %{version}
 Requires: spacewalk-java >= 2.3.8-106
 Release: $release%{?dist}
 Summary:  Red Hat Access Plugin for Satellite 5.7
-Group:  Applications/System 
+Group:  Applications/System
 License:  MIT
 #set $i = 0
 #for $artifact in $all_artifacts
@@ -119,6 +119,9 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 /var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
 
 %changelog
+* Mon Nov 15 2015 Lindani Phiri <lphiri@redhat.com> - 2.0.1-1
+- Resolves BZ1276676 - add support for CFME pass through proxy
+
 * Tue Aug 4 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-41
 - Clean up error message when loading last check in fails
 - Show 'Pending' when system is registered but hasn't ingressed yet
@@ -148,7 +151,7 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 * Tue Jul 28 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.0-34
 - Insights v3.3.9
 - Support installing redhat-access-insights on any system type
-- Refactor InsightsApiClient 
+- Refactor InsightsApiClient
 - Overview page bug fixes
 - Clean up loading message on setup table
 - Fix 404s in web UI
