@@ -91,24 +91,24 @@ EVENTS) {
       })
       .error(function(error) {
         $scope.connectionStatus = 'unknown';
-        Alert.danger('Unable to test connection to Red Hat Access Insights API.');
+        Alert.danger('Unable to test connection to Red Hat Insights API.');
       });
   };
 
   $scope.getLoadingTooltip = function() {
-    return 'Trying to connect to Red Hat Access Insights API...';
+    return 'Trying to connect to Red Hat Insights API...';
   };
 
   $scope.getSuccessTooltip = function() {
-    return 'Connection to Red Hat Access Insights API was successful.';
+    return 'Connection to Red Hat Insights API was successful.';
   };
 
   $scope.getUnknownTooltip = function() {
-    return 'Press the button to test connection between Satellite and Red Hat Access Insights API.';
+    return 'Press the button to test connection between Satellite and Red Hat Insights API.';
   };
 
   $scope.getFailTooltip = function() {
-    return 'Unable to connect to Red Hat Access Insights API.';
+    return 'Unable to connect to Red Hat Insights API.';
   };
 
   $scope.onAceLoad = function(editor) {

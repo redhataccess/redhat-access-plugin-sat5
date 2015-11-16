@@ -189,7 +189,7 @@ if (RHA_INSIGHTS.UTILS.isOnInsightsEnabledPage()) {
         if (RHA_INSIGHTS.UTILS.isOnSystemListPage()) {
           $('#spacewalk-content').prepend(
             '<div id="rha-insights-sat5-loading-alert" class="alert alert-info">' + 
-              'Loading Red Hat Access Insights...' + 
+              'Loading Red Hat Insights...' + 
             '</div>'); 
         }
         $.ajax({
@@ -210,7 +210,7 @@ if (RHA_INSIGHTS.UTILS.isOnInsightsEnabledPage()) {
       }
     })
     .fail(function(response) {
-      console.log('Unable to GET Red Hat Access Insights config.');
+      console.log('Unable to GET Red Hat Insights config.');
     });
 }
 })();

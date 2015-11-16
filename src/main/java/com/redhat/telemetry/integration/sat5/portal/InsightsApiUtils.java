@@ -55,7 +55,7 @@ public class InsightsApiUtils {
           "'redhat-access-insights --register'");
     } else {
       throw new InternalServerErrorException(
-          "Unable to retrieve Machine ID from Access Insights API.");
+          "Unable to retrieve Machine ID from Red Hat Insights API.");
     }
 
     if (machineId == null || machineId.equals("")) {

@@ -173,18 +173,18 @@ SYSTEM_DETAILS_PAGE_URLS) {
     var systemStatus = Admin.getSystemStatus(system);
     var installationStatus = $scope.getInstallationStatus(systemStatus);
     if (installationStatus === NO_CHANNEL_STATUS) {
-      message = 'Access Insights RPM is not available to this server.';
+      message = 'Red Hat Insights RPM is not available to this server.';
     } else if (installationStatus === IN_PROGRESS_INSTALL_STATUS) {
-      message = 'Access Insights RPM is scheduled to be ';
+      message = 'Red Hat Insights RPM is scheduled to be ';
       if (_.startsWith(systemStatus.installationStatus.rpmScheduled, RPM_SCHEDULE_CONST.INSTALL)) {
         message = message + 'installed.';
       } else {
         message = message + 'uninstalled.';
       }
     } else if (installationStatus === NO_INSTALL_STATUS) {
-      message = 'Access Insights RPM is not installed';
+      message = 'Red Hat Insights RPM is not installed';
     } else if (installationStatus === SUCCESSFUL_INSTALL_STATUS) {
-      message = 'Access Insights RPM is installed';
+      message = 'Red Hat Insights RPM is installed';
     }
 
     return message;
@@ -308,7 +308,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
     } else if ($scope.getLoadingStatuses()) {
       message = message + 'statuses'; 
     } else if ($scope.loadingInsightsSystems) {
-      message = message + 'Access Insights statuses';
+      message = message + 'Red Hat Insights statuses';
     }
     return message + '...';
   };
@@ -357,7 +357,7 @@ SYSTEM_DETAILS_PAGE_URLS) {
       })
       .error(function(error) {
         $scope.loadingInsightsSystems = false;
-        Alert.danger('Unable to load last check in times. Please validate the connection to Red Hat Access Insights and try again.');
+        Alert.danger('Unable to load last check in times. Please validate the connection to Red Hat Insights and try again.');
       });
   };
 

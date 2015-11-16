@@ -31,7 +31,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
   InsightsConfigProvider.setGetReportsErrorCallback(
     function(data, status, headers, config) {
       if (status === 404) {
-        return '<p>This system is not registered with Red Hat Access Insights. First install the redhat-access-insights RPM using the <a href="/rhn/systems/Insights.do#/setup">Setup page</a>. Then register this system with Red Hat Access Insights by following <a href="https://access.redhat.com/insights/getting-started/satellite/5/#register">these instructions</a>.</p>';
+        return '<p>This system is not registered with Red Hat Insights. First install the redhat-access-insights RPM using the <a href="/rhn/systems/Insights.do#/setup">Setup page</a>. Then register this system with Red Hat Insights by following <a href="https://access.redhat.com/insights/getting-started/satellite/5/#register">these instructions</a>.</p>';
       }
     });
 
@@ -151,7 +151,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
 
       //Add header
       $('#spacewalk-content').
-        append('<h2>Red Hat Access Insights</h2>');
+        append('<h2>Red Hat Insights</h2>');
       
       //Add content
       $('#spacewalk-content').
@@ -197,8 +197,8 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
         '</ul>' + 
       '</li>');
   } else if (RHA_INSIGHTS.UTILS.isOnHelpPage()) {
-    $('#help-url-list').append('<li><a style="font-size:12pt" href="https://access.redhat.com/insights/info">Red Hat Access Insights Info</a><br/>Information about Red Hat Access Insights</li>');
-    $('#help-url-list').append('<li><a style="font-size:12pt" href="https://access.redhat.com/insights/getting-started/satellite/5/">Red Hat Access Insights Getting Started Guide</a><br/>Using and administering Red Hat Access Insights</li>');
+    $('#help-url-list').append('<li><a style="font-size:12pt" href="https://access.redhat.com/insights/info">Red Hat Insights Info</a><br/>Information about Red Hat Insights</li>');
+    $('#help-url-list').append('<li><a style="font-size:12pt" href="https://access.redhat.com/insights/getting-started/satellite/5/">Red Hat Insights Getting Started Guide</a><br/>Using and administering Red Hat Insights</li>');
   }
 
   Admin.setEnabled(window.RHA_INSIGHTS.config.enabled);
