@@ -20,6 +20,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
 
   InsightsConfigProvider.setGettingStartedLink('https://access.redhat.com/insights/getting-started/satellite/5/');
   InsightsConfigProvider.setFetchRelatedSolution(false);         
+  InsightsConfigProvider.setAllowExport(true);         
   InsightsConfigProvider.setGetSystemStatus(true);
   InsightsConfigProvider.setApiRoot('/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/');
   InsightsConfigProvider.setOverviewShowSystem(
