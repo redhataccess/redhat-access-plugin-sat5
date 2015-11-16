@@ -28,7 +28,7 @@ public class Constants {
   public static final String VERSION_RHEL6_SERVER = "6Server";
   public static final String VERSION_RHEL7_SERVER = "7Server";
 
-  //redhat-access-insights.properties 
+  //redhat-access-insights.properties
   public static final String RPM_NAME_PROPERTY = "rpmname";
   public static final String ENABLED_PROPERTY = "enabled";
   public static final String PORTALURL_PROPERTY = "portalurl";
@@ -45,6 +45,7 @@ public class Constants {
   public static final String RULES_PATH = "4";
   public static final String UPLOADS_PATH = "5";
   public static final String SYSTEMS_STATUS_PATH = "6";
+
 
   //telemetry api json keys
   public static final String MACHINE_ID_KEY = "machine_id";
@@ -75,7 +76,7 @@ public class Constants {
   public static final String SSL_KEY_STORE_LOC = "/etc/redhat-access/rhai.keystore";
   public static final String SSL_KEY_STORE_PW = "changeit";
 
-  public static final String INTERNAL_SERVER_ERROR_MESSAGE = 
+  public static final String INTERNAL_SERVER_ERROR_MESSAGE =
     "Internal server error occurred. View rhai.log for more details.";
 
   public static final String INSTALL_SCHEDULED = "install";
@@ -83,4 +84,6 @@ public class Constants {
   public static final String NOT_SCHEDULED = "no";
 
   public static final String SCHEDULE_CACHE_FILE_URL = "file:///etc/redhat-access/schedule-cache.properties";
+
+  public static final String CFME_USER_AGENT_BASE = "redhat_access_cfme";
 }
