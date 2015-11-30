@@ -86,9 +86,19 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @HeaderParam("user-agent") String userAgent,
+      @HeaderParam("systemid") String systemId,
       @CookieParam("pxt-session-cookie") String user) {
     try {
-      return proxy("", user, uriInfo, request, null, MediaType.MULTIPART_FORM_DATA, null,userAgent);
+      return proxy(
+          "", 
+          user, 
+          uriInfo, 
+          request, 
+          null, 
+          MediaType.MULTIPART_FORM_DATA, 
+          null, 
+          userAgent,
+          systemId);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /", e);
       throw new WebApplicationException(
@@ -108,10 +118,20 @@ public class ProxyService {
       @PathParam("path") String path,
       @HeaderParam("Content-Type") String contentType,
       @HeaderParam("user-agent") String userAgent,
+      @HeaderParam("systemid") String systemId,
       @CookieParam("pxt-session-cookie") String user,
       byte[] body) {
     try {
-      return proxy(path, user, uriInfo, request, contentType, MediaType.APPLICATION_JSON, body,userAgent);
+      return proxy(
+          path, 
+          user, 
+          uriInfo, 
+          request, 
+          contentType, 
+          MediaType.APPLICATION_JSON, 
+          body,
+          userAgent,
+          systemId);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
       throw new WebApplicationException(
@@ -130,9 +150,19 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
       @HeaderParam("user-agent") String userAgent,
+      @HeaderParam("systemid") String systemId,
       @CookieParam("pxt-session-cookie") String user) {
     try {
-      return proxy(path, user, uriInfo, request, null, MediaType.TEXT_PLAIN, null, userAgent);
+      return proxy(
+          path, 
+          user, 
+          uriInfo, 
+          request, 
+          null, 
+          MediaType.TEXT_PLAIN, 
+          null, 
+          userAgent,
+          systemId);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService GET /* (Accept: Text/plain)", e);
       throw new WebApplicationException(
@@ -151,10 +181,20 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
       @CookieParam("pxt-session-cookie") String user,
+      @HeaderParam("systemid") String systemId,
       @HeaderParam("user-agent") String userAgent,
       byte[] body) {
     try {
-      return proxy(path, user, uriInfo, request, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, body, userAgent);
+      return proxy(
+          path, 
+          user, 
+          uriInfo, 
+          request, 
+          MediaType.APPLICATION_JSON, 
+          MediaType.APPLICATION_JSON, 
+          body, 
+          userAgent,
+          systemId);
     } catch (Exception e) {
       LOG.error("Exception in ProxyService POST /*", e);
       throw new WebApplicationException(
@@ -174,9 +214,19 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
       @HeaderParam("user-agent") String userAgent,
+      @HeaderParam("systemid") String systemId,
       @CookieParam("pxt-session-cookie") String user) {
     try {
-      return proxy(path, user, uriInfo, request, null, MediaType.APPLICATION_JSON, null,userAgent);
+      return proxy(
+          path, 
+          user, 
+          uriInfo, 
+          request, 
+          null, 
+          MediaType.APPLICATION_JSON, 
+          null, 
+          userAgent,
+          systemId);
     } catch (NotFoundException e) {
       LOG.debug("Resource not found: " + path);
       throw e;
@@ -197,7 +247,8 @@ public class ProxyService {
       String requestType,
       String responseType,
       byte[] body,
-      String userAgent)
+      String userAgent,
+      String systemId)
           throws JSONException,
                  IOException,
                  ConfigurationException,
@@ -206,6 +257,29 @@ public class ProxyService {
                  CertificateException,
                  KeyManagementException,
                  InterruptedException {
+    LOG.debug("checking if request originated from a valid gui session...");
+    if (Util.sessionIsValid(user)) {
+      LOG.debug("valid session");
+    } else {
+      LOG.debug("invalid session. Check for systemid header");
+
+      if (systemId == null) {
+        LOG.debug("No systemid header or session. Rejecting the request.");
+        return Util.buildErrorResponse(
+            Response.Status.BAD_REQUEST.getStatusCode(), 
+            Constants.MISSING_SYSTEMID_MESSAGE);
+      }
+      try {
+        LOG.debug("Validating systemid header...");
+        Object monitorIsEnabled = SatApi.isMonitoringEnabledBySystemId(systemId);
+        LOG.debug("monitorIsEnabled: " + monitorIsEnabled.toString());
+      } catch (Exception e) {
+        LOG.debug("systemid is invalid!");
+        return Util.buildErrorResponse(
+            Response.Status.UNAUTHORIZED.getStatusCode(),
+            Constants.UNAUTHORIZED_MESSAGE);
+      }
+    }
 
     InsightsApiClient client = new InsightsApiClient();
     String branchId = Util.getSatelliteHostname();

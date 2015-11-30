@@ -325,6 +325,22 @@ public class SatApi {
     return response;
   }
 
+  public static Object
+  isMonitoringEnabledBySystemId(String systemId) throws Exception {
+    Object[] params = new Object[] {systemId};
+    Object response = 
+      (Object) makeRequest("satellite.isMonitoringEnabledBySystemId", params);
+    return response;
+  }
+
+  public static Object
+  getCertificateExpirationDate(String sessionKey) throws Exception {
+    Object[] params = new Object[] {sessionKey};
+    Object response = 
+      (Object) makeRequest("satellite.getCertificateExpirationDate", params);
+    return response;
+  }
+
   @SuppressWarnings("unchecked")
   public static int
   createRepo(String sessionKey, String label, String type, String url) {

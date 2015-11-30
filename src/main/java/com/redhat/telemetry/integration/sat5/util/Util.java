@@ -34,6 +34,9 @@ import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
 
 import ch.qos.logback.classic.Level;
@@ -122,6 +125,22 @@ public class Util {
     return date;
   }
 
+  /**
+   * Check if a user is the satellite administrator
+   */
+  public static boolean sessionIsValid(String sessionKey) {
+    boolean response = false;
+    try {
+      Object certificateExpirationDate = 
+        SatApi.getCertificateExpirationDate(sessionKey);
+      if (certificateExpirationDate != null) {
+        response = true;
+      }
+    } catch (Exception e) {
+      response = false;
+    }
+    return response;
+  }
 
   /**
    * Check if a user is the satellite administrator
@@ -256,5 +275,11 @@ public class Util {
             null,
             SSLConnectionSocketFactory.getDefaultHostnameVerifier());
     return sslsf;
+  }
+
+  public static Response buildErrorResponse(Integer code, String body) {
+    ResponseBuilder response = Response.status(code);
+    response.entity(body);
+    return response.build();
   }
 }

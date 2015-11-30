@@ -78,6 +78,10 @@ public class Constants {
 
   public static final String INTERNAL_SERVER_ERROR_MESSAGE =
     "Internal server error occurred. View rhai.log for more details.";
+  public static final String UNAUTHORIZED_MESSAGE = 
+    "Invalid systemid.";
+  public static final String MISSING_SYSTEMID_MESSAGE = 
+    "A valid session cookie or valid systemid header was not found on the request.";
 
   public static final String INSTALL_SCHEDULED = "install";
   public static final String UNINSTALL_SCHEDULED = "uninstall";
