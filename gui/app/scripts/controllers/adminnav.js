@@ -8,7 +8,7 @@
  * Controller of the sat5TelemetryApp
  */
 angular.module('sat5TelemetryApp')
-  .controller('AdminNav', function ($scope, Admin, ADMIN_TABS, $state, $location) {
+  .controller('AdminNav', function ($scope, Admin, ADMIN_TABS, $state) {
     $scope.generalTabSelected = Admin.generalTabSelected;
     $scope.systemsTabSelected = Admin.systemsTabSelected;
     $scope.rulesTabSelected = Admin.rulesTabSelected;
@@ -27,7 +27,7 @@ angular.module('sat5TelemetryApp')
       Admin.setTab(ADMIN_TABS.RULES);
     };
 
-    var urlPieces = $location.path().split('/');
+    var urlPieces = window.location.pathname.split('/');
     if (urlPieces[1] === 'general') {
       $scope.selectGeneralTab();
     } else if (urlPieces[1] === 'setup') {

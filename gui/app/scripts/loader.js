@@ -1,3 +1,5 @@
+'use strict';
+
 (function() {
 
 //functions shared between insights.js and insights.app.js
@@ -5,7 +7,82 @@ var RHA_INSIGHTS = {
   'UTILS': {}
 };
 
-RHA_INSIGHTS.UTILS.isOnInsightsEnabledPage = function () {
+RHA_INSIGHTS.UTILS.bootstrapLinks = function() {
+  var appendToSideNav = function(url, isState, content, hide) {
+    var classString = '';
+    if (hide) {
+      classString = classString + 'ng-hide';
+    }
+    $('#sidenav > ul').append(
+      '<li id="rha-insights-sidenav" class="' + classString + '"><a href="/' + SAT5_ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
+    //highlight Insights nav>li when selected
+    if (RHA_INSIGHTS.UTILS.isOnPage(url)) {
+      var currentSelection = $('#sidenav > ul > li .active')[0];
+      if (currentSelection && currentSelection.parentElement && 
+          currentSelection.parentElement.parentElement &&
+          currentSelection.parentElement.parentElement.tagName === 'LI') {
+        currentSelection.parentElement.remove();
+      }
+
+      currentSelection = $('#sidenav > ul > li.active')[0];
+      if (currentSelection &&
+          currentSelection.nextElementSibling &&
+          currentSelection.nextElementSibling.firstElementChild &&
+          currentSelection.nextElementSibling.firstElementChild.tagName === 'UL') {
+        currentSelection.nextElementSibling.remove();
+      }
+
+      $('#sidenav > ul > li').removeClass('active');
+      $('#sidenav > ul > li:last').addClass('active');
+
+      if (!isState) {
+        $('#spacewalk-content').append(content);
+      }
+    }
+  };
+
+  //Check which page we're on then make appropriate changes to dom
+  if (RHA_INSIGHTS.UTILS.isOnSystemTabPage()) {
+    //Add Insights to side nav
+    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'app.overview', true);
+  } else if (RHA_INSIGHTS.UTILS.isOnAdminPage()) {
+    appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>', false);
+  }
+
+  if (window.RHA_INSIGHTS.config.enabled) {
+    $('#rha-insights-sidenav').removeClass('ng-hide');
+    $('#rha-insights-system-details').removeClass('ng-hide');
+  }
+};
+
+RHA_INSIGHTS.UTILS.isOnInsightsContentPage = function() {
+  var response = false;
+  if (RHA_INSIGHTS.UTILS.isOnSystemListPage() ||
+      RHA_INSIGHTS.UTILS.isOnInsightsOverviewPage() ||
+      RHA_INSIGHTS.UTILS.isOnInsightsSystemDetailsPage() ||
+      RHA_INSIGHTS.UTILS.isOnInsightsAdminPage()) {
+    response = true;
+  }
+  return response;
+};
+
+RHA_INSIGHTS.UTILS.isOnInsightsAdminPage = function() {
+  var response = false;
+  if (RHA_INSIGHTS.UTILS.isOnPage(INSIGHTS_ADMIN_PAGE)) {
+    response = true;
+  }
+  return response;
+};
+
+RHA_INSIGHTS.UTILS.isOnInsightsSystemDetailsPage = function() {
+  var response = false;
+  if (RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
+    response = true;
+  }
+  return response;
+};
+
+RHA_INSIGHTS.UTILS.isOnInsightsEnabledPage = function() {
   var response = false;
   if (RHA_INSIGHTS.UTILS.isOnSystemListPage() || 
       RHA_INSIGHTS.UTILS.isOnSystemDetailsPage() || 
@@ -119,7 +196,6 @@ RHA_INSIGHTS.UTILS.isOnHelpPage = function () {
 
 RHA_INSIGHTS.UTILS.getSystemTableSize = function () {
   var length = $('.table-responsive > table > tbody tr').length;
-  console.log('systemtablesize: ' + length);
   return length;
 };
 
@@ -140,10 +216,11 @@ var SAT5_ROOT_URLS = {
   'PROXY': 'redhat_access'
 };
 
+var INSIGHTS_ADMIN_PAGE = SAT5_ROOT_URLS.ADMIN + '/Insights.do';
+
 var HELP_PAGE_URLS = {
   'INDEX': 'help/index.do'
 };
-
 
 var SYSTEM_DETAILS_PAGE_URLS = {
   'OVERVIEW': 'systems/details/Overview.do',
@@ -175,6 +252,11 @@ var SYSTEM_PAGE_URLS = {
   'SOFTWARE_CRASHES_OVERVIEW': 'systems/SoftwareCrashesOverview.do'
 };
 
+var ADMIN_PAGE_URLS = {
+  'INSIGHTS': 'admin/Insights.do'
+};
+
+window.ADMIN_PAGE_URLS = ADMIN_PAGE_URLS;
 window.RHA_INSIGHTS = RHA_INSIGHTS;
 window.SYSTEM_PAGE_URLS = SYSTEM_PAGE_URLS;
 window.SAT5_ROOT_URLS = SAT5_ROOT_URLS;
@@ -200,11 +282,15 @@ if (RHA_INSIGHTS.UTILS.isOnInsightsEnabledPage()) {
           //wait two seconds for the list to load
           //need to wait to ensure the insights health icon cell is added to each row
           if (RHA_INSIGHTS.UTILS.isOnSystemListPage()) {
+            RHA_INSIGHTS.UTILS.bootstrapLinks();
             setTimeout(function() {
               angular.bootstrap(document, ['sat5TelemetryApp']);
             }, 2000);
-          } else {
+          } else if (RHA_INSIGHTS.UTILS.isOnInsightsContentPage()) {
+            RHA_INSIGHTS.UTILS.bootstrapLinks();
             angular.bootstrap(document, ['sat5TelemetryApp']);
+          } else {
+            RHA_INSIGHTS.UTILS.bootstrapLinks();
           }
         });
       }

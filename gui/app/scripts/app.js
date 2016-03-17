@@ -54,7 +54,6 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
       url: '/general',
       templateUrl: 'scripts/views/generalState.html'
     });
-
 })
 .run(function(
       $rootScope,
@@ -71,46 +70,6 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
       RHA_INSIGHTS,
       TELEMETRY_URLS,
       _) {
-
-
-  var appendToSideNav = function(url, isState, content, hide) {
-    var classString = '';
-    if (hide) {
-      classString = classString + 'ng-hide';
-    }
-    $('#sidenav > ul').append(
-      '<li id="rha-insights-sidenav" class="' + classString + '"><a href="/' + SAT5_ROOT_URLS.RHN + '/' + url + '">Insights</a></li>');
-    //highlight Insights nav>li when selected
-    if (RHA_INSIGHTS.UTILS.isOnPage(url)) {
-      var currentSelection = $('#sidenav > ul > li .active')[0];
-      if (currentSelection && currentSelection.parentElement && 
-          currentSelection.parentElement.parentElement &&
-          currentSelection.parentElement.parentElement.tagName === 'LI') {
-        currentSelection.parentElement.remove();
-      }
-
-      currentSelection = $('#sidenav > ul > li.active')[0];
-      if (currentSelection &&
-          currentSelection.nextElementSibling &&
-          currentSelection.nextElementSibling.firstElementChild &&
-          currentSelection.nextElementSibling.firstElementChild.tagName === 'UL') {
-        currentSelection.nextElementSibling.remove();
-      }
-
-      $('#sidenav > ul > li').removeClass('active');
-      $('#sidenav > ul > li:last').addClass('active');
-
-      if (!isState) {
-        $('#spacewalk-content').append(content);
-      }
-    }
-  };
-
-  //Check which page we're on then make appropriate changes to dom
-  if (RHA_INSIGHTS.UTILS.isOnSystemTabPage()) {
-    //Add Insights to side nav
-    appendToSideNav(SYSTEM_PAGE_URLS.INSIGHTS, true, 'app.overview', true);
-  }
 
   if (RHA_INSIGHTS.UTILS.isOnSystemListPage()) {
 
@@ -182,8 +141,6 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
         });
 
     }
-  } else if (RHA_INSIGHTS.UTILS.isOnAdminPage()) {
-    appendToSideNav(ADMIN_PAGE_URLS.INSIGHTS, false, '<rha-insights-sat5-admin/>', false);
   } else if (RHA_INSIGHTS.UTILS.isOnInsightsOverviewPage()) {
     $('#rha-insights-sidenav').after(
       '<li class="rha-insights-sidenav-sub">' + 
@@ -206,8 +163,6 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
   Admin.setConfigLoaded(true);
   $rootScope.$broadcast(EVENTS.GENERAL_CONFIG_LOADED);
   if (window.RHA_INSIGHTS.config.enabled) {
-    $('#rha-insights-sidenav').removeClass('ng-hide');
-    $('#rha-insights-system-details').removeClass('ng-hide');
     $('.rha-insights-system-health-col').removeClass('ng-hide');
     $('#rha-insights-system-health-col-head').removeClass('ng-hide');
     if (RHA_INSIGHTS.UTILS.isOnSystemListPage() && Util.thereAreSystemsOnOverviewPage()) {

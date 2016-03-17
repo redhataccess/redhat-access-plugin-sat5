@@ -4,9 +4,6 @@ angular.module('sat5TelemetryApp')
   'SYSTEMS_POPULATED': 'systems_populated',
   'GENERAL_CONFIG_LOADED': 'general_config_loaded'
 })
-.constant('ADMIN_PAGE_URLS', {
-  'INSIGHTS': 'admin/Insights.do'
-})
 .constant('HTTP_CONST', {
   'ACCEPT': 'accept',
   'APPLICATION_JSON': 'application/json',
@@ -59,4 +56,5 @@ angular.module('sat5TelemetryApp')
 .constant('RHA_INSIGHTS', window.RHA_INSIGHTS)
 .constant('SYSTEM_DETAILS_PAGE_URLS', window.SYSTEM_DETAILS_PAGE_URLS)
 .constant('SAT5_ROOT_URLS', window.SAT5_ROOT_URLS)
+.constant('ADMIN_PAGE_URLS', window.ADMIN_PAGE_URLS)
 .constant('SYSTEM_PAGE_URLS', window.SYSTEM_PAGE_URLS);

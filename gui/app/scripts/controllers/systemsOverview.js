@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('sat5TelemetryApp')
-.controller('SystemsOverview', function (_, $state, $scope, SystemOverviewService, $location) {
+.controller('SystemsOverview', function (_, $state, $scope, SystemOverviewService) {
 
   $scope.isOnOverviewTab = function() {
     return SystemOverviewService.tab === 'overview';
-  }
+  };
 
-  var urlPieces = $location.path().split('/');
+  var urlPieces = window.location.pathname.split('/');
   if (urlPieces[1] === 'overview') {
     var category = urlPieces[2];
     SystemOverviewService.switchToOverviewTab({'category': category});
