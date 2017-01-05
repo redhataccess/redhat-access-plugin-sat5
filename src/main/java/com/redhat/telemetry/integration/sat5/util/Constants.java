@@ -1,7 +1,7 @@
 package com.redhat.telemetry.integration.sat5.util;
 
 public class Constants {
-  public static final String PORTAL_URL = "https://access.redhat.com/r/insights/";
+  public static final String PORTAL_URL = "https://cert-api.access.redhat.com/r/insights/";
 
   public static final String SAT5_RPC_API_URL = "http://127.0.0.1/rpc/api";
 
@@ -75,6 +75,14 @@ public class Constants {
   //ssl key store
   public static final String SSL_KEY_STORE_LOC = "/etc/redhat-access/rhai.keystore";
   public static final String SSL_KEY_STORE_PW = "changeit";
+
+  //manifest
+  public static final String RHSM_MANIFEST_ZIP = "/etc/sysconfig/rhn/rhsm-manifest.zip";
+  public static final String MANIFEST_EXTRACTION_LOC = "/etc/redhat-access/manifest";
+  public static final String MANIFEST_UPSTREAM_CONSUMER_LOC =
+    "/etc/redhat-access/manifest/export/upstream_consumer";
+  public static final String MANIFEST_CONSUMER_EXPORT_ZIP =
+    "/etc/redhat-access/manifest/consumer_export.zip";
 
   public static final String INTERNAL_SERVER_ERROR_MESSAGE =
     "Internal server error occurred. View rhai.log for more details.";

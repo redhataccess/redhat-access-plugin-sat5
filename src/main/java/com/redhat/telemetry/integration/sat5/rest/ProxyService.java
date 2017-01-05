@@ -6,6 +6,8 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.UnrecoverableKeyException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -256,6 +258,8 @@ public class ProxyService {
                  KeyStoreException,
                  CertificateException,
                  KeyManagementException,
+                 UnrecoverableKeyException,
+                 InvalidKeySpecException,
                  InterruptedException {
     LOG.debug("checking if request originated from a valid gui session...");
     if (Util.sessionIsValid(user)) {

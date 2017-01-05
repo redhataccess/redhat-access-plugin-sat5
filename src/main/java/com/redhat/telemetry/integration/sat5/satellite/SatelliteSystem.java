@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.security.cert.CertificateException;
 
@@ -148,6 +150,8 @@ public class SatelliteSystem {
            ConfigurationException, 
            NoSuchAlgorithmException,
            JSONException,
+           UnrecoverableKeyException,
+           InvalidKeySpecException,
            InterruptedException {
 
     String machineId = 
