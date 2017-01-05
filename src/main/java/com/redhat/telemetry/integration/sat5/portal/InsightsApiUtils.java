@@ -5,6 +5,8 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.UnrecoverableKeyException;
+import java.security.spec.InvalidKeySpecException;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
@@ -33,6 +35,8 @@ public class InsightsApiUtils {
            NoSuchAlgorithmException,
            KeyStoreException,
            CertificateException,
+           UnrecoverableKeyException,
+           InvalidKeySpecException,
            KeyManagementException {
 
     LOG.debug("leafId: " + leafId);

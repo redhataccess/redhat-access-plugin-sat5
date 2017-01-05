@@ -6,6 +6,8 @@ import java.security.cert.CertificateException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.spec.InvalidKeySpecException;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
@@ -44,6 +46,8 @@ public class InsightsApiClient {
              CertificateException, 
              IOException, 
              KeyManagementException,
+             UnrecoverableKeyException,
+             InvalidKeySpecException,
              ConfigurationException {
     
     this.portalUrl = Util.loadPortalUrl();
@@ -95,7 +99,7 @@ public class InsightsApiClient {
     request.setConfig(proxyInfo);
     LOG.debug("Accept header: " + responseContentType);
     request.addHeader(HttpHeaders.ACCEPT, responseContentType);
-    request.addHeader(Constants.SYSTEMID_HEADER, getSatelliteSystemId());
+    request.addHeader("x-rhi-satellite-version", "5.8");
     HttpResponse response = client.execute(request, Util.loadProxyCreds());
     HttpEntity responseEntity = response.getEntity();
     String stringEntity = "";
@@ -110,22 +114,5 @@ public class InsightsApiClient {
     request.releaseConnection();
     return portalResponse;
   }
-
-  /**
-   * Returns systemid file as a string
-   */
-  private String getSatelliteSystemId() throws IOException {
-    CommandLine cmdLine = CommandLine.parse("/usr/sbin/redhat-access-systemid");
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    DefaultExecutor executor = new DefaultExecutor();
-    PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
-    executor.setStreamHandler(streamHandler);
-    executor.execute(cmdLine);
-    String systemIdXml = outputStream.toString();
-    systemIdXml = systemIdXml.replace(System.getProperty("line.separator"), "");
-    return(systemIdXml);
-  }
-
-
 }
 

@@ -13,6 +13,7 @@ import com.redhat.telemetry.integration.sat5.rest.ConfigService;
 import com.redhat.telemetry.integration.sat5.rest.ProxyService;
 import com.redhat.telemetry.integration.sat5.util.PropertiesHandler;
 import com.redhat.telemetry.integration.sat5.util.Util;
+import com.redhat.telemetry.integration.sat5.auth.CertAuth;
 
 @ApplicationPath("/")
 public class SmartProxyApplication extends Application {
@@ -26,6 +27,13 @@ public class SmartProxyApplication extends Application {
         Util.setLogLevel(debug);
       } catch (Exception e) {
         LOG.error("Unable to determine debug level at startup.");
+      }
+
+      try {
+        CertAuth certAuth = CertAuth.getInstance();
+        certAuth.loadCertFromManifest();
+      } catch (Exception e) {
+        LOG.error("Unable to load certificate!", e);
       }
 
       singletons.add(new ProxyService());

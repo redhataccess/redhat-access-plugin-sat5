@@ -1,26 +1,61 @@
 package com.redhat.telemetry.integration.sat5.util;
 
+import javax.xml.bind.DatatypeConverter;
+
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.BufferedReader;
+import java.io.StringReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
 import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
+import java.security.KeyPair;
+import java.security.Security;
+import java.security.spec.InvalidKeySpecException;
 import java.security.KeyManagementException;
+import java.security.UnrecoverableKeyException;
+import java.security.KeyFactory;
+import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.KeyStoreException;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -38,6 +73,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import com.redhat.telemetry.integration.sat5.satellite.SatApi;
+import com.redhat.telemetry.integration.sat5.auth.CertAuth;
 
 import ch.qos.logback.classic.Level;
 
@@ -111,7 +147,7 @@ public class Util {
     }
   };
 
-  private static Date extractLineDate(String line) throws ParseException {
+  private static Date extractLineDate(String line) throws java.text.ParseException {
     Date date = null;
     int firstSpaceIndex = line.indexOf(" ");
     if (firstSpaceIndex != -1) {
@@ -261,17 +297,43 @@ public class Util {
              KeyStoreException, 
              CertificateException, 
              IOException, 
+             UnrecoverableKeyException,
+             InvalidKeySpecException,
              KeyManagementException {
     LOG.debug("Loading rhai.keystore");
+
+		Security.addProvider(new BouncyCastleProvider());
+
+    //read cert from manifest.zip
+    String keyAndCert = CertAuth.getInstance().getKeyAndCert();
+    LOG.debug(keyAndCert);
+    //end read cert
+
+    //ssl mutual auth
+    PEMReader reader = new PEMReader(new StringReader(keyAndCert));
+		X509Certificate[] chain = new X509Certificate[1];
+		chain[0] = (X509Certificate) reader.readObject();
+		KeyPair keyPair = (KeyPair) reader.readObject();
+
+		KeyStore.PrivateKeyEntry pke =
+      new KeyStore.PrivateKeyEntry(keyPair.getPrivate(), chain);
+
+    KeyStore keyStore = KeyStore.getInstance("PKCS12");
+    char[] password = "xY28DXepvBeYGHT3gPpc".toCharArray();
+    keyStore.load(null, password);
+		keyStore.setEntry("insights", pke, new KeyStore.PasswordProtection(password));
+    //end ssl mutual auth
+
     SSLContext sslcontext = SSLContexts.custom()
-            .loadTrustMaterial(
-                new File(Constants.SSL_KEY_STORE_LOC), 
-                Constants.SSL_KEY_STORE_PW.toCharArray(),
-                new TrustSelfSignedStrategy())
+            .loadKeyMaterial(keyStore, password)
+						.loadTrustMaterial(
+              new File(Constants.SSL_KEY_STORE_LOC), 
+              Constants.SSL_KEY_STORE_PW.toCharArray(),
+              new TrustSelfSignedStrategy())
             .build();
     SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
             sslcontext,
-            new String[] { "TLSv1" },
+						new String[] { "TLSv1" },
             null,
             SSLConnectionSocketFactory.getDefaultHostnameVerifier());
     return sslsf;

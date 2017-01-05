@@ -92,6 +92,7 @@ cp resources/redhat-access-systemid_wrapper.sh %{buildroot}/usr/sbin/redhat-acce
 ln -s /usr/bin/consolehelper %{buildroot}/usr/sbin/redhat-access-systemid
 mkdir -p %{buildroot}/etc/security/console.apps
 cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/console.apps/redhat-access-systemid
+mkdir -p %{buildroot}/tmp/rhi-manifest/
 
 
 %files
@@ -117,8 +118,12 @@ cp resources/redhat-access-systemid_console.apps %{buildroot}/etc/security/conso
 /var/www/html/images/i_chart.png
 /var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf
 /var/www/html/components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
+%attr(0744,tomcat,tomcat) /tmp/rhi-manifest/
 
 %changelog
+* Fri Jan 06 2017 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.1-45
+- Switch from systemid based auth to x509 auth
+
 * Mon Nov 15 2015 Chris Kyrouac <ckyrouac@redhat.com> - 2.0.1-44
 - Show loading message instead of no systems message when loading setup table
 - Rename Access Insights to Insights
