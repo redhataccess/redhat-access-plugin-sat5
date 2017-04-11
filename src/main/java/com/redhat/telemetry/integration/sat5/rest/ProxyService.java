@@ -92,13 +92,13 @@ public class ProxyService {
       @CookieParam("pxt-session-cookie") String user) {
     try {
       return proxy(
-          "", 
-          user, 
-          uriInfo, 
-          request, 
-          null, 
-          MediaType.MULTIPART_FORM_DATA, 
-          null, 
+          "",
+          user,
+          uriInfo,
+          request,
+          null,
+          MediaType.MULTIPART_FORM_DATA,
+          null,
           userAgent,
           systemId);
     } catch (Exception e) {
@@ -125,12 +125,12 @@ public class ProxyService {
       byte[] body) {
     try {
       return proxy(
-          path, 
-          user, 
-          uriInfo, 
-          request, 
-          contentType, 
-          MediaType.APPLICATION_JSON, 
+          path,
+          user,
+          uriInfo,
+          request,
+          contentType,
+          MediaType.APPLICATION_JSON,
           body,
           userAgent,
           systemId);
@@ -156,13 +156,13 @@ public class ProxyService {
       @CookieParam("pxt-session-cookie") String user) {
     try {
       return proxy(
-          path, 
-          user, 
-          uriInfo, 
-          request, 
-          null, 
-          MediaType.TEXT_PLAIN, 
-          null, 
+          path,
+          user,
+          uriInfo,
+          request,
+          null,
+          MediaType.TEXT_PLAIN,
+          null,
           userAgent,
           systemId);
     } catch (Exception e) {
@@ -188,13 +188,13 @@ public class ProxyService {
       byte[] body) {
     try {
       return proxy(
-          path, 
-          user, 
-          uriInfo, 
-          request, 
-          MediaType.APPLICATION_JSON, 
-          MediaType.APPLICATION_JSON, 
-          body, 
+          path,
+          user,
+          uriInfo,
+          request,
+          MediaType.APPLICATION_JSON,
+          MediaType.APPLICATION_JSON,
+          body,
           userAgent,
           systemId);
     } catch (Exception e) {
@@ -220,13 +220,13 @@ public class ProxyService {
       @CookieParam("pxt-session-cookie") String user) {
     try {
       return proxy(
-          path, 
-          user, 
-          uriInfo, 
-          request, 
-          null, 
-          MediaType.APPLICATION_JSON, 
-          null, 
+          path,
+          user,
+          uriInfo,
+          request,
+          null,
+          MediaType.APPLICATION_JSON,
+          null,
           userAgent,
           systemId);
     } catch (NotFoundException e) {
@@ -270,8 +270,8 @@ public class ProxyService {
       if (systemId == null) {
         LOG.debug("No systemid header or session. Rejecting the request.");
         return Util.buildErrorResponse(
-            Response.Status.BAD_REQUEST.getStatusCode(), 
-            Constants.MISSING_SYSTEMID_MESSAGE);
+            Response.Status.UNAUTHORIZED.getStatusCode(),
+            Util.buildJsonMessage(Constants.MISSING_SYSTEMID_MESSAGE));
       }
       try {
         LOG.debug("Validating systemid header...");
@@ -281,7 +281,7 @@ public class ProxyService {
         LOG.debug("systemid is invalid!");
         return Util.buildErrorResponse(
             Response.Status.UNAUTHORIZED.getStatusCode(),
-            Constants.UNAUTHORIZED_MESSAGE);
+            Util.buildJsonMessage(Constants.UNAUTHORIZED_MESSAGE));
       }
     }
 

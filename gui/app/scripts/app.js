@@ -10,22 +10,24 @@
  */
 angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
 .config(function(
-          $urlRouterProvider, 
-          $locationProvider, 
+          $urlRouterProvider,
+          $locationProvider,
           $stateProvider,
-          SAT5_ROOT_URLS, 
+          $provide,
+          $httpProvider,
+          SAT5_ROOT_URLS,
           TELEMETRY_URLS,
           InsightsConfigProvider,
           SYSTEM_DETAILS_PAGE_URLS) {
 
   InsightsConfigProvider.setGettingStartedLink('https://access.redhat.com/insights/getting-started/satellite/5/');
-  InsightsConfigProvider.setFetchRelatedSolution(false);         
-  InsightsConfigProvider.setAllowExport(true);         
+  InsightsConfigProvider.setFetchRelatedSolution(false);
+  InsightsConfigProvider.setAllowExport(true);
   InsightsConfigProvider.setGetSystemStatus(true);
   InsightsConfigProvider.setApiRoot('/' + SAT5_ROOT_URLS.PROXY + TELEMETRY_URLS.API_ROOT + '/');
   InsightsConfigProvider.setOverviewShowSystem(
     function(system) {
-      window.location = '/' + SAT5_ROOT_URLS.RHN + '/' + 
+      window.location = '/' + SAT5_ROOT_URLS.RHN + '/' +
         SYSTEM_DETAILS_PAGE_URLS.INSIGHTS + '?sid=' + system.remote_leaf;
     });
   InsightsConfigProvider.setGetReportsErrorCallback(
@@ -54,6 +56,23 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
       url: '/general',
       templateUrl: 'scripts/views/generalState.html'
     });
+
+  $provide.factory('AuthInterceptor', ['$injector',
+        function ($injector) {
+            return {
+                responseError: function (response) {
+                    var $q = $injector.get('$q');
+                    var $window = $injector.get('$window');
+                    if (response.status === 401 || response.status === 403) {
+                        $window.location.reload();
+                    }
+                    return $q.reject(response);
+                }
+            };
+        }
+    ]);
+  $httpProvider.interceptors.push('AuthInterceptor');
+
 })
 .run(function(
       $rootScope,
@@ -62,10 +81,10 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
       SystemOverviewService,
       Util,
       Admin,
-      SYSTEM_PAGE_URLS, 
+      SYSTEM_PAGE_URLS,
       EVENTS,
-      SAT5_ROOT_URLS, 
-      ADMIN_PAGE_URLS, 
+      SAT5_ROOT_URLS,
+      ADMIN_PAGE_URLS,
       SYSTEM_DETAILS_PAGE_URLS,
       RHA_INSIGHTS,
       TELEMETRY_URLS,
@@ -95,12 +114,12 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
           $('.table > tbody > tr:eq(' + i + ') > td:eq(' + HEALTH_TABLE_POS + ')'));
       }
     }
-    
+
   } else if (RHA_INSIGHTS.UTILS.isOnSystemDetailsPage()) {
 
-    $('<li id="rha-insights-system-details" class="ng-hide"><a href="/rhn/systems/details/Insights.do?' + 
+    $('<li id="rha-insights-system-details" class="ng-hide"><a href="/rhn/systems/details/Insights.do?' +
       'sid=' + Util.getSidFromUrl(window.location.search) + '">Insights</a></li>').insertAfter(
-        $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last')); 
+        $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li:last'));
     if (RHA_INSIGHTS.UTILS.isOnPage(SYSTEM_DETAILS_PAGE_URLS.INSIGHTS)) {
       $('#spacewalk-content > div.spacewalk-content-nav > ul.nav-tabs-pf > li').
         removeClass('active');
@@ -111,16 +130,16 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
       //Add header
       $('#spacewalk-content').
         append('<h2>Red Hat Insights</h2>');
-      
+
       //Add content
       $('#spacewalk-content').
-        append('<div class="main-content insights-main-content">' + 
-                 '<div ' + 
-                   'class="rule-summaries" ' + 
-                   'loading="{isLoading: true}" ' + 
-                   'machine-id="' + Util.getSidFromUrl(window.location.search) + '" ' + 
-                   'rule="" ' + 
-                   'system="{}"/>' + 
+        append('<div class="main-content insights-main-content">' +
+                 '<div ' +
+                   'class="rule-summaries" ' +
+                   'loading="{isLoading: true}" ' +
+                   'machine-id="' + Util.getSidFromUrl(window.location.search) + '" ' +
+                   'rule="" ' +
+                   'system="{}"/>' +
                '</div>');
 
       Admin.getSystemDetails(Util.getSidFromUrl())
@@ -143,15 +162,15 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
     }
   } else if (RHA_INSIGHTS.UTILS.isOnInsightsOverviewPage()) {
     $('#rha-insights-sidenav').after(
-      '<li class="rha-insights-sidenav-sub">' + 
-        '<ul class="nav nav-pills nav-stacked">' + 
-          '<li id="rha-insights-sat5-systems-overview-tab" class="active">' + 
-            '<a ng-click="SystemOverviewService.switchToOverviewTab()">Overview</a>' + 
+      '<li class="rha-insights-sidenav-sub">' +
+        '<ul class="nav nav-pills nav-stacked">' +
+          '<li id="rha-insights-sat5-systems-overview-tab" class="active">' +
+            '<a ng-click="SystemOverviewService.switchToOverviewTab()">Overview</a>' +
           '</li>' +
-          '<li id="rha-insights-sat5-systems-setup-tab">' + 
-            '<a ng-click="SystemOverviewService.switchToSetupTab()">Setup</a>' + 
-          '</li>' + 
-        '</ul>' + 
+          '<li id="rha-insights-sat5-systems-setup-tab">' +
+            '<a ng-click="SystemOverviewService.switchToSetupTab()">Setup</a>' +
+          '</li>' +
+        '</ul>' +
       '</li>');
   } else if (RHA_INSIGHTS.UTILS.isOnHelpPage()) {
     $('#help-url-list').append('<li><a style="font-size:12pt" href="https://access.redhat.com/insights/info">Red Hat Insights Info</a><br/>Information about Red Hat Insights</li>');
