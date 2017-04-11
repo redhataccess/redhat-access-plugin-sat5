@@ -104,7 +104,7 @@ public class Util {
   }
 
   public static void disableDebugMode() {
-    ch.qos.logback.classic.Logger root = 
+    ch.qos.logback.classic.Logger root =
       (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.INFO);
 
@@ -113,7 +113,7 @@ public class Util {
   }
 
   public static void enableDebugMode() {
-    ch.qos.logback.classic.Logger root = 
+    ch.qos.logback.classic.Logger root =
       (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.DEBUG);
 
@@ -167,7 +167,7 @@ public class Util {
   public static boolean sessionIsValid(String sessionKey) {
     boolean response = false;
     try {
-      Object certificateExpirationDate = 
+      Object certificateExpirationDate =
         SatApi.getCertificateExpirationDate(sessionKey);
       if (certificateExpirationDate != null) {
         response = true;
@@ -218,7 +218,7 @@ public class Util {
     String hostname = getProxyHostname();
     int port = getProxyPort();
     if (hostname != null && !hostname.equals("")) {
-      LOG.debug("Satellite is configured to use a proxy. Host: " + 
+      LOG.debug("Satellite is configured to use a proxy. Host: " +
           hostname + " | Port: " + Integer.toString(port));
       HttpHost proxy = new HttpHost(hostname, port);
       proxyInfo = RequestConfig.custom().setProxy(proxy).build();
@@ -231,7 +231,7 @@ public class Util {
    */
   public static String getProxyHostname() throws ConfigurationException {
     PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.RHN_CONF_LOC); 
+    properties.load(Constants.RHN_CONF_LOC);
     String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
     String hostname = "";
     if (proxyHostColonPort != null) {
@@ -245,7 +245,7 @@ public class Util {
         hostname = proxyHostColonPort;
       }
     }
-    return hostname; 
+    return hostname;
   }
 
   /**
@@ -253,7 +253,7 @@ public class Util {
    */
   public static int getProxyPort() throws ConfigurationException {
     PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.RHN_CONF_LOC); 
+    properties.load(Constants.RHN_CONF_LOC);
     String proxyHostColonPort = properties.getString(Constants.RHN_CONF_HTTP_PROXY);
     int port = -1;
     if (proxyHostColonPort != null) {
@@ -264,7 +264,7 @@ public class Util {
         if (portMatcher.matches()) {
           port = Integer.parseInt(portMatcher.group(2));
         }
-      } 
+      }
     }
     return port;
   }
@@ -275,7 +275,7 @@ public class Util {
   public static HttpClientContext loadProxyCreds() throws ConfigurationException {
     HttpClientContext context = HttpClientContext.create();
     PropertiesConfiguration properties = new PropertiesConfiguration();
-    properties.load(Constants.RHN_CONF_LOC); 
+    properties.load(Constants.RHN_CONF_LOC);
     String proxyUser = properties.getString(Constants.RHN_CONF_HTTP_PROXY_USERNAME);
     String proxyPassword = properties.getString(Constants.RHN_CONF_HTTP_PROXY_PASSWORD);
     if (proxyUser != null && proxyUser != "" && proxyPassword != null && proxyPassword != "") {
@@ -292,11 +292,11 @@ public class Util {
   /**
    * Load rhai.keystore
    */
-  public static SSLConnectionSocketFactory loadSSLKeystore() 
-      throws NoSuchAlgorithmException, 
-             KeyStoreException, 
-             CertificateException, 
-             IOException, 
+  public static SSLConnectionSocketFactory loadSSLKeystore()
+      throws NoSuchAlgorithmException,
+             KeyStoreException,
+             CertificateException,
+             IOException,
              UnrecoverableKeyException,
              InvalidKeySpecException,
              KeyManagementException {
@@ -327,7 +327,7 @@ public class Util {
     SSLContext sslcontext = SSLContexts.custom()
             .loadKeyMaterial(keyStore, password)
 						.loadTrustMaterial(
-              new File(Constants.SSL_KEY_STORE_LOC), 
+              new File(Constants.SSL_KEY_STORE_LOC),
               Constants.SSL_KEY_STORE_PW.toCharArray(),
               new TrustSelfSignedStrategy())
             .build();
@@ -343,5 +343,11 @@ public class Util {
     ResponseBuilder response = Response.status(code);
     response.entity(body);
     return response.build();
+  }
+
+  public static String buildJsonMessage(String message){
+    JSONObject obj = new JSONObject();
+    obj.put("message", message);
+    return obj.toString();
   }
 }
