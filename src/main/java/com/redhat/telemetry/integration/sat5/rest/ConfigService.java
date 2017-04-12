@@ -201,7 +201,13 @@ public class ConfigService {
         } else if (!sys.getEnabled() && packageIsInstalled) { //remove installed pieces
           LOG.debug("Uninstalling redhat-access-insights from system... SystemID: " + 
               sys.getId() + " | PackageId: " + installedPackageId);
-          system.unregister();
+          try {
+              system.unregister();
+          } catch (NotFoundException e){
+                //This is a valid response if the insights rpm was manually installed
+                //but the client system was not registered to Insights service
+                LOG.debug("System not found in Portal inventory, assuming it was never registered...");
+          }
           ArrayList<Integer> packageIds = new ArrayList<Integer>();
           packageIds.add(installedPackageId);
           Integer actionId = 
