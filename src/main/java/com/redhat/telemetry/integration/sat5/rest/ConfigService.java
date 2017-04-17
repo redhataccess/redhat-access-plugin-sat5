@@ -27,6 +27,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jboss.resteasy.spi.NotFoundException;
+
 import com.redhat.telemetry.integration.sat5.json.Config;
 import com.redhat.telemetry.integration.sat5.json.Connection;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
