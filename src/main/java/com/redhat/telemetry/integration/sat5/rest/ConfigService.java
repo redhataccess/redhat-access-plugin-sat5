@@ -188,8 +188,7 @@ public class ConfigService {
         Integer installedPackageId = system.getPackageId();
         ScheduleHandler scheduleHandler = new ScheduleHandler();
         if (sys.getEnabled() && !packageIsInstalled) {
-          HashMap<String, Integer> channelLabels = buildListOfChannelsWithRPM(sessionKey, rhaiPackages);
-          system.findAvailablePackageId(channelLabels);
+          system.findLatestPackageId(propertiesHandler.getRPMName());
           Integer availablePackageId = system.getAvailablePackageId();
           LOG.debug("Installing redhat-access-insights on system... SystemID: " + 
               sys.getId() + " | PackageId: " + availablePackageId);
