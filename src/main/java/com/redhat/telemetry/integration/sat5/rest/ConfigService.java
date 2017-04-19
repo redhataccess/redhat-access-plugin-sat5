@@ -27,6 +27,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jboss.resteasy.spi.NotFoundException;
+
 import com.redhat.telemetry.integration.sat5.json.Config;
 import com.redhat.telemetry.integration.sat5.json.Connection;
 import com.redhat.telemetry.integration.sat5.json.PortalResponse;
@@ -186,8 +188,7 @@ public class ConfigService {
         Integer installedPackageId = system.getPackageId();
         ScheduleHandler scheduleHandler = new ScheduleHandler();
         if (sys.getEnabled() && !packageIsInstalled) {
-          HashMap<String, Integer> channelLabels = buildListOfChannelsWithRPM(sessionKey, rhaiPackages);
-          system.findAvailablePackageId(channelLabels);
+          system.findLatestPackageId(propertiesHandler.getRPMName());
           Integer availablePackageId = system.getAvailablePackageId();
           LOG.debug("Installing redhat-access-insights on system... SystemID: " + 
               sys.getId() + " | PackageId: " + availablePackageId);

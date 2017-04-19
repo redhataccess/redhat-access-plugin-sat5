@@ -22,11 +22,11 @@ import com.redhat.telemetry.integration.sat5.portal.InsightsApiUtils;
 import com.redhat.telemetry.integration.sat5.util.Constants;
 import com.redhat.telemetry.integration.sat5.util.ScheduleHandler;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SatelliteSystem {
-  //private Logger LOG = LoggerFactory.getLogger(SatelliteSystem.class);
+  private Logger LOG = LoggerFactory.getLogger(SatelliteSystem.class);
 
   private String sessionKey;
   private Integer systemId;
@@ -64,6 +64,23 @@ public class SatelliteSystem {
       }
     }
   }
+  
+  @SuppressWarnings("unchecked")
+  public void findLatestPackageId(
+    String packageName) throws ConfigurationException {
+    Object[] packages = 
+      SatApi.listLatestAvailablePackage(this.sessionKey, this.systemId, packageName);
+    LOG.debug("Latest packages " + packages);  
+    if ((packages != null) && (packages.length > 0)) { 
+        //We expect only one entry
+        HashMap<Object, Object> pMap = (HashMap<Object, Object>) packages[0];
+        HashMap<Object, Object> p = (HashMap<Object, Object>)pMap.get("package");
+        LOG.debug("Latest Insights package is: " + p);
+        Integer pId = (Integer)p.get("id");
+        this.availablePackageId = pId;
+    }
+  }
+  
 
   public boolean isPackageInstalled() {
     boolean response = false;

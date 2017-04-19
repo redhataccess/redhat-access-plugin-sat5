@@ -12,9 +12,11 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import com.redhat.telemetry.integration.sat5.util.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SatApi {
-
+  private static Logger LOG = LoggerFactory.getLogger(SatApi.class);
   private final static String SAT5_RPC_API_URL = 
     "http://127.0.0.1/rpc/api";
 
@@ -92,6 +94,15 @@ public class SatApi {
       (Object[]) makeRequest("system.listAllInstallablePackages", params);
     return response;
   }
+  
+  public static Object[]
+  listLatestAvailablePackage(String sessionKey, int serverId, String packageName) {
+    Object[] params = new Object[] {sessionKey, serverId,packageName};
+    Object[] response = 
+      (Object[]) makeRequest("system.listLatestAvailablePackage", params);
+    return response;
+  }
+  
 
   public static Object[]
   listInProgressSystems(String sessionKey, int actionId) {
@@ -418,6 +429,7 @@ public class SatApi {
       response = satClient.execute(method, params);
     } catch (XmlRpcException e) {
       e.printStackTrace();
+      LOG.debug("Sat API Request failed : " + e);
     }
     return response;
   }
