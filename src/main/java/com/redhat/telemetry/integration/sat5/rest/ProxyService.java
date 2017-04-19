@@ -217,7 +217,8 @@ public class ProxyService {
       @PathParam("path") String path,
       @HeaderParam("user-agent") String userAgent,
       @HeaderParam("systemid") String systemId,
-      @CookieParam("pxt-session-cookie") String user) {
+      @CookieParam("pxt-session-cookie") String user,
+      byte[] body) {
     try {
       return proxy(
           path,
@@ -226,7 +227,7 @@ public class ProxyService {
           request,
           null,
           MediaType.APPLICATION_JSON,
-          null,
+          body,
           userAgent,
           systemId);
     } catch (NotFoundException e) {
@@ -262,7 +263,7 @@ public class ProxyService {
                  InvalidKeySpecException,
                  InterruptedException {
     LOG.debug("checking if request originated from a valid gui session...");
-    if (Util.sessionIsValid(user)) {
+    if ((user != null) && (Util.sessionIsValid(user))) {
       LOG.debug("valid session");
     } else {
       LOG.debug("invalid session. Check for systemid header");
@@ -330,6 +331,16 @@ public class ProxyService {
         }
         path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
         LOG.debug("Path with branchId query param: " + path);
+      }else if (pathTypeInt.equals(Constants.UPLOADS_PATH)) {
+         //we need to wing it for upload test - this smell is caused by the design
+         //of the upload test - should have used json
+         //the length check is so that we skip creating huge strings when it an actual upload
+         boolean isUploadTest = (body != null) && (body.length==9) && 
+               new String(body).equals("test=test");
+         if (isUploadTest) {
+              requestType = MediaType.APPLICATION_FORM_URLENCODED ;
+         }
+         
       }
     }
     LOG.debug("Forwarding request to portal.");
