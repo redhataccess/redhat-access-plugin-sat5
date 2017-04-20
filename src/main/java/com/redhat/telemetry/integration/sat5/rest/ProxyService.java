@@ -112,7 +112,7 @@ public class ProxyService {
   @POST
   @Encoded
   @Path("/{path: .*}")
-  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Consumes({MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_FORM_URLENCODED})
   @Produces(MediaType.APPLICATION_JSON)
   public Response proxyRootPostMultiPart(
       @Context Request request,
@@ -135,7 +135,7 @@ public class ProxyService {
           userAgent,
           systemId);
     } catch (Exception e) {
-      LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
+      LOG.error("Exception in ProxyService POST /* (Content-Type: " + contentType, e);
       throw new WebApplicationException(
           new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
@@ -331,17 +331,8 @@ public class ProxyService {
         }
         path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
         LOG.debug("Path with branchId query param: " + path);
-      }else if (pathTypeInt.equals(Constants.UPLOADS_PATH)) {
-         //we need to wing it for upload test - this smell is caused by the design
-         //of the upload test - should have used json
-         //the length check is so that we skip creating huge strings when it an actual upload
-         boolean isUploadTest = (body != null) && (body.length==9) && 
-               new String(body).equals("test=test");
-         if (isUploadTest) {
-              requestType = MediaType.APPLICATION_FORM_URLENCODED ;
-         }
-         
       }
+        
     }
     LOG.debug("Forwarding request to portal.");
     PortalResponse portalResponse =
