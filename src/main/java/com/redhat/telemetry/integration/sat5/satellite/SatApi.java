@@ -429,7 +429,7 @@ public class SatApi {
       response = satClient.execute(method, params);
     } catch (XmlRpcException e) {
       e.printStackTrace();
-      LOG.debug("Sat API Request failed : " + e);
+      LOG.debug("Sat API Request failed : "+ method + ", : " + e);
     }
     return response;
   }

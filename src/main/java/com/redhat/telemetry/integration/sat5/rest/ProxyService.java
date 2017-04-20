@@ -112,7 +112,7 @@ public class ProxyService {
   @POST
   @Encoded
   @Path("/{path: .*}")
-  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Consumes({MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_FORM_URLENCODED})
   @Produces(MediaType.APPLICATION_JSON)
   public Response proxyRootPostMultiPart(
       @Context Request request,
@@ -135,7 +135,7 @@ public class ProxyService {
           userAgent,
           systemId);
     } catch (Exception e) {
-      LOG.error("Exception in ProxyService POST /* (Content-Type: Multipart-form)", e);
+      LOG.error("Exception in ProxyService POST /* (Content-Type: " + contentType, e);
       throw new WebApplicationException(
           new Throwable(Constants.INTERNAL_SERVER_ERROR_MESSAGE),
           Response.Status.INTERNAL_SERVER_ERROR);
@@ -217,7 +217,8 @@ public class ProxyService {
       @PathParam("path") String path,
       @HeaderParam("user-agent") String userAgent,
       @HeaderParam("systemid") String systemId,
-      @CookieParam("pxt-session-cookie") String user) {
+      @CookieParam("pxt-session-cookie") String user,
+      byte[] body) {
     try {
       return proxy(
           path,
@@ -226,7 +227,7 @@ public class ProxyService {
           request,
           null,
           MediaType.APPLICATION_JSON,
-          null,
+          body,
           userAgent,
           systemId);
     } catch (NotFoundException e) {
@@ -262,7 +263,7 @@ public class ProxyService {
                  InvalidKeySpecException,
                  InterruptedException {
     LOG.debug("checking if request originated from a valid gui session...");
-    if (Util.sessionIsValid(user)) {
+    if ((user != null) && (Util.sessionIsValid(user))) {
       LOG.debug("valid session");
     } else {
       LOG.debug("invalid session. Check for systemid header");
@@ -331,6 +332,7 @@ public class ProxyService {
         path = path + prepend + Constants.BRANCH_ID_KEY + "=" + branchId;
         LOG.debug("Path with branchId query param: " + path);
       }
+        
     }
     LOG.debug("Forwarding request to portal.");
     PortalResponse portalResponse =
