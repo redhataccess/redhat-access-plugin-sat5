@@ -72,6 +72,16 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
         }
     ]);
   $httpProvider.interceptors.push('AuthInterceptor');
+  $provide.factory('httpRequestInterceptor', function () {
+    return {
+      request: function (config) {
+        //This is dirty, but there is no other way.
+        config.headers['satellite_user'] = $('nav.navbar-pf > div.navbar-collapse > ul.navbar-nav > li > a[href="/rhn/account/UserDetails.do"]').text().trim();
+        return config;
+      }
+    };
+  });
+  $httpProvider.interceptors.push('httpRequestInterceptor');
 
 })
 .run(function(
