@@ -89,11 +89,13 @@ public class ProxyService {
       @Context UriInfo uriInfo,
       @HeaderParam("user-agent") String userAgent,
       @HeaderParam("systemid") String systemId,
-      @CookieParam("pxt-session-cookie") String user) {
+      @HeaderParam("satellite_user") String userID,
+      @CookieParam("pxt-session-cookie") String sessionCookie) {
     try {
       return proxy(
           "",
-          user,
+          sessionCookie,
+          userID,
           uriInfo,
           request,
           null,
@@ -121,12 +123,14 @@ public class ProxyService {
       @HeaderParam("Content-Type") String contentType,
       @HeaderParam("user-agent") String userAgent,
       @HeaderParam("systemid") String systemId,
-      @CookieParam("pxt-session-cookie") String user,
+      @HeaderParam("satellite_user") String userID,
+      @CookieParam("pxt-session-cookie") String sessionCookie,
       byte[] body) {
     try {
       return proxy(
           path,
-          user,
+          sessionCookie,
+          userID,
           uriInfo,
           request,
           contentType,
@@ -153,11 +157,13 @@ public class ProxyService {
       @PathParam("path") String path,
       @HeaderParam("user-agent") String userAgent,
       @HeaderParam("systemid") String systemId,
-      @CookieParam("pxt-session-cookie") String user) {
+      @HeaderParam("satellite_user") String userID,
+      @CookieParam("pxt-session-cookie") String sessionCookie) {
     try {
       return proxy(
           path,
-          user,
+          sessionCookie,
+          userID,
           uriInfo,
           request,
           null,
@@ -182,14 +188,16 @@ public class ProxyService {
       @Context Request request,
       @Context UriInfo uriInfo,
       @PathParam("path") String path,
-      @CookieParam("pxt-session-cookie") String user,
+      @CookieParam("pxt-session-cookie") String sessionCookie,
       @HeaderParam("systemid") String systemId,
+      @HeaderParam("satellite_user") String userID,
       @HeaderParam("user-agent") String userAgent,
       byte[] body) {
     try {
       return proxy(
           path,
-          user,
+          sessionCookie,
+          userID,
           uriInfo,
           request,
           MediaType.APPLICATION_JSON,
@@ -217,12 +225,14 @@ public class ProxyService {
       @PathParam("path") String path,
       @HeaderParam("user-agent") String userAgent,
       @HeaderParam("systemid") String systemId,
-      @CookieParam("pxt-session-cookie") String user,
+      @HeaderParam("satellite_user") String userID,
+      @CookieParam("pxt-session-cookie") String sessionCookie,
       byte[] body) {
     try {
       return proxy(
           path,
-          user,
+          sessionCookie,
+          userID,
           uriInfo,
           request,
           null,
@@ -244,7 +254,8 @@ public class ProxyService {
   //@Loggable
   private Response proxy(
       String path,
-      String user,
+      String sessionCookie,
+      String userID,
       UriInfo uriInfo,
       Request request,
       String requestType,
@@ -263,7 +274,7 @@ public class ProxyService {
                  InvalidKeySpecException,
                  InterruptedException {
     LOG.debug("checking if request originated from a valid gui session...");
-    if ((user != null) && (Util.sessionIsValid(user))) {
+    if ((sessionCookie != null) && (Util.sessionIsValid(sessionCookie,userID))) {
       LOG.debug("valid session");
     } else {
       LOG.debug("invalid session. Check for systemid header");
@@ -295,11 +306,11 @@ public class ProxyService {
     LOG.debug("Request is pass through? " + isPassThrough);
 
     //If user is set, assume call originated from satellite, not uploader
-    if ((user != null) && (!isPassThrough)) {
+    if ((sessionCookie != null) && (!isPassThrough)) {
       LOG.debug("Creating subset hash.");
-      leafIds = SatApi.getUsersSystemIDs(user);
+      leafIds = SatApi.getUsersSystemIDs(sessionCookie);
       subsetHash = createSubsetHash(leafIds, branchId);
-      LOG.debug("User: " + user);
+      LOG.debug("User: " + sessionCookie);
       LOG.debug("Subset Hash: " + subsetHash);
     }
     path = addQueryToPath(path, uriInfo.getRequestUri().toString());
@@ -316,7 +327,7 @@ public class ProxyService {
         String machineId = InsightsApiUtils.leafIdToMachineId(leafId);
         path = Constants.SYSTEMS_URL + machineId + "/" + Constants.REPORTS_URL;
         LOG.debug("MachineID Path: " + path);
-      } else if (user != null &&
+      } else if (sessionCookie != null &&
           !pathTypeInt.equals(Constants.RULES_PATH) &&
           !pathTypeInt.equals(Constants.ACKS_PATH)) { //TODO: whitelist subset paths instead of blacklist
         path = addSubsetToPath(path, subsetHash);
@@ -515,6 +526,11 @@ public class ProxyService {
    * to build the subset ID.
    */
   private String createSubsetHash(ArrayList<Integer> leafIds, String branchId) {
+    if (leafIds.isEmpty()){
+         //We make a single entry subset that  represents a "NULL" subset and will never match any systems
+         //We need this because an empty machine ID list causes a 400 HTTP error code
+         leafIds.add(-1);   
+    }
     Collections.sort(leafIds);
     return branchId + "__" + DigestUtils.sha1Hex(StringUtils.join(leafIds.toArray()));
   }

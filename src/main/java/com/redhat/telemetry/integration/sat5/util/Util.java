@@ -104,8 +104,8 @@ public class Util {
   }
 
   public static void disableDebugMode() {
-    ch.qos.logback.classic.Logger root =
-      (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+        .getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.INFO);
 
     org.apache.log4j.Logger log4jRoot = org.apache.log4j.LogManager.getRootLogger();
@@ -113,8 +113,8 @@ public class Util {
   }
 
   public static void enableDebugMode() {
-    ch.qos.logback.classic.Logger root =
-      (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+        .getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.DEBUG);
 
     org.apache.log4j.Logger log4jRoot = org.apache.log4j.LogManager.getRootLogger();
@@ -162,20 +162,26 @@ public class Util {
   }
 
   /**
-   * Check if a user is the satellite administrator
+   * Check if the session is valid for this user
    */
-  public static boolean sessionIsValid(String sessionKey) {
-    boolean response = false;
+  public static boolean sessionIsValid(String sessionKey, String userID) {
+
     try {
-      Object certificateExpirationDate =
-        SatApi.getCertificateExpirationDate(sessionKey);
-      if (certificateExpirationDate != null) {
-        response = true;
+      /*
+       * We don't care what the roles are.
+       * The listUserRoles will return without error if  either sessionKey is valid and belongs to
+       * userID , or sessionKey belongs to a user with the right permission to list roles. Either
+       * case is adequate to determine that sessionKey is a valid key
+       */
+      Object roles = SatApi.listUserRoles(sessionKey, userID);
+      if (roles == null) {
+        return false;
       }
+      return true;
     } catch (Exception e) {
-      response = false;
+      return false;
     }
-    return response;
+
   }
 
   /**
@@ -218,8 +224,7 @@ public class Util {
     String hostname = getProxyHostname();
     int port = getProxyPort();
     if (hostname != null && !hostname.equals("")) {
-      LOG.debug("Satellite is configured to use a proxy. Host: " +
-          hostname + " | Port: " + Integer.toString(port));
+      LOG.debug("Satellite is configured to use a proxy. Host: " + hostname + " | Port: " + Integer.toString(port));
       HttpHost proxy = new HttpHost(hostname, port);
       proxyInfo = RequestConfig.custom().setProxy(proxy).build();
     }
@@ -280,8 +285,7 @@ public class Util {
     String proxyPassword = properties.getString(Constants.RHN_CONF_HTTP_PROXY_PASSWORD);
     if (proxyUser != null && proxyUser != "" && proxyPassword != null && proxyPassword != "") {
       CredentialsProvider credsProvider = new BasicCredentialsProvider();
-      credsProvider.setCredentials(
-          new AuthScope(getProxyHostname(), getProxyPort()),
+      credsProvider.setCredentials(new AuthScope(getProxyHostname(), getProxyPort()),
           new UsernamePasswordCredentials(proxyUser, proxyPassword));
       context.setCredentialsProvider(credsProvider);
       LOG.debug("Proxyuser: " + proxyUser);
@@ -292,17 +296,11 @@ public class Util {
   /**
    * Load rhai.keystore
    */
-  public static SSLConnectionSocketFactory loadSSLKeystore()
-      throws NoSuchAlgorithmException,
-             KeyStoreException,
-             CertificateException,
-             IOException,
-             UnrecoverableKeyException,
-             InvalidKeySpecException,
-             KeyManagementException {
+  public static SSLConnectionSocketFactory loadSSLKeystore() throws NoSuchAlgorithmException, KeyStoreException,
+      CertificateException, IOException, UnrecoverableKeyException, InvalidKeySpecException, KeyManagementException {
     LOG.debug("Loading rhai.keystore");
 
-		Security.addProvider(new BouncyCastleProvider());
+    Security.addProvider(new BouncyCastleProvider());
 
     //read cert from manifest.zip
     String keyAndCert = CertAuth.getInstance().getKeyAndCert();
@@ -311,31 +309,24 @@ public class Util {
 
     //ssl mutual auth
     PEMReader reader = new PEMReader(new StringReader(keyAndCert));
-		X509Certificate[] chain = new X509Certificate[1];
-		chain[0] = (X509Certificate) reader.readObject();
-		KeyPair keyPair = (KeyPair) reader.readObject();
+    X509Certificate[] chain = new X509Certificate[1];
+    chain[0] = (X509Certificate) reader.readObject();
+    KeyPair keyPair = (KeyPair) reader.readObject();
 
-		KeyStore.PrivateKeyEntry pke =
-      new KeyStore.PrivateKeyEntry(keyPair.getPrivate(), chain);
+    KeyStore.PrivateKeyEntry pke = new KeyStore.PrivateKeyEntry(keyPair.getPrivate(), chain);
 
     KeyStore keyStore = KeyStore.getInstance("PKCS12");
     char[] password = "xY28DXepvBeYGHT3gPpc".toCharArray();
     keyStore.load(null, password);
-		keyStore.setEntry("insights", pke, new KeyStore.PasswordProtection(password));
+    keyStore.setEntry("insights", pke, new KeyStore.PasswordProtection(password));
     //end ssl mutual auth
 
-    SSLContext sslcontext = SSLContexts.custom()
-            .loadKeyMaterial(keyStore, password)
-						.loadTrustMaterial(
-              new File(Constants.SSL_KEY_STORE_LOC),
-              Constants.SSL_KEY_STORE_PW.toCharArray(),
-              new TrustSelfSignedStrategy())
-            .build();
-    SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-            sslcontext,
-						new String[] { "TLSv1" },
-            null,
-            SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+    SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(keyStore, password)
+        .loadTrustMaterial(new File(Constants.SSL_KEY_STORE_LOC), Constants.SSL_KEY_STORE_PW.toCharArray(),
+            new TrustSelfSignedStrategy())
+        .build();
+    SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1" }, null,
+        SSLConnectionSocketFactory.getDefaultHostnameVerifier());
     return sslsf;
   }
 
@@ -345,7 +336,7 @@ public class Util {
     return response.build();
   }
 
-  public static String buildJsonMessage(String message){
+  public static String buildJsonMessage(String message) {
     JSONObject obj = new JSONObject();
     obj.put("message", message);
     return obj.toString();
