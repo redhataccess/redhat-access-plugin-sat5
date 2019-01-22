@@ -346,6 +346,7 @@ public class ProxyService {
         
     }
     LOG.debug("Forwarding request to portal.");
+    LOG.debug("Request method is " +  request.getMethod());
     PortalResponse portalResponse =
       client.makeRequest(
           request.getMethod(),

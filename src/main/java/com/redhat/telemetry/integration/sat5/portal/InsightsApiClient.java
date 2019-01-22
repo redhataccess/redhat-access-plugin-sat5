@@ -75,10 +75,10 @@ public class InsightsApiClient {
 
     HttpRequestBase request;
     String fullPath = this.portalUrl + path;
-
-    if (method == Constants.METHOD_GET) {
+    LOG.debug("HTTP method is: " + requestContentType);
+    if (Constants.METHOD_GET.equals(method)) {
       request = new HttpGet(fullPath);
-    } else if (method == Constants.METHOD_POST) {
+    } else if (Constants.METHOD_POST.equals(method)) {
         LOG.debug("content type: " + requestContentType);
         request = new HttpPost(fullPath);
         request.addHeader(HttpHeaders.CONTENT_TYPE, requestContentType);
@@ -89,7 +89,7 @@ public class InsightsApiClient {
             ((HttpPost) request).setEntity(new ByteArrayEntity((byte[]) requestBody));
           }
         }
-    } else if (method == Constants.METHOD_DELETE) {
+    } else if (Constants.METHOD_DELETE.equals(method)) {
       request = new HttpDelete(fullPath);
     } else {
       throw new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
