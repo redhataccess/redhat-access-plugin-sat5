@@ -32,6 +32,7 @@ public class SmartProxyApplication extends Application {
       try {
         CertAuth certAuth = CertAuth.getInstance();
         certAuth.loadCertFromManifest();
+        LOG.debug("Manifest certificate loaded");
       } catch (Exception e) {
         LOG.error("Unable to load certificate!", e);
       }
