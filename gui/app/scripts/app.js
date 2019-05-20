@@ -33,7 +33,7 @@ angular.module('sat5TelemetryApp', ['insights', 'ui.indeterminate', 'ui.ace'])
   InsightsConfigProvider.setGetReportsErrorCallback(
     function(data, status, headers, config) {
       if (status === 404) {
-        return '<p>This system is not registered with Red Hat Insights. First install the redhat-access-insights RPM using the <a href="/rhn/systems/Insights.do#/setup">Setup page</a>. Then register this system with Red Hat Insights by following <a href="https://access.redhat.com/insights/getting-started/satellite/5/#register">these instructions</a>.</p>';
+        return '<p>This system is not registered with Red Hat Insights. First install the insights-client RPM using the <a href="/rhn/systems/Insights.do#/setup">Setup page</a>. Then register this system with Red Hat Insights by following <a href="https://access.redhat.com/insights/getting-started/satellite/5/#register">these instructions</a>.</p>';
       }
     });
 

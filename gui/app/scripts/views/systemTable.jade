@@ -1,5 +1,5 @@
 div.page-summary
-  p Select the systems which will report data to Red Hat Insights. After clicking apply, the redhat-access-insights RPM will be installed on the newly selected system. Deselecting a system with the RPM already installed will unregister the system from Red Hat Insights and schedule the RPM to be uninstalled.
+  p Select the systems which will report data to Red Hat Insights. After clicking apply, the insights-client RPM will be installed on the newly selected system. Deselecting a system with the RPM already installed will unregister the system from Red Hat Insights and schedule the RPM to be uninstalled.
 div(ng-if='getSystems().length < 1 && !loadingSystems')
   strong No systems are registered.
 div(ng-if='getSystems().length < 1 && loadingSystems')

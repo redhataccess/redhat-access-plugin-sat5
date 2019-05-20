@@ -190,7 +190,7 @@ public class ConfigService {
         if (sys.getEnabled() && !packageIsInstalled) {
           system.findLatestPackageId(propertiesHandler.getRPMName());
           Integer availablePackageId = system.getAvailablePackageId();
-          LOG.debug("Installing redhat-access-insights on system... SystemID: " + 
+          LOG.debug("Installing insights-client on system... SystemID: " + 
               sys.getId() + " | PackageId: " + availablePackageId);
           //install the package
           ArrayList<Integer> packageIds = new ArrayList<Integer>();
@@ -200,7 +200,7 @@ public class ConfigService {
           LOG.debug("Install action id for system (" + sys.getId() + "): " + actionId);
           scheduleHandler.add(sys.getId(), actionId, Constants.INSTALL_SCHEDULED);
         } else if (!sys.getEnabled() && packageIsInstalled) { //remove installed pieces
-          LOG.debug("Uninstalling redhat-access-insights from system... SystemID: " + 
+          LOG.debug("Uninstalling insights-client from system... SystemID: " + 
               sys.getId() + " | PackageId: " + installedPackageId);
           try {
               system.unregister();

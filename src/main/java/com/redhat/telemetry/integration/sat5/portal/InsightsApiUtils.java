@@ -56,7 +56,7 @@ public class InsightsApiUtils {
     } else if (getIdResponse.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
       throw new NotFoundException(
           "Machine ID not found. Verify the system has been registered with " + 
-          "'redhat-access-insights --register'");
+          "'insights-client --register'");
     } else {
       throw new InternalServerErrorException(
           "Unable to retrieve Machine ID from Red Hat Insights API.");
@@ -65,7 +65,7 @@ public class InsightsApiUtils {
     if (machineId == null || machineId.equals("")) {
       throw new NotFoundException(
           "Machine ID not found. Verify the system has been registered with " + 
-          "'redhat-access-insights --register'");
+          "'insights-client --register'");
     }
     return machineId;
   }
