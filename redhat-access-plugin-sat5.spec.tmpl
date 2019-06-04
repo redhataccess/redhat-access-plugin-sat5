@@ -122,9 +122,8 @@ mkdir -p %{buildroot}/tmp/rhi-manifest/
 
 %post
 # redhat-access-insights has been renamed to insights-client
-PROP=/etc/redhat-access/redhat-access-insights.properties
-if grep -q '\(rpmname *= *\)redhat-access-insights' "$PROP" ; then
-    sed -i.rpmold 's/\(rpmname *= *\)redhat-access-insights/\1insights-client/' "$PROP"
+if grep -q '\(rpmname *= *\)redhat-access-insights' /etc/redhat-access/redhat-access-insights.properties ; then
+    sed -i.rpmold 's/\(rpmname *= *\)redhat-access-insights/\1insights-client/' /etc/redhat-access/redhat-access-insights.properties
 fi
 
 %changelog
