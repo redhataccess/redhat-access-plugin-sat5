@@ -65,7 +65,7 @@ public class SatApi {
 
   public static int
   schedulePackageInstall(String sessionKey, int serverId, ArrayList<Integer> packageIds, int delay) {
-    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis() + delay)};
+    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis() + delay), true};
     int response = 
       (Integer) makeRequest("system.schedulePackageInstall", params);
     return response;
@@ -73,7 +73,7 @@ public class SatApi {
 
   public static int
   schedulePackageRemove(String sessionKey, int serverId, ArrayList<Integer> packageIds) {
-    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis())};
+    Object[] params = new Object[] {sessionKey, serverId, packageIds, new Date(System.currentTimeMillis()), true};
     int response = 
       (Integer) makeRequest("system.schedulePackageRemove", params);
     return response;
