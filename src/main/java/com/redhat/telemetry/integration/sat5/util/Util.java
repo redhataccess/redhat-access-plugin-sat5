@@ -40,6 +40,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -325,7 +326,9 @@ public class Util {
         .loadTrustMaterial(new File(Constants.SSL_KEY_STORE_LOC), Constants.SSL_KEY_STORE_PW.toCharArray(),
             new TrustSelfSignedStrategy())
         .build();
-    SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1" }, null,
+    String[] protocols = new String[] { System.getProperty("jdk.tls.client.protocols", "TLSv1") };
+    LOG.debug("Protocols: " + Arrays.toString(protocols));
+    SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, protocols, null,
         SSLConnectionSocketFactory.getDefaultHostnameVerifier());
     return sslsf;
   }
